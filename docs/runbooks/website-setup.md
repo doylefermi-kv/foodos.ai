@@ -14,6 +14,10 @@ code is already written and runs locally with no accounts at all.
 > issue comment. Secrets live in exactly two places — Cloudflare Pages encrypted
 > environment variables, and GitHub Actions secrets.
 
+**Deploy path:** GitHub Actions only (your call, 2026-10-13). The Cloudflare Pages Git
+integration is deliberately **not** connected — running both would build and deploy the
+site twice on every push. Everything below assumes Actions owns deploys.
+
 ---
 
 ## Before you start
@@ -23,17 +27,23 @@ You will need:
 - A Google account that can create a Google Cloud project (any Workspace or personal account).
 - A Cloudflare account, with `foodos.ai` already registered. If the domain is registered
   elsewhere you will need access to change nameservers at that registrar.
-- Admin access to the GitHub repo (only for step 9, the optional CI deploy).
+- **Admin access to the GitHub repo** — required, not optional: the deploy runs there
+  (step 7) and only an admin can add repository secrets.
 
 Keep a scratch notepad open. You will collect five values along the way:
 
 | # | Value | From step | Where it ends up |
 |---|---|---|---|
-| 1 | `GOOGLE_SHEET_ID` | 1 | Pages secret |
-| 2 | `GOOGLE_SERVICE_ACCOUNT_EMAIL` | 2 | Pages secret |
-| 3 | `GOOGLE_PRIVATE_KEY` | 2 | Pages secret |
-| 4 | `TURNSTILE_SITE_KEY` (public) | 5 | Pages build variable |
-| 5 | `TURNSTILE_SECRET_KEY` | 5 | Pages secret |
+| 1 | `GOOGLE_SHEET_ID` | 1 | Pages secret (step 6) |
+| 2 | `GOOGLE_SERVICE_ACCOUNT_EMAIL` | 2 | Pages secret (step 6) |
+| 3 | `GOOGLE_PRIVATE_KEY` | 2 | Pages secret (step 6) |
+| 4 | `TURNSTILE_SITE_KEY` (public) | 5 | **GitHub** Actions variable (step 7) |
+| 5 | `TURNSTILE_SECRET_KEY` | 5 | Pages secret (step 6) |
+
+Value 4 is the odd one out on purpose. It is compiled into the browser bundle at build
+time, and the build now happens in GitHub Actions, not on Cloudflare — so it belongs to
+the repo, not to the Pages project. The other four are read at runtime by the Function,
+which runs on Cloudflare.
 
 Delete the notepad when you are done.
 
@@ -122,35 +132,28 @@ This is the step that is most often missed. Without it the Sheets API returns
 
 ---
 
-## Step 4 — Create the Cloudflare Pages project (5 min)
+## Step 4 — Create the Cloudflare Pages project (2 min)
 
-Two ways to do this. **Option A is recommended** — it gives you per-PR preview
-deploys for free and means CI never needs a Cloudflare token.
-
-### Option A — connect the Git repo (recommended)
+GitHub Actions builds the site and uploads the finished `dist/` to Cloudflare. So the
+Pages project is a **Direct Upload** project: Cloudflare never clones the repo, never
+runs a build, and never needs to know where in the repo the site lives.
 
 1. Cloudflare dashboard → **Workers & Pages** → **Create** → **Pages** →
-   **Connect to Git**. Authorise GitHub and pick the `foodos` repo.
-2. Build settings:
+   **Upload assets** (this is the direct-upload path; it is *not* "Connect to Git").
+2. Project name: **`foodos-website`** — exactly this. The workflow passes
+   `--project-name=foodos-website`, so a different name here means a failed deploy.
+3. Cloudflare asks for an initial upload before it will create the project. Drag in any
+   throwaway file, or a zip of `website/dist` if you have built locally. It is replaced
+   by the first real deploy in step 8 and nothing depends on it.
+4. **Do not connect a Git repository** to this project, now or later. The `deploy` job in
+   `.github/workflows/website.yml` is the only thing that should ever deploy it.
 
-   | Setting | Value |
-   |---|---|
-   | Project name | `foodos-website` |
-   | Production branch | `main` |
-   | Framework preset | Vite |
-   | Build command | `npm run build` |
-   | Build output directory | `dist` |
-   | **Root directory** | `website` |
+> **Why not let Cloudflare build it?** Connecting Git would work, but then two systems
+> deploy on every push, each with its own build and its own idea of the environment
+> variables. One deploy path, one build, one log to read when something breaks.
 
-   The root directory matters: the site is a subdirectory of the repo, not the root.
-3. Do **not** deploy yet — click through to the project, then go to step 5 and add the
-   environment variables first. The first build will fail without them, which is
-   harmless but confusing.
-
-### Option B — direct upload via CI
-
-Skip this unless you specifically want GitHub Actions to own deploys. Create the
-project as **Direct Upload**, name it `foodos-website`, then follow step 9.
+**Verify:** *Workers & Pages* lists `foodos-website`, and its **Settings → Builds** says
+the project has no Git connection.
 
 ---
 
@@ -159,7 +162,9 @@ project as **Direct Upload**, name it `foodos-website`, then follow step 9.
 1. Cloudflare dashboard → **Turnstile** → **Add widget**.
    - Widget name: `foodos-website`
    - Hostnames: `foodos.ai`, `www.foodos.ai`, and `foodos-website.pages.dev`
-     (the last one is needed for preview deploys to pass verification)
+     (the last one is needed for preview deploys to pass verification — Turnstile
+     treats a listed hostname as covering its subdomains, so the per-branch
+     `<branch>.foodos-website.pages.dev` preview URLs are included)
    - Widget mode: **Managed**
 2. **Create**. You get two keys:
    - **Site key** (public, starts `0x4AAAA…`) → **value 4**
@@ -170,19 +175,14 @@ key is verified server-side only and must stay a secret.
 
 ---
 
-## Step 6 — Add environment variables to Pages (5 min)
+## Step 6 — Add the runtime secrets to Pages (5 min)
 
-Pages project → **Settings** → **Environment variables**. There are two sections and
-you must fill in **both Production and Preview**, otherwise preview deploys will 502.
+These four are read by the Function at request time, on Cloudflare. They are the only
+things you set on the Pages project.
 
-### Variables (plaintext — used at build time)
-
-| Name | Production | Preview |
-|---|---|---|
-| `VITE_TURNSTILE_SITE_KEY` | value 4 | value 4 |
-| `NODE_VERSION` | `24` | `24` |
-
-### Secrets (click **Encrypt** — used at runtime by the Function)
+Pages project → **Settings** → **Variables and Secrets**. Add each row for **both
+Production and Preview** — preview deploys that are missing them will 502 — and click
+**Encrypt** on every one:
 
 | Name | Production | Preview |
 |---|---|---|
@@ -190,18 +190,40 @@ you must fill in **both Production and Preview**, otherwise preview deploys will
 | `GOOGLE_SHEET_ID` | value 1 | value 1 |
 | `GOOGLE_SERVICE_ACCOUNT_EMAIL` | value 2 | value 2 |
 | `GOOGLE_PRIVATE_KEY` | value 3 | value 3 |
-| `LEAD_SINK` | `google-sheet` | `google-sheet` |
 
-> **Encrypt every row in the second table.** Once encrypted, Cloudflare will not show
-> you the value again — that is the point. To change one, overwrite it.
+> **Encrypt every one.** Once encrypted, Cloudflare will not show you the value again —
+> that is the point. To change one, overwrite it.
 
-> **On `GOOGLE_SHEET_ID` vs `SHEET_ID`:** FOO-2 specified `SHEET_ID`; this runbook and
-> the Pages scaffolding use `GOOGLE_SHEET_ID`. The Function currently reads **both**
-> (`SHEET_ID` wins if set), so following this runbook as written works. It is still one
-> name too many — see "open decisions" at the end. Set only `GOOGLE_SHEET_ID`.
+Equivalent from a terminal, if you would rather not paste into a browser (it prompts for
+each value and echoes nothing):
+
+```bash
+cd website
+npx wrangler pages secret put TURNSTILE_SECRET_KEY --project-name foodos-website
+npx wrangler pages secret put GOOGLE_SHEET_ID --project-name foodos-website
+npx wrangler pages secret put GOOGLE_SERVICE_ACCOUNT_EMAIL --project-name foodos-website
+npx wrangler pages secret put GOOGLE_PRIVATE_KEY --project-name foodos-website
+# then repeat all four with --environment preview
+```
+
+### Three things not to set here
+
+- **`LEAD_SINK`** — owned by `website/wrangler.toml`, which is committed to the repo and
+  already sets `google_sheet` for both production and preview. A Pages project that ships
+  a wrangler config takes its plaintext variables from that file, so anything you type
+  into the dashboard for `LEAD_SINK` is overwritten on the next deploy. Change it in the
+  file, not the UI.
+- **`VITE_TURNSTILE_SITE_KEY`** — compiled into the bundle at build time, and the build
+  now runs in GitHub Actions. It goes in the repo as a variable, not here. Step 7.
+- **`NODE_VERSION`** — only used by Cloudflare's own build system, which we no longer
+  use. The Node version is pinned in the workflow instead.
+
+> **On `GOOGLE_SHEET_ID` vs `SHEET_ID`:** settled on 2026-10-13 — `GOOGLE_SHEET_ID` is
+> the only name, and `SHEET_ID` has been deleted from the Function. A leftover `SHEET_ID`
+> is now ignored rather than silently winning.
 
 The Function has working defaults for everything else. You only need these if you want
-to change its behaviour:
+to change its behaviour (set them in `wrangler.toml`, for the same reason as `LEAD_SINK`):
 
 | Name | Default | What it does |
 |---|---|---|
@@ -214,20 +236,62 @@ to change its behaviour:
 > `\n` sequences, exactly as it appeared in the JSON. If you paste real newlines the
 > JWT signing fails and you get a 502 with `invalid_grant` in the logs.
 
-**A note on Preview:** using the same sheet for preview and production means test
-submissions land in your real leads sheet. That is the right trade for a pre-launch
-site — one sheet, nothing to reconcile. If it becomes noisy, create a second sheet and
-point Preview's `GOOGLE_SHEET_ID` at it; the `status` column is also there for you to
-mark rows as test.
+**A note on Preview:** Preview and Production share one sheet (your call, 2026-10-13), so
+the table above sets the same `GOOGLE_SHEET_ID` for both. Test submissions will land in
+your real leads sheet — the trade is that there is nothing to reconcile later, and the
+`status` column is there to mark test rows. If it ever gets noisy, create a second sheet
+and overwrite Preview's `GOOGLE_SHEET_ID` with its id; nothing in the code changes.
 
 ---
 
-## Step 7 — Deploy and verify (5 min)
+## Step 7 — Add the deploy credentials to GitHub (5 min)
 
-1. Pages project → **Deployments** → **Create deployment** (or push to `main`).
-2. Watch the build log. It should end with `Success: Assets published!` and list an
-   uploaded Function for `/api/demo-requests`.
-3. Open the `*.pages.dev` URL and work through the checks below.
+The `deploy` job in `.github/workflows/website.yml` is live, and it fails fast with a
+readable error until these three exist. Nothing is deployed before you add them.
+
+1. Create a scoped Cloudflare API token: **My Profile → API Tokens → Create Token →
+   Create Custom Token**.
+   - Permissions: **Account → Cloudflare Pages → Edit**. Nothing else — this token
+     cannot touch DNS, your domain, or any other Cloudflare service.
+   - Account resources: **Include → your account only**.
+   - TTL: leave open-ended, or set one and diarise the rotation. An expired token shows
+     up as a failed deploy, not a broken site.
+2. Copy your **Account ID** from the right-hand sidebar of the account home page (or from
+   any Workers & Pages URL — it is the long hex string).
+3. GitHub repo → **Settings → Secrets and variables → Actions**:
+
+   | Tab | Name | Value |
+   |---|---|---|
+   | **Secrets** | `CLOUDFLARE_API_TOKEN` | the token from 1 |
+   | **Secrets** | `CLOUDFLARE_ACCOUNT_ID` | the account id from 2 |
+   | **Variables** | `TURNSTILE_SITE_KEY` | value 4 |
+
+   `TURNSTILE_SITE_KEY` goes in the **Variables** tab, not Secrets. It is public — it
+   ships inside the JavaScript bundle — and the workflow reads it as `vars.`, so putting
+   it in Secrets leaves it empty and the deploy fails the credentials check.
+
+> **Fork PRs do not deploy.** GitHub does not expose repository secrets to pull requests
+> from forks, so the `deploy` job skips them by design. `secret-scan` and `verify` still
+> run, so a fork PR is still fully checked — it just gets no preview URL.
+
+**Verify:** the Actions secrets page lists both secrets, and the Variables tab lists
+`TURNSTILE_SITE_KEY`.
+
+---
+
+## Step 8 — Deploy and verify (5 min)
+
+1. Push to `main` — or, to deploy without pushing code, GitHub repo → **Actions** →
+   **website** → **Run workflow**.
+2. The run has three jobs: `secret-scan`, `verify`, then `deploy`. The first two gate the
+   third, so nothing reaches Cloudflare unless lint, typecheck, tests and the build pass.
+3. The `deploy` job ends with `Success: Assets published!` and lists an uploaded Function
+   for `/api/demo-requests`. The deployment URL is printed in the job summary.
+4. Open that URL and work through the checks below.
+
+> **The first run may create a GitHub Environment** called `production` (`preview` on
+> PRs). That is expected — it gives you a deployment history, and a place to add required
+> reviewers later if you ever want a manual gate before the live site changes.
 
 ### Verification checklist
 
@@ -249,6 +313,17 @@ Also confirm attribution works: visit
 `https://<your>.pages.dev/?utm_source=runbook&utm_campaign=test`, submit, and check that
 `utmSource` and `utmCampaign` are populated in the sheet row.
 
+### If the deploy job fails
+
+Read the failing step in the GitHub Actions log.
+
+| Symptom | Almost always |
+|---|---|
+| `Not configured for deploy. Missing: …` | Step 7 is incomplete — the job names exactly which secret or variable is absent |
+| `Project not found` from wrangler | The Pages project is not named `foodos-website`, or the API token is scoped to a different account |
+| `Authentication error [code: 10000]` | The token lacks **Account → Cloudflare Pages → Edit**, or it has expired |
+| The Turnstile widget never renders on the deployed site | `TURNSTILE_SITE_KEY` was added as a *secret* instead of a *variable*, so the build compiled in an empty key |
+
 ### If a submission fails
 
 Pages project → **Deployments** → the deployment → **Functions** → **Real-time logs**,
@@ -260,11 +335,12 @@ then submit again and read the error.
 | `invalid_grant` / JWT error | `GOOGLE_PRIVATE_KEY` pasted with real newlines instead of `\n` |
 | `Unable to parse range: Leads!A:T` | The tab is not named exactly `Leads` (case-sensitive) |
 | `403 { error: "bot" }` on every submit | Site key and secret key are from different widgets, or the hostname is not on the widget's list |
-| 502 with no Google error | `LEAD_SINK` is still `console` |
+| `missing: GOOGLE_SHEET_ID, …` in the logs | The step 6 secrets were added to Production but not Preview, or not saved as encrypted |
+| 502 with no Google error | `LEAD_SINK` resolved to `console` — check `wrangler.toml` was deployed with the build |
 
 ---
 
-## Step 8 — Custom domain and analytics (5 min + DNS)
+## Step 9 — Custom domain and analytics (5 min + DNS)
 
 ### Custom domain
 
@@ -294,47 +370,19 @@ within a few minutes.
 
 ---
 
-## Step 9 — Enable the CI deploy job (optional, 3 min)
-
-**Skip this entirely if you used Option A in step 4.** The Pages Git integration
-already deploys on every push and gives you preview URLs per PR; enabling both would
-deploy the site twice per push.
-
-Only for Option B (direct upload):
-
-1. Create a scoped API token: Cloudflare → **My Profile → API Tokens → Create Token →
-   Custom token**.
-   - Permissions: **Account → Cloudflare Pages → Edit**. Nothing else.
-   - Account resources: your account only.
-   - Set a TTL if you want one; you will need to rotate it when it expires.
-2. Copy your **Account ID** from the right sidebar of the account home page.
-3. GitHub repo → **Settings → Secrets and variables → Actions**:
-   - Secret `CLOUDFLARE_API_TOKEN` = the token
-   - Secret `CLOUDFLARE_ACCOUNT_ID` = the account id
-   - Variable (not secret) `TURNSTILE_SITE_KEY` = value 4
-4. Edit `.github/workflows/website.yml`, find the `deploy` job, and change:
-
-   ```yaml
-   if: false # <-- CTO: see the comment above before changing this.
-   ```
-
-   to:
-
-   ```yaml
-   if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-   ```
-
-5. Open it as a PR so CI verifies the workflow parses before it can ever run.
-
----
-
 ## Rollback
 
 ### Roll back a bad deploy (under a minute)
 
 Pages project → **Deployments** → find the last known-good deployment →
-**⋯ → Rollback to this deployment**. Pages keeps every previous build, so this is
-instant and needs no rebuild or git revert.
+**⋯ → Rollback to this deployment**. Pages keeps every previous upload, so this is
+instant and needs no rebuild, no git revert and no GitHub Actions run. Do this first,
+then fix forward in the repo at normal speed.
+
+### Stop all deploys
+
+GitHub repo → **Actions** → **website** → **⋯ → Disable workflow**. The live site is
+untouched; only new deploys stop. Re-enable in the same place.
 
 ### Roll back the custom domain
 
@@ -367,7 +415,7 @@ by all of the above.
 
 | Component | Free tier | Our expected usage | Cost |
 |---|---|---|---|
-| Cloudflare Pages (static) | Unlimited requests and bandwidth; 500 builds/month | A marketing site; well under 500 builds | ₹0 |
+| Cloudflare Pages (static) | Unlimited requests and bandwidth; 500 deployments/month | A marketing site; well under 500 | ₹0 |
 | Cloudflare Pages Functions | 100,000 requests/day, 10 ms CPU per invocation | One request per demo submission | ₹0 |
 | Cloudflare Turnstile | 1,000,000 verifications/month | One per submission | ₹0 |
 | Cloudflare Web Analytics | Unlimited, cookieless | Full site traffic | ₹0 |
@@ -375,14 +423,20 @@ by all of the above.
 | GitHub Actions | 2,000 min/month on private repos; unlimited if public | ~3 min per run | ₹0 |
 | **Domain `foodos.ai`** | — | Annual registration | **~₹6,000–8,000/year**, the one real cost |
 
+Because we build in Actions and upload the result, Cloudflare's **build** minutes are
+not consumed at all — the only build budget that matters is GitHub's.
+
 ### Limits we could actually hit, in rough order of likelihood
 
-1. **Pages build minutes — 500 builds/month.** Every PR commit triggers a preview
-   build. Three engineers pushing hard could reach this. Mitigation: the Git
-   integration lets you restrict preview deploys to specific branches.
-2. **GitHub Actions minutes — 2,000/month** while the repo is private. At ~3 minutes a
-   run that is ~650 runs, so this only bites alongside item 1. Making the repo public
-   removes the limit entirely.
+1. **GitHub Actions minutes — 2,000/month** while the repo is private. Every push to a
+   PR runs `secret-scan` + `verify` + `deploy`, ~3 minutes, so that is roughly 650 runs
+   a month. Three engineers pushing hard is the only way to approach it. Making the repo
+   public removes the limit entirely. Mitigation already in place: the workflow is
+   path-filtered to `website/**`, so commits elsewhere in the repo cost nothing, and
+   non-`main` branches cancel their own in-progress runs.
+2. **Pages deployments — 500/month on the free plan.** Each PR push produces a preview
+   deployment, so this tracks item 1 closely. If it ever bites, restrict the `deploy`
+   job to `main` and accept losing preview URLs.
 3. **Sheets API write quota — 60 writes/min per user.** Only reachable under a spam
    flood, which is what Turnstile and the rate limiter exist to prevent. The failure
    mode is a 502, and the architecture requires the payload to be logged, so leads are
@@ -403,10 +457,18 @@ configured spend on this stack, so there is nothing to cap.
 
 | Thing | Local dev | Preview | Production |
 |---|---|---|---|
+| Triggered by | you | a pull request | a push to `main` |
+| Built by | you | GitHub Actions | GitHub Actions |
 | Lead sink | `ConsoleSink` | Google Sheet | Google Sheet |
 | Turnstile keys | Cloudflare dummy test keys | Real | Real |
-| Secrets come from | `website/.dev.vars` (gitignored) | Pages encrypted vars | Pages encrypted vars |
-| URL | `localhost:8788` | `<hash>.foodos-website.pages.dev` | `foodos.ai` |
+| Build-time vars come from | `website/.env` | GitHub Actions *variables* | GitHub Actions *variables* |
+| Runtime secrets come from | `website/.dev.vars` (gitignored) | Pages encrypted vars | Pages encrypted vars |
+| Plaintext runtime vars come from | `.dev.vars`, then `wrangler.toml` `[vars]` | `wrangler.toml` `[env.preview.vars]` | `wrangler.toml` `[env.production.vars]` |
+| URL | `localhost:8788` | `<branch>.foodos-website.pages.dev` | `foodos.ai` |
+
+The split is worth internalising, because it is where first deploys usually go wrong:
+**anything with `VITE_` in the name is baked into the bundle by GitHub Actions and is
+public; everything else is read on Cloudflare, at request time, and is secret.**
 
 A fresh clone needs no accounts and no secrets:
 
@@ -422,32 +484,42 @@ Submitted leads print to the terminal instead of being written anywhere.
 
 ---
 
-## Appendix C — open decisions for the CTO
+## Appendix C — decisions
 
-None of these block the deploy. Each is a judgement call that was not ours to make, so
-the code takes the safe option and waits.
+### Settled on 2026-10-13
 
-1. **Which deploy path?** Pages Git integration (step 4, Option A) or GitHub Actions
-   (step 9, Option B). Option A is recommended and needs no Cloudflare token in GitHub.
-   Whichever you pick, do **not** run both. If you pick A, delete the `deploy` job from
-   `.github/workflows/website.yml` rather than leaving it disabled.
+1. **Deploy path: GitHub Actions only.** The Pages Git integration is not connected and
+   should not be. The `deploy` job is live; preview deploys on PRs replace what the Git
+   integration would have given us. Steps 4, 7 and 8 above are written to this.
+2. **The sheet id is `GOOGLE_SHEET_ID`.** `SHEET_ID` has been removed from the Function,
+   its types, the tests and `.dev.vars.example`. One name, everywhere.
+3. **Preview shares the production sheet.** Same `GOOGLE_SHEET_ID` in both environments;
+   mark test rows with the `status` column.
 
-2. **`SHEET_ID` or `GOOGLE_SHEET_ID`?** FOO-2 specified the first, this runbook and the
-   Pages scaffolding use the second, and the Function currently reads both to unblock
-   parallel work. Pick one and we will delete the other, so there is a single name to
-   get right when you are pasting secrets at 11pm.
-
-3. **Does Preview share the production sheet?** Currently yes — one sheet, nothing to
-   reconcile, but test submissions land among real leads. Alternative is a second sheet
-   and a different `GOOGLE_SHEET_ID` for Preview.
+### Still open — none of these block the deploy
 
 4. **Will the repo be public?** If it is, GitHub Actions minutes become unlimited, which
-   removes limit #2 in Appendix A. The repo contains no secrets either way.
+   removes limit #1 in Appendix A. The repo contains no secrets either way.
 
 5. **Who owns the leads sheet?** It is currently whichever Google account creates it. If
    that is a personal account, the team loses the leads when that person leaves. Worth
-   putting it on a Workspace shared drive before the site goes live.
+   putting it on a Workspace shared drive before the site goes live — moving it later
+   means a new `GOOGLE_SHEET_ID` and a redeploy.
 
 6. **Turnstile widget mode.** Set to **Managed**, which can show an interactive
    challenge. **Invisible** converts marginally better but catches less. Managed is the
    right default for a lead form; say if you would rather optimise for conversion.
+
+7. **Where does `website/` live in the monorepo?** You offered to set up the repo
+   structure. Recommendation and the migration steps are in the issue thread; the short
+   version is **`apps/website/`**, plain directories, and no Nx/Turborepo/workspaces
+   until we have a second package that needs them.
+
+   The move touches **12 functional path references**: 8 in
+   `.github/workflows/website.yml` (two `paths:` filters, two `working-directory`, two
+   `cache-dependency-path`, the artifact `path:`, the wrangler-action
+   `workingDirectory`) and 4 in `.gitleaks.toml` (the allowlist entries for
+   `.dev.vars.example`, `.env.example`, `.wrangler/` and the test-fixtures directory).
+   Nothing in `website/` itself hard-codes its own location, and Cloudflare never sees
+   the repo layout at all — we upload a built `dist/`. Confirm the path and it is a
+   ten-minute change.

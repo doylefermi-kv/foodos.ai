@@ -2,6 +2,9 @@
 #
 #   cp .dev.vars.example .dev.vars
 #
+# `npm run dev` copies this file to `.dev.vars` for you if it is missing, so the
+# copy above is only needed if you want to edit the values first.
+#
 # `.dev.vars` is gitignored and must NEVER be committed. Real values for
 # Production and Preview live only in Cloudflare Pages encrypted environment
 # variables — see docs/runbooks/website-setup.md.
@@ -10,13 +13,19 @@
 # Turnstile *test* keys and the ConsoleSink, so a fresh clone runs end to end
 # with no Google account, no real secrets and no network writes.
 
-# Which LeadSink the Function writes through: "console" | "google-sheet".
+# Which LeadSink the Function writes through: "console" | "google_sheet".
 # Keep this as "console" for local dev unless you are specifically testing the
 # Google Sheets path with your own throwaway sheet.
 #
-# The Function accepts "console", "google_sheet", "google-sheet" and "sheet",
-# so the hyphenated spelling in wrangler.toml and the underscored one in FOO-2
-# both work. Unset defaults to "console".
+# This line matters more than it looks: `wrangler.toml` sets LEAD_SINK for what
+# production gets, and `.dev.vars` overrides it locally (verified — `wrangler
+# pages dev` shows LEAD_SINK as "(hidden)", i.e. from here, and leads print to
+# the terminal). Delete this line and local submissions start failing with 502.
+#
+# NAMING: the CTO picked `google_sheet` (underscore) on 2026-10-13. wrangler.toml
+# and the runbook both say that now; the hyphenated `google-sheet` still works
+# but logs a deprecation warning, and is kept only for a value typed into the
+# Cloudflare dashboard before this was settled. The `sheet` shorthand is gone.
 LEAD_SINK="console"
 
 # --- Turnstile ----------------------------------------------------------------
@@ -30,16 +39,15 @@ LEAD_SINK="console"
 # secret, so a fresh clone works with no configuration at all.
 TURNSTILE_SECRET_KEY="1x0000000000000000000000000000000AA"
 
-# --- Google Sheets (only needed when LEAD_SINK="google-sheet") -----------------
+# --- Google Sheets (only needed when LEAD_SINK="google_sheet") -----------------
 # Leave these empty for normal local dev.
 #
 # The sheet id is the long id from the sheet URL:
 #   https://docs.google.com/spreadsheets/d/<THIS PART>/edit
 #
-# NAMING: FOO-2 specifies SHEET_ID; the DevOps scaffolding and runbook use
-# GOOGLE_SHEET_ID. The Function reads both (SHEET_ID wins) so neither side is
-# blocked. Flagged to the CTO to pick one before we set real Pages variables.
-SHEET_ID=""
+# NAMING: the CTO has picked GOOGLE_SHEET_ID (2026-10-13). This is now the only
+# name the Function reads — the older SHEET_ID from FOO-2 has been removed, so a
+# leftover SHEET_ID is ignored and the sink fails with a named missing variable.
 GOOGLE_SHEET_ID=""
 
 # The service account's email, e.g. foodos-website@<project>.iam.gserviceaccount.com
