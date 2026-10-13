@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FoodOS.ai — logo explorations</title>
+<link rel="stylesheet" href="../system/tokens.css">
+<style>
+/* ============================================================
+   FoodOS.ai — LOGO EXPLORATIONS
+   Three concepts for the FoodOS.ai mark, each shown on light and
+   dark, at 16/24/32/48px and large, in all three lockups.
+   Self-contained: no external fonts, no CDNs, no build step.
+   Palette comes from ../system/tokens.css.
+   ============================================================ */
+
+*,*::before,*::after{ box-sizing:border-box; }
+body{
+  margin:0; background:var(--paper); color:var(--ink);
+  font-family:var(--sans); font-size:16px; line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+}
+svg{ display:block; }
+h1,h2,h3{ margin:0; font-weight:800; letter-spacing:-.035em; line-height:1.05; }
+h1{ font-size:clamp(34px,4.4vw,54px); letter-spacing:-.045em; }
+h2{ font-size:30px; }
+h3{ font-size:17px; letter-spacing:-.02em; }
+p{ margin:0; }
+.wrap{ max-width:1180px; margin-inline:auto; padding-inline:26px; }
+
+.sticker{
+  display:inline-block; background:var(--marigold); color:var(--ink);
+  border:2px solid var(--ink); box-shadow:3px 3px 0 var(--ink);
+  font-family:var(--mono); font-size:11.5px; font-weight:700;
+  letter-spacing:.1em; text-transform:uppercase; padding:5px 11px;
+  transform:rotate(-1.2deg);
+}
+.sticker--indigo{ background:var(--indigo); color:#fff; }
+.sticker--mint{ background:var(--mint); color:#fff; }
+.sticker--pom{ background:var(--pomegranate); color:#fff; }
+
+/* page masthead */
+.top{ background:var(--ink); color:var(--paper); border-bottom:2px solid var(--ink); }
+.top .wrap{ padding-block:34px 38px; }
+.top h1{ color:var(--paper); margin:16px 0 12px; }
+.top p{ color:#CFC7BA; max-width:70ch; font-size:17px; }
+.meta{
+  font-family:var(--mono); font-size:11.5px; letter-spacing:.09em;
+  text-transform:uppercase; color:var(--marigold); margin-top:18px;
+}
+
+/* swatch strip */
+.swatches{ display:flex; flex-wrap:wrap; gap:0; margin-top:26px; border:2px solid var(--ink); width:max-content; max-width:100%; }
+.sw{ width:118px; padding:9px 10px 11px; border-right:2px solid var(--ink); font-family:var(--mono); font-size:10px; line-height:1.35; }
+.sw:last-child{ border-right:0; }
+.sw b{ display:block; font-size:11px; letter-spacing:.04em; }
+.sw i{ font-style:normal; opacity:.7; }
+.sw--chip{ height:34px; padding:0; }
+
+section{ border-bottom:2px solid var(--ink); padding:52px 0 60px; }
+section.alt{ background:var(--paper-2); }
+
+.lede{ font-size:18px; color:var(--ink-2); max-width:66ch; }
+
+/* concept header */
+.chead{ display:flex; align-items:flex-start; gap:18px; flex-wrap:wrap; margin-bottom:30px; }
+.cnum{
+  flex:none; width:58px; height:58px; display:grid; place-items:center;
+  background:var(--ink); color:var(--marigold); font-family:var(--mono);
+  font-size:22px; font-weight:700;
+}
+.chead__t{ min-width:260px; flex:1; }
+.chead h2 small{ display:block; font-size:12px; font-family:var(--mono); font-weight:700; letter-spacing:.11em; text-transform:uppercase; color:var(--ink-3); margin-bottom:7px; letter-spacing:.11em; }
+.chead p{ color:var(--ink-2); margin-top:9px; max-width:62ch; }
+
+/* specimen plates */
+.plate{ border:2px solid var(--ink); box-shadow:5px 5px 0 var(--ink); margin-bottom:26px; background:var(--paper); }
+.plate__h{
+  display:flex; justify-content:space-between; align-items:center; gap:12px;
+  border-bottom:2px solid var(--ink); padding:7px 12px;
+  font-family:var(--mono); font-size:10.5px; font-weight:700;
+  letter-spacing:.1em; text-transform:uppercase; background:var(--paper-2); color:var(--ink);
+}
+.plate__b{ padding:30px 26px; }
+.plate--dark{ background:var(--ink); }
+.plate--dark .plate__h{ background:#241F19; color:var(--marigold); border-bottom-color:var(--marigold); }
+.plate--dark{ border-color:var(--ink); }
+.plate--gold{ background:var(--marigold); }
+.plate--gold .plate__h{ background:var(--marigold-d); }
+
+.grid2{ display:grid; grid-template-columns:1fr 1fr; gap:26px; }
+.grid3{ display:grid; grid-template-columns:repeat(3,1fr); gap:26px; }
+@media (max-width:860px){ .grid2,.grid3{ grid-template-columns:1fr; } }
+
+/* size ladder */
+.ladder{ display:flex; align-items:flex-end; gap:30px; flex-wrap:wrap; }
+.rung{ text-align:center; }
+.rung__px{
+  font-family:var(--mono); font-size:10px; letter-spacing:.07em; color:var(--ink-3);
+  margin-top:9px;
+}
+.plate--dark .rung__px{ color:#9B9185; }
+.plate--gold .rung__px{ color:#6B4E00; }
+
+/* in-situ simulations */
+.simrow{ display:flex; gap:26px; flex-wrap:wrap; align-items:flex-start; }
+
+.tab{
+  width:252px; background:#DEDAD3; border:2px solid var(--ink); padding:7px 7px 0;
+  font-family:var(--sans);
+}
+.tab__strip{ display:flex; align-items:center; gap:7px; background:var(--paper); border:2px solid var(--ink); border-bottom:0; padding:7px 10px; }
+.tab__strip span{ font-size:12px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.tab__bar{ height:9px; background:var(--paper); border:2px solid var(--ink); }
+
+.navsim{
+  border:2px solid var(--ink); background:var(--paper); min-width:330px; flex:1;
+}
+.navsim__in{ display:flex; align-items:center; gap:9px; height:76px; padding:0 18px; }
+.navsim__links{ margin-left:auto; display:flex; gap:16px; font-size:14px; font-weight:650; color:var(--ink-2); }
+@media (max-width:700px){ .navsim__links{ display:none; } }
+
+/* ios app icon */
+.appicon{ width:76px; height:76px; border-radius:17px; overflow:hidden; border:1px solid rgba(0,0,0,.18); }
+.appicon svg{ width:100%; height:100%; }
+.appwrap{ text-align:center; }
+.appwrap .rung__px{ margin-top:7px; }
+
+/* verdict */
+.verdict{ border:2px solid var(--ink); box-shadow:5px 5px 0 var(--ink); background:var(--paper); }
+.verdict__h{ background:var(--ink); color:var(--paper); padding:14px 20px; font-weight:800; font-size:20px; letter-spacing:-.02em; }
+.verdict__b{ padding:0; }
+.score{ width:100%; border-collapse:collapse; font-size:14.5px; }
+.score th,.score td{ border-bottom:2px solid var(--ink); padding:11px 14px; text-align:left; vertical-align:top; }
+.score thead th{ background:var(--paper-2); font-family:var(--mono); font-size:10.5px; letter-spacing:.09em; text-transform:uppercase; }
+.score td:first-child{ font-weight:750; white-space:nowrap; }
+.score tr:last-child td{ border-bottom:0; }
+.score .y{ color:var(--mint); font-weight:750; }
+.score .n{ color:var(--pomegranate); font-weight:750; }
+
+.callout{ border:2px solid var(--ink); background:var(--mint-l); padding:18px 20px; margin-top:26px; }
+.callout b{ font-weight:800; }
+.note{ font-size:13.5px; color:var(--ink-2); margin-top:14px; max-width:72ch; }
+.note code{ font-family:var(--mono); font-size:12.5px; background:var(--paper-2); border:1px solid #DDD5C6; padding:1px 5px; }
+
+ul{ margin:10px 0 0; padding-left:20px; color:var(--ink-2); font-size:14.5px; }
+li{ margin-bottom:5px; }
+li b{ color:var(--ink); }
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     SHARED ARTWORK
+     Every mark lives in a 0 0 100 100 box: the tile is the full
+     box, so the artwork IS the app icon / favicon, with no extra
+     padding step. Colour comes from CSS custom properties so one
+     definition serves every colourway:
+       --logo-tile   tile fill
+       --logo-glyph  glyph fill
+       --logo-edge   tile inner keyline (dark backgrounds only)
+       --logo-word   wordmark fill
+     ============================================================ -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
+
+  <!-- ---------- CONCEPT 01 — "CHIT" : torn KOT ticket ---------- -->
+  <g id="mark-a">
+    <rect width="100" height="100" fill="var(--logo-tile,#16130F)"/>
+    <rect x="3" y="3" width="94" height="94" fill="none" stroke="var(--logo-edge,transparent)" stroke-width="6"/>
+    <!-- chit body with a four-tooth torn bottom edge -->
+    <path fill="var(--logo-glyph,#FFB703)" fill-rule="evenodd"
+          d="M22 16 H78 V76 L71 86 L64 76 L57 86 L50 76 L43 86 L36 76 L29 86 L22 76 Z
+             M31 30 H69 V41 H31 Z
+             M31 50 H55 V61 H31 Z"/>
+  </g>
+
+  <!-- ---------- CONCEPT 01, AS SHIPPED ----------
+       The same idea, retuned against the 16px floor: body widened
+       56 -> 64 units, bars deepened 11 -> 13, teeth re-pitched.
+       This is the drawing in logo-mark.svg. ---------------------- -->
+  <g id="mark-a2">
+    <rect width="100" height="100" fill="var(--logo-tile,#16130F)"/>
+    <rect x="3" y="3" width="94" height="94" fill="none" stroke="var(--logo-edge,transparent)" stroke-width="6"/>
+    <path fill="var(--logo-glyph,#FFB703)" fill-rule="evenodd"
+          d="M18 14 H82 V74 L74 86 L66 74 L58 86 L50 74 L42 86 L34 74 L26 86 L18 74 Z
+             M28 28 H72 V41 H28 Z
+             M28 51 H58 V64 H28 Z"/>
+  </g>
+
+  <!-- ---------- CONCEPT 02 — "THALI" : plate / power ---------- -->
+  <g id="mark-b">
+    <rect width="100" height="100" fill="var(--logo-tile,#16130F)"/>
+    <rect x="3" y="3" width="94" height="94" fill="none" stroke="var(--logo-edge,transparent)" stroke-width="6"/>
+    <!-- plate rim: annulus r35/r19 about (50,53), cut by a straight-
+         sided slot (x 38..62) so the gap stays open at 16px -->
+    <path fill="var(--logo-glyph,#FFB703)"
+          d="M62 20.12 A35 35 0 1 1 38 20.12 L38 38.27 A19 19 0 1 0 62 38.27 Z"/>
+    <!-- spoon: thin stem through the slot, bowl laid in the plate.
+         The bowl is 3x the stem width so the spoon reads before the
+         power glyph does at large sizes. -->
+    <rect x="46.5" y="8" width="7" height="42" fill="var(--logo-glyph,#FFB703)"/>
+    <ellipse cx="50" cy="55" rx="10" ry="15" fill="var(--logo-glyph,#FFB703)"/>
+  </g>
+  <!-- simplified ≤24px variant: no spoon bowl, heavier stem -->
+  <g id="mark-b-sm">
+    <rect width="100" height="100" fill="var(--logo-tile,#16130F)"/>
+    <rect x="3" y="3" width="94" height="94" fill="none" stroke="var(--logo-edge,transparent)" stroke-width="6"/>
+    <path fill="var(--logo-glyph,#FFB703)"
+          d="M62 20.12 A35 35 0 1 1 38 20.12 L38 38.27 A19 19 0 1 0 62 38.27 Z"/>
+    <rect x="44" y="12" width="12" height="36" fill="var(--logo-glyph,#FFB703)"/>
+  </g>
+
+  <!-- ---------- CONCEPT 03 — "DABBA" : tiffin stack ---------- -->
+  <g id="mark-c">
+    <rect width="100" height="100" fill="var(--logo-tile,#16130F)"/>
+    <rect x="3" y="3" width="94" height="94" fill="none" stroke="var(--logo-edge,transparent)" stroke-width="6"/>
+    <g fill="var(--logo-glyph,#FFB703)">
+      <!-- carrying handle: thin half-annulus r24/r16 about (50,30) -->
+      <path d="M26 30 A24 24 0 0 1 74 30 H66 A16 16 0 0 0 34 30 Z"/>
+      <rect x="18" y="30" width="64" height="11"/>
+      <rect x="22" y="48" width="56" height="17"/>
+      <rect x="22" y="72" width="56" height="17"/>
+    </g>
+  </g>
+
+  <!-- ---------- WORDMARK ----------
+       "FoodOS.ai" drawn as outlines, no font dependency.
+       Grid: cap height 100, baseline y=100, x-height 74, stem 24.
+       Round letters are flat-sided squircles (shop-board lettering).
+       ".ai" is a marigold chip at 0.60 scale, baseline-aligned.
+       Ink bbox: x 0..592, y -8..108.
+       ------------------------------------------------------------ -->
+  <g id="wd">
+    <g fill="var(--logo-word,#16130F)" fill-rule="evenodd">
+      <!-- F -->
+      <path d="M0 0 H58 V24 H24 V39 H52 V61 H24 V100 H0 Z"/>
+      <!-- o -->
+      <path transform="translate(64 0)" d="M30 24 H42 A30 30 0 0 1 72 54 V72 A30 30 0 0 1 42 102 H30 A30 30 0 0 1 0 72 V54 A30 30 0 0 1 30 24 Z
+                                           M34 49 H38 A9 9 0 0 1 47 58 V68 A9 9 0 0 1 38 77 H34 A9 9 0 0 1 25 68 V58 A9 9 0 0 1 34 49 Z"/>
+      <!-- o -->
+      <path transform="translate(142 0)" d="M30 24 H42 A30 30 0 0 1 72 54 V72 A30 30 0 0 1 42 102 H30 A30 30 0 0 1 0 72 V54 A30 30 0 0 1 30 24 Z
+                                            M34 49 H38 A9 9 0 0 1 47 58 V68 A9 9 0 0 1 38 77 H34 A9 9 0 0 1 25 68 V58 A9 9 0 0 1 34 49 Z"/>
+      <!-- d -->
+      <path transform="translate(220 0)" d="M48 -8 H72 V102 H30 A30 30 0 0 1 0 72 V54 A30 30 0 0 1 30 24 H48 Z
+                                            M48 49 H34 A9 9 0 0 0 25 58 V68 A9 9 0 0 0 34 77 H48 Z"/>
+      <!-- O -->
+      <path transform="translate(302 0)" d="M36 -2 H46 A36 36 0 0 1 82 34 V66 A36 36 0 0 1 46 102 H36 A36 36 0 0 1 0 66 V34 A36 36 0 0 1 36 -2 Z
+                                            M36 24 H46 A10 10 0 0 1 56 34 V66 A10 10 0 0 1 46 76 H36 A10 10 0 0 1 26 66 V34 A10 10 0 0 1 36 24 Z"/>
+      <!-- S -->
+      <path transform="translate(392 0)" d="M72 0 H30 A30 30 0 1 0 30 60 L42 64 A6 6 0 1 1 42 76 H0 V100 H42 A30 30 0 1 0 42 40 L30 36 A6 6 0 1 1 30 24 H72 Z"/>
+    </g>
+    <!-- .ai chip -->
+    <rect x="483.5" y="21.5" width="105" height="83"
+          fill="var(--chip-bg,#FFB703)" stroke="var(--chip-edge,#16130F)" stroke-width="7"/>
+    <g transform="translate(495 35.4) scale(0.6)" fill="var(--chip-ink,#16130F)" fill-rule="evenodd">
+      <!-- . -->
+      <path d="M0 76 H24 V100 H0 Z"/>
+      <!-- a -->
+      <path transform="translate(32 0)" d="M48 24 H72 V102 H30 A30 30 0 0 1 0 72 V54 A30 30 0 0 1 30 24 Z
+                                           M48 49 H34 A9 9 0 0 0 25 58 V68 A9 9 0 0 0 34 77 H48 Z"/>
+      <!-- i -->
+      <path transform="translate(112 0)" d="M0 24 H24 V100 H0 Z M0 -10 H24 V14 H0 Z"/>
+    </g>
+  </g>
+
+  <!-- ---------- LOCKUPS ----------
+       Horizontal: tile 216 square, 50 gap, wordmark.  bbox 0 -56 858 216
+       Stacked:    tile 216 centred over the wordmark. bbox 0 0 592 378
+       ------------------------------------------------------------ -->
+  <g id="lock-h-a"><use href="#mark-a" transform="translate(0 -56) scale(2.16)"/><use href="#wd" transform="translate(266 0)"/></g>
+  <g id="lock-h-b"><use href="#mark-b" transform="translate(0 -56) scale(2.16)"/><use href="#wd" transform="translate(266 0)"/></g>
+  <g id="lock-h-c"><use href="#mark-c" transform="translate(0 -56) scale(2.16)"/><use href="#wd" transform="translate(266 0)"/></g>
+
+  <g id="lock-s-a"><use href="#mark-a" transform="translate(188 0) scale(2.16)"/><use href="#wd" transform="translate(0 270)"/></g>
+  <g id="lock-s-b"><use href="#mark-b" transform="translate(188 0) scale(2.16)"/><use href="#wd" transform="translate(0 270)"/></g>
+  <g id="lock-s-c"><use href="#mark-c" transform="translate(188 0) scale(2.16)"/><use href="#wd" transform="translate(0 270)"/></g>
+</defs></svg>
+
+
+<!-- ============================================================ -->
+<header class="top">
+  <div class="wrap">
+    <span class="sticker">FOO-5 · brand · direction C "bazaar"</span>
+    <h1>FoodOS.ai — logo explorations</h1>
+    <p>Three routes to a mark that has to work as a 16px favicon, a 76px app icon, a shop-board
+       sign and a 1200×630 link preview. All three use the same hand-drawn
+       <b style="color:var(--marigold)">FoodOS.ai</b> wordmark, so the only variable
+       on this page is the symbol.</p>
+    <p class="meta">Product Designer · 13 Oct 2026 · all artwork hand-authored SVG, no fonts, no CDNs</p>
+    <p style="margin:18px 0 0;padding:14px 18px;background:#FFB703;color:#16130F;border:2px solid #16130F;box-shadow:5px 5px 0 #16130F;font-weight:700">
+      Decided: <b>Concept 01, “Chit”</b> — CTO, 13 Oct 2026. The page below is the exploration as
+      it was argued, including my recommendation of Concept 02. Jump to the
+      <a href="#decision" style="color:#16130F">decision note</a> for what changed and what I got
+      wrong.
+    </p>
+  </div>
+</header>
+
+<section>
+  <div class="wrap">
+    <h2>The wordmark (fixed across all three)</h2>
+    <p class="lede" style="margin:12px 0 26px">
+      Drawn on a 100-unit cap height with a 24-unit stem — a black-weight grotesque with
+      flat-sided round letters, which is how hand-painted Indian shop boards resolve a curve.
+      The <b>.ai</b> keeps the marigold sticker treatment from the approved site header: it is
+      the one piece of the identity that says what the product is, so it gets a box around it.
+    </p>
+
+    <div class="plate">
+      <div class="plate__h"><span>Wordmark · outlines</span><span>cap 100 / stem 24 / x-height 74</span></div>
+      <div class="plate__b">
+        <svg viewBox="0 -8 592 116" width="720" style="max-width:100%;height:auto" role="img" aria-label="FoodOS.ai wordmark">
+          <use href="#wd"/>
+        </svg>
+      </div>
+    </div>
+
+    <div class="swatches">
+      <div class="sw sw--chip" style="background:#16130F"></div>
+      <div class="sw sw--chip" style="background:#FFB703"></div>
+      <div class="sw sw--chip" style="background:#FFFCF5"></div>
+      <div class="sw sw--chip" style="background:#2B2A7A"></div>
+      <div class="sw sw--chip" style="background:#0D8459"></div>
+      <div class="sw sw--chip" style="background:#E02B3C"></div>
+    </div>
+    <div class="swatches" style="margin-top:-2px">
+      <div class="sw"><b>--ink</b><i>#16130F</i></div>
+      <div class="sw"><b>--marigold</b><i>#FFB703</i></div>
+      <div class="sw"><b>--paper</b><i>#FFFCF5</i></div>
+      <div class="sw"><b>--indigo</b><i>#2B2A7A</i></div>
+      <div class="sw"><b>--mint</b><i>#0D8459 ✎</i></div>
+      <div class="sw"><b>--pomegranate</b><i>#E02B3C</i></div>
+    </div>
+    <p class="note">✎ <code>--mint</code> and <code>--ink-3</code> carry the contrast corrections from the
+       Frontend Engineer and are now folded into <code>design/system/tokens.css</code>. Neither colour is
+       used in the logo itself — the mark is ink + marigold only.</p>
+  </div>
+</section>
+
+
+<!-- ============================================================
+     CONCEPT 01
+     ============================================================ -->
+<section class="alt">
+  <div class="wrap">
+    <div class="chead">
+      <div class="cnum">01</div>
+      <div class="chead__t">
+        <h2><small>Concept 01</small>Chit</h2>
+        <p>The torn KOT ticket, sharpened. Four big teeth instead of a fine perforation, two
+           bill lines instead of three. This is the paper that currently runs every restaurant
+           in the country — FoodOS is what replaces it.</p>
+      </div>
+      <span class="sticker sticker--indigo" style="margin-top:6px">chosen · see the final files</span>
+    </div>
+
+    <p class="note" style="margin:0 0 20px">
+      <b>This is the exploration drawing.</b> All three concepts on this page are shown as they
+      were drawn for the comparison, so the contest stays fair. The chosen mark was then retuned
+      against the 16px floor before shipping — see the <a href="#decision">decision note</a> for
+      the side-by-side, and <code>logo-mark.svg</code> for the artwork that actually ships.
+    </p>
+
+    <div class="plate">
+      <div class="plate__h"><span>Horizontal lockup · positive</span><span>primary</span></div>
+      <div class="plate__b">
+        <svg viewBox="0 -56 858 216" width="620" style="max-width:100%;height:auto" role="img" aria-label="Concept 1 horizontal lockup">
+          <use href="#lock-h-a"/>
+        </svg>
+      </div>
+    </div>
+
+    <div class="grid2">
+      <div class="plate plate--dark" style="--logo-tile:#16130F;--logo-edge:#FFB703;--logo-word:#FFFCF5">
+        <div class="plate__h"><span>On ink</span><span>keyline tile</span></div>
+        <div class="plate__b">
+          <svg viewBox="0 -56 858 216" width="100%" style="height:auto"><use href="#lock-h-a"/></svg>
+        </div>
+      </div>
+      <div class="plate plate--gold" style="--logo-tile:#16130F;--logo-glyph:#FFB703;--logo-word:#16130F;--chip-bg:#FFFCF5">
+        <div class="plate__h"><span>On marigold</span><span>chip flips to paper</span></div>
+        <div class="plate__b">
+          <svg viewBox="0 -56 858 216" width="100%" style="height:auto"><use href="#lock-h-a"/></svg>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid3">
+      <div class="plate">
+        <div class="plate__h"><span>Stacked</span><span>square formats</span></div>
+        <div class="plate__b" style="display:grid;place-items:center">
+          <svg viewBox="0 0 592 378" width="210" style="max-width:100%;height:auto"><use href="#lock-s-a"/></svg>
+        </div>
+      </div>
+      <div class="plate plate--dark" style="--logo-tile:#16130F;--logo-edge:#FFB703;--logo-word:#FFFCF5">
+        <div class="plate__h"><span>Stacked · on ink</span><span>&nbsp;</span></div>
+        <div class="plate__b" style="display:grid;place-items:center">
+          <svg viewBox="0 0 592 378" width="210" style="max-width:100%;height:auto"><use href="#lock-s-a"/></svg>
+        </div>
+      </div>
+      <div class="plate" style="--logo-tile:transparent;--logo-glyph:#16130F;--logo-edge:#16130F">
+        <div class="plate__h"><span>Mono · one colour</span><span>stamp / invoice</span></div>
+        <div class="plate__b" style="display:grid;place-items:center">
+          <svg viewBox="0 0 100 100" width="118" height="118"><use href="#mark-a"/></svg>
+        </div>
+      </div>
+    </div>
+
+    <div class="plate">
+      <div class="plate__h"><span>Symbol at size</span><span>the 16px test</span></div>
+      <div class="plate__b">
+        <div class="ladder">
+          <div class="rung"><svg viewBox="0 0 100 100" width="128" height="128"><use href="#mark-a"/></svg><div class="rung__px">128</div></div>
+          <div class="rung"><svg viewBox="0 0 100 100" width="64" height="64"><use href="#mark-a"/></svg><div class="rung__px">64</div></div>
+          <div class="rung"><svg viewBox="0 0 100 100" width="48" height="48"><use href="#mark-a"/></svg><div class="rung__px">48</div></div>
+          <div class="rung"><svg viewBox="0 0 100 100" width="32" height="32"><use href="#mark-a"/></svg><div class="rung__px">32</div></div>
+          <div class="rung"><svg viewBox="0 0 100 100" width="24" height="24"><use href="#mark-a"/></svg><div class="rung__px">24</div></div>
+          <div class="rung"><svg viewBox="0 0 100 100" width="16" height="16"><use href="#mark-a"/></svg><div class="rung__px">16</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="simrow">
+      <div class="tab">
+        <div class="tab__strip">
+          <svg viewBox="0 0 100 100" width="16" height="16" style="flex:none"><use href="#mark-a"/></svg>
+          <span>FoodOS.ai — restaurant POS with…</span>
+        </div>
+        <div class="tab__bar"></div>
+      </div>
+      <div class="appwrap">
+        <div class="appicon"><svg viewBox="0 0 100 100"><use href="#mark-a"/></svg></div>
+        <div class="rung__px">app icon 76</div>
+      </div>
+      <div class="navsim">
+        <div class="navsim__in">
+          <svg viewBox="0 -8 858 272" width="150" style="height:auto"><use href="#lock-h-a" transform="translate(0 56)"/></svg>
+          <div class="navsim__links"><span>Product</span><span>Pricing</span><span>Book a demo</span></div>
+        </div>
+      </div>
+    </div>
+
+    <ul>
+      <li><b>Holds at 16px?</b> Mostly. The tear teeth turn to a soft edge and the two bill lines
+          start to merge into one grey block — the silhouette survives, the detail doesn't.</li>
+      <li><b>Ownable?</b> Weakest of the three. A receipt is the default metaphor for every POS
+          and billing product on the market; we'd be the fifth torn-paper logo in the category.</li>
+      <li><b>Says "AI"?</b> No. It says billing, which is only half the pitch.</li>
+    </ul>
+  </div>
+</section>
+
+
+<!-- ============================================================
+     CONCEPT 02
+     ============================================================ -->
+<section>
+  <div class="wrap">
+    <div class="chead">
+      <div class="cnum">02</div>
+      <div class="chead__t">
+        <h2><small>Concept 02</small>Thali</h2>
+        <p>A steel plate seen from above, broken at the top by a straight-sided slot with a spoon
+           dropped through it — which is also, read a second time, a power glyph. Plate and
+           boot-up in one shape: the <b>O</b> of <b>FoodOS</b>, switched on.</p>
+      </div>
+      <span class="sticker sticker--mint" style="margin-top:6px">recommended</span>
+    </div>
+
+    <div class="plate">
+      <div class="plate__h"><span>Horizontal lockup · positive</span><span>primary</span></div>
+      <div class="plate__b">
+        <svg viewBox="0 -56 858 216" width="620" style="max-width:100%;height:auto" role="img" aria-label="Concept 2 horizontal lockup">
+          <use href="#lock-h-b"/>
+        </svg>
+      </div>
+    </div>
+
+    <div class="grid2">
+      <div class="plate plate--dark" style="--logo-tile:#16130F;--logo-edge:#FFB703;--logo-word:#FFFCF5">
+        <div class="plate__h"><span>On ink</span><span>keyline tile</span></div>
+        <div class="plate__b">
+          <svg viewBox="0 -56 858 216" width="100%" style="height:auto"><use href="#lock-h-b"/></svg>
+        </div>
+      </div>
+      <div class="plate plate--gold" style="--logo-tile:#16130F;--logo-glyph:#FFB703;--logo-word:#16130F;--chip-bg:#FFFCF5">
+        <div class="plate__h"><span>On marigold</span><span>chip flips to paper</span></div>
+        <div class="plate__b">
+          <svg viewBox="0 -56 858 216" width="100%" style="height:auto"><use href="#lock-h-b"/></svg>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid3">
+      <div class="plate">
+        <div class="plate__h"><span>Stacked</span><span>square formats</span></div>
+        <div class="plate__b" style="display:grid;place-items:center">
+          <svg viewBox="0 0 592 378" width="210" style="max-width:100%;height:auto"><use href="#lock-s-b"/></svg>
+        </div>
+      </div>
+      <div class="plate plate--dark" style="--logo-tile:#16130F;--logo-edge:#FFB703;--logo-word:#FFFCF5">
+        <div class="plate__h"><span>Stacked · on ink</span><span>&nbsp;</span></div>
+        <div class="plate__b" style="display:grid;place-items:center">
+          <svg viewBox="0 0 592 378" width="210" style="max-width:100%;height:auto"><use href="#lock-s-b"/></svg>
+        </div>
+      </div>
+      <div class="plate" style="--logo-tile:transparent;--logo-glyph:#16130F;--logo-edge:#16130F">
+        <div class="plate__h"><span>Mono · one colour</span><span>stamp / invoice</span></div>
+        <div class="plate__b" style="display:grid;place-items:center">
+          <svg viewBox="0 0 100 100" width="118" height="118"><use href="#mark-b"/></svg>
+        </div>
+      </div>
+    </div>
+
+    <div class="plate">
+      <div class="plate__h"><span>Symbol at size</span><span>≤24px drops the spoon bowl</span></div>
+      <div class="plate__b">
+        <div class="ladder">
+          <div class="rung"><svg viewBox="0 0 100 100" width="128" height="128"><use href="#mark-b"/></svg><div class="rung__px">128</div></div>
+          <div class="rung"><svg viewBox="0 0 100 100" width="64" height="64"><use href="#mark-b"/></svg><div class="rung__px">64</div></div>
+          <div class="rung"><svg viewBox="0 0 100 100" width="48" height="48"><use href="#mark-b"/></svg><div class="rung__px">48</div></div>
+          <div class="rung"><svg viewBox="0 0 100 100" width="32" height="32"><use href="#mark-b"/></svg><div class="rung__px">32</div></div>
+          <div class="rung"><svg viewBox="0 0 100 100" width="24" height="24"><use href="#mark-b-sm"/></svg><div class="rung__px">24 ✎</div></div>
+          <div class="rung"><svg viewBox="0 0 100 100" width="16" height="16"><use href="#mark-b-sm"/></svg><div class="rung__px">16 ✎</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid2">
+      <div class="plate">
+        <div class="plate__h"><span>Small-size comparison</span><span>full vs simplified</span></div>
+        <div class="plate__b">
+          <div class="ladder">
+            <div class="rung"><svg viewBox="0 0 100 100" width="32" height="32"><use href="#mark-b"/></svg><div class="rung__px">32 full</div></div>
+            <div class="rung"><svg viewBox="0 0 100 100" width="32" height="32"><use href="#mark-b-sm"/></svg><div class="rung__px">32 simple</div></div>
+            <div class="rung"><svg viewBox="0 0 100 100" width="16" height="16"><use href="#mark-b"/></svg><div class="rung__px">16 full</div></div>
+            <div class="rung"><svg viewBox="0 0 100 100" width="16" height="16"><use href="#mark-b-sm"/></svg><div class="rung__px">16 simple</div></div>
+          </div>
+          <p class="note" style="margin-top:18px">At 16px the bowl fuses with the rim and the plate reads as a
+             filled dot. The simplified cut keeps the counter open, so the ring still reads as a ring.</p>
+        </div>
+      </div>
+      <div class="plate plate--dark" style="--logo-tile:#16130F;--logo-edge:#FFB703">
+        <div class="plate__h"><span>Small-size comparison · on ink</span><span>&nbsp;</span></div>
+        <div class="plate__b">
+          <div class="ladder">
+            <div class="rung"><svg viewBox="0 0 100 100" width="32" height="32"><use href="#mark-b"/></svg><div class="rung__px">32 full</div></div>
+            <div class="rung"><svg viewBox="0 0 100 100" width="32" height="32"><use href="#mark-b-sm"/></svg><div class="rung__px">32 simple</div></div>
+            <div class="rung"><svg viewBox="0 0 100 100" width="16" height="16"><use href="#mark-b"/></svg><div class="rung__px">16 full</div></div>
+            <div class="rung"><svg viewBox="0 0 100 100" width="16" height="16"><use href="#mark-b-sm"/></svg><div class="rung__px">16 simple</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="simrow">
+      <div class="tab">
+        <div class="tab__strip">
+          <svg viewBox="0 0 100 100" width="16" height="16" style="flex:none"><use href="#mark-b-sm"/></svg>
+          <span>FoodOS.ai — restaurant POS with…</span>
+        </div>
+        <div class="tab__bar"></div>
+      </div>
+      <div class="appwrap">
+        <div class="appicon"><svg viewBox="0 0 100 100"><use href="#mark-b"/></svg></div>
+        <div class="rung__px">app icon 76</div>
+      </div>
+      <div class="navsim">
+        <div class="navsim__in">
+          <svg viewBox="0 -8 858 272" width="150" style="height:auto"><use href="#lock-h-b" transform="translate(0 56)"/></svg>
+          <div class="navsim__links"><span>Product</span><span>Pricing</span><span>Book a demo</span></div>
+        </div>
+      </div>
+    </div>
+
+    <ul>
+      <li><b>Holds at 16px?</b> Yes — a broken ring with a bar is the single most robust shape at
+          small size, and the straight-sided slot means the gap never closes up.</li>
+      <li><b>Ownable?</b> The double read is. A power glyph alone is generic tech; a power glyph
+          whose bar is a spoon and whose ring is a thali rim is not something the category has.</li>
+      <li><b>Says "AI"?</b> It says <i>operating system</i>, which is the honest version — the name
+          already carries the AI claim.</li>
+    </ul>
+  </div>
+</section>
+
+
+<!-- ============================================================
+     CONCEPT 03
+     ============================================================ -->
+<section class="alt">
+  <div class="wrap">
+    <div class="chead">
+      <div class="cnum">03</div>
+      <div class="chead__t">
+        <h2><small>Concept 03</small>Dabba</h2>
+        <p>A tiffin carrier from the side: handle, lid, two tiers. Stacked containers are also
+           a stack of software layers, which is the other thing <b>OS</b> means. The most
+           specifically Indian of the three and the most graphic.</p>
+      </div>
+      <span class="sticker sticker--pom" style="margin-top:6px">most local, least legible</span>
+    </div>
+
+    <div class="plate">
+      <div class="plate__h"><span>Horizontal lockup · positive</span><span>primary</span></div>
+      <div class="plate__b">
+        <svg viewBox="0 -56 858 216" width="620" style="max-width:100%;height:auto" role="img" aria-label="Concept 3 horizontal lockup">
+          <use href="#lock-h-c"/>
+        </svg>
+      </div>
+    </div>
+
+    <div class="grid2">
+      <div class="plate plate--dark" style="--logo-tile:#16130F;--logo-edge:#FFB703;--logo-word:#FFFCF5">
+        <div class="plate__h"><span>On ink</span><span>keyline tile</span></div>
+        <div class="plate__b">
+          <svg viewBox="0 -56 858 216" width="100%" style="height:auto"><use href="#lock-h-c"/></svg>
+        </div>
+      </div>
+      <div class="plate plate--gold" style="--logo-tile:#16130F;--logo-glyph:#FFB703;--logo-word:#16130F;--chip-bg:#FFFCF5">
+        <div class="plate__h"><span>On marigold</span><span>chip flips to paper</span></div>
+        <div class="plate__b">
+          <svg viewBox="0 -56 858 216" width="100%" style="height:auto"><use href="#lock-h-c"/></svg>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid3">
+      <div class="plate">
+        <div class="plate__h"><span>Stacked</span><span>square formats</span></div>
+        <div class="plate__b" style="display:grid;place-items:center">
+          <svg viewBox="0 0 592 378" width="210" style="max-width:100%;height:auto"><use href="#lock-s-c"/></svg>
+        </div>
+      </div>
+      <div class="plate plate--dark" style="--logo-tile:#16130F;--logo-edge:#FFB703;--logo-word:#FFFCF5">
+        <div class="plate__h"><span>Stacked · on ink</span><span>&nbsp;</span></div>
+        <div class="plate__b" style="display:grid;place-items:center">
+          <svg viewBox="0 0 592 378" width="210" style="max-width:100%;height:auto"><use href="#lock-s-c"/></svg>
+        </div>
+      </div>
+      <div class="plate" style="--logo-tile:transparent;--logo-glyph:#16130F;--logo-edge:#16130F">
+        <div class="plate__h"><span>Mono · one colour</span><span>stamp / invoice</span></div>
+        <div class="plate__b" style="display:grid;place-items:center">
+          <svg viewBox="0 0 100 100" width="118" height="118"><use href="#mark-c"/></svg>
+        </div>
+      </div>
+    </div>
+
+    <div class="plate">
+      <div class="plate__h"><span>Symbol at size</span><span>the 16px test</span></div>
+      <div class="plate__b">
+        <div class="ladder">
+          <div class="rung"><svg viewBox="0 0 100 100" width="128" height="128"><use href="#mark-c"/></svg><div class="rung__px">128</div></div>
+          <div class="rung"><svg viewBox="0 0 100 100" width="64" height="64"><use href="#mark-c"/></svg><div class="rung__px">64</div></div>
+          <div class="rung"><svg viewBox="0 0 100 100" width="48" height="48"><use href="#mark-c"/></svg><div class="rung__px">48</div></div>
+          <div class="rung"><svg viewBox="0 0 100 100" width="32" height="32"><use href="#mark-c"/></svg><div class="rung__px">32</div></div>
+          <div class="rung"><svg viewBox="0 0 100 100" width="24" height="24"><use href="#mark-c"/></svg><div class="rung__px">24</div></div>
+          <div class="rung"><svg viewBox="0 0 100 100" width="16" height="16"><use href="#mark-c"/></svg><div class="rung__px">16</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="simrow">
+      <div class="tab">
+        <div class="tab__strip">
+          <svg viewBox="0 0 100 100" width="16" height="16" style="flex:none"><use href="#mark-c"/></svg>
+          <span>FoodOS.ai — restaurant POS with…</span>
+        </div>
+        <div class="tab__bar"></div>
+      </div>
+      <div class="appwrap">
+        <div class="appicon"><svg viewBox="0 0 100 100"><use href="#mark-c"/></svg></div>
+        <div class="rung__px">app icon 76</div>
+      </div>
+      <div class="navsim">
+        <div class="navsim__in">
+          <svg viewBox="0 -8 858 272" width="150" style="height:auto"><use href="#lock-h-c" transform="translate(0 56)"/></svg>
+          <div class="navsim__links"><span>Product</span><span>Pricing</span><span>Book a demo</span></div>
+        </div>
+      </div>
+    </div>
+
+    <ul>
+      <li><b>Holds at 16px?</b> No. Three bars plus an arc is four elements inside 16 pixels; the
+          8-unit gaps close and it collapses into a hamburger menu icon with a bump on top.</li>
+      <li><b>Ownable?</b> Very — nobody in POS is using a tiffin. But it is an object logo, and
+          object logos age with the object.</li>
+      <li><b>Says "AI"?</b> No. It reads delivery/dabbawala, which points at the wrong business.</li>
+    </ul>
+  </div>
+</section>
+
+
+<!-- ============================================================
+     RECOMMENDATION
+     ============================================================ -->
+<section style="border-bottom:0">
+  <div class="wrap">
+    <div class="verdict" id="decision">
+      <div class="verdict__h" style="background:#2B2A7A">
+        Decided — Concept 01, “Chit” &nbsp;·&nbsp; CTO, 13 Oct 2026
+      </div>
+      <div class="verdict__b">
+        <p style="margin:0 0 14px"><b>The CTO picked Concept 01, over my recommendation of 02.</b>
+           The final assets in this folder are all Chit. Everything below is left as written —
+           it is the record of what I argued and why, not a description of what shipped.</p>
+        <p style="margin:0 0 14px">Two things I got wrong in that argument, found while drawing
+           the final set:</p>
+        <ul style="margin:0 0 10px; padding-left:20px">
+          <li style="margin-bottom:8px"><b>“Partly — bill lines merge” was a property of my
+            drawing, not of the concept.</b> Widening the body from 56 to 64 units and taking the
+            bars from 11 to 13 holds both bars open at 16px with the torn edge still legible.
+            See <a href="icons-check.html">icons-check.html</a> — that is a real 16px render, not
+            a downscale.</li>
+          <li><b>It needs no second cut.</b> The question I raised about two source files was
+            asked of Thali, whose spoon bowl genuinely fails small. Chit does not have that
+            problem, so there is one drawing at every size — and <code>export.mjs</code> now
+            fails the export if the three files carrying it ever drift apart.</li>
+        </ul>
+        <div style="display:flex;gap:34px;flex-wrap:wrap;margin:0 0 18px;padding:16px 18px;background:#FFF7E6;border:2px solid #16130F">
+          <div>
+            <div style="font-family:var(--mono);font-size:10.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#4A443B;margin-bottom:9px">As explored</div>
+            <div style="display:flex;gap:12px;align-items:flex-end">
+              <svg viewBox="0 0 100 100" width="16" height="16" aria-label="as explored, 16px"><use href="#mark-a"/></svg>
+              <svg viewBox="0 0 100 100" width="32" height="32" aria-label="as explored, 32px"><use href="#mark-a"/></svg>
+              <svg viewBox="0 0 100 100" width="64" height="64" aria-label="as explored, 64px"><use href="#mark-a"/></svg>
+            </div>
+          </div>
+          <div>
+            <div style="font-family:var(--mono);font-size:10.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#2B2A7A;margin-bottom:9px">As shipped</div>
+            <div style="display:flex;gap:12px;align-items:flex-end">
+              <svg viewBox="0 0 100 100" width="16" height="16" aria-label="as shipped, 16px"><use href="#mark-a2"/></svg>
+              <svg viewBox="0 0 100 100" width="32" height="32" aria-label="as shipped, 32px"><use href="#mark-a2"/></svg>
+              <svg viewBox="0 0 100 100" width="64" height="64" aria-label="as shipped, 64px"><use href="#mark-a2"/></svg>
+            </div>
+          </div>
+          <p style="margin:0;flex:1;min-width:260px;font-size:14px;color:#4A443B">
+            Same mark, bigger inside the tile and heavier in the bars. The browser is drawing
+            these live from the same path as <code>logo-mark.svg</code>; for the true rasterised
+            16px, see <a href="icons-check.html">icons-check.html</a>.
+          </p>
+        </div>
+
+        <p style="margin:0">The “receipts are the default POS mark” objection stands and is not
+           solved by drawing it better. What offsets it: the teeth are coarse and asymmetric
+           where the category draws fine perforations, and the mark is a filled ink tile rather
+           than a floating outline, which is where most of the 16px distinctiveness comes from.</p>
+      </div>
+    </div>
+
+    <div class="verdict">
+      <div class="verdict__h">What I recommended — Concept 02, “Thali”</div>
+      <div class="verdict__b">
+        <table class="score">
+          <thead>
+            <tr><th>&nbsp;</th><th>01 Chit</th><th>02 Thali</th><th>03 Dabba</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Legible at 16px</td>
+              <td class="y">Yes — see the note above; my first drawing was the problem</td>
+              <td class="y">Yes, with the simplified cut</td>
+              <td class="n">No — reads as a menu icon</td>
+            </tr>
+            <tr>
+              <td>Distinct in category</td>
+              <td class="n">Low — receipts are the default POS mark</td>
+              <td class="y">High — the plate/power double read</td>
+              <td class="y">High, but tied to a dated object</td>
+            </tr>
+            <tr>
+              <td>Carries “OS”</td>
+              <td class="n">No</td>
+              <td class="y">Directly — it is a boot glyph</td>
+              <td>Obliquely — a stack of layers</td>
+            </tr>
+            <tr>
+              <td>Indian without ornament</td>
+              <td class="y">Yes — the KOT chit is operational</td>
+              <td class="y">Yes — a steel thali is the plate, not a motif</td>
+              <td>Yes, but closer to costume than detail</td>
+            </tr>
+            <tr>
+              <td>Survives one colour</td>
+              <td class="y">Yes</td>
+              <td class="y">Yes</td>
+              <td class="y">Yes</td>
+            </tr>
+            <tr>
+              <td>Scales to a sub-brand set</td>
+              <td>The chit is a container, not a system</td>
+              <td class="y">The ring takes a different centre per module (KOT, inventory, reports)</td>
+              <td class="n">Hard — the tiers are already the whole shape</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="callout">
+      <b>Why Thali.</b> It is the only one of the three that survives the 16px test without
+      losing its idea, and the only one that earns the <b>OS</b> in the name rather than
+      decorating around it. The Indian-ness is in the object itself — a steel plate with a rim —
+      not in an applied pattern, which is the brief for Direction C. It also gives us somewhere
+      to go: the ring is a frame, so each product module can take a different centre (a chit for
+      KOT, a crate for inventory, a bar for reports) without a new logo.
+      <br><br>
+      <b>What I'd carry over from the others.</b> Concept 01's torn chit is too good to throw
+      away — it should stay as an illustration motif on the site (section dividers, the pricing
+      card, the KOT screenshot frame), just not as the logo.
+      <br><br>
+      <b>Open question for the CTO.</b> The simplified ≤24px cut means the favicon is a slightly
+      different drawing from the large mark. That's normal practice, but it does mean two source
+      files to keep in sync. Shout if you'd rather we use one drawing everywhere and accept a
+      softer 16px.
+      <br><br>
+      <i>Answered: Chit, and one drawing everywhere. Both are reflected in the shipped files —
+      and with Chit the trade-off in that question disappears, because there is no softer 16px
+      to accept.</i>
+    </div>
+  </div>
+</section>
+
+</body>
+</html>

@@ -1,0 +1,64 @@
+/* ============================================================
+   FoodOS.ai — DESIGN TOKENS
+   Direction C, "Bazaar" (design/website/v3-bazaar/index.html).
+
+   This is the source of truth for the palette. Two values were
+   corrected for accessibility after v3-bazaar was approved; both
+   came from the Frontend Engineer. The `:root` block in
+   design/website/v3-bazaar/index.html has been re-synced to match,
+   so design/, website/src/styles/tokens.css and the exploration
+   all agree. If you change a colour, change it here first.
+
+     --mint   #0E8F62 -> #0D8459   white-on-mint was 4.10:1 (fails
+                                   AA); mint is a white-text surface
+                                   everywhere it is used. Now 4.71:1.
+     --ink-3  #7D756A -> #756D62   4.43:1 on --paper / 4.26:1 on
+                                   --paper-2, both under AA for the
+                                   12.5px body text it carries.
+
+   No external fonts, no CDNs: everything here is a system stack.
+   ============================================================ */
+
+:root {
+  /* --- surfaces ------------------------------------------------ */
+  --paper:      #FFFCF5;   /* page */
+  --paper-2:    #FFF7E6;   /* tinted panel */
+
+  /* --- ink ----------------------------------------------------- */
+  --ink:        #16130F;   /* primary text, rules, the logo tile */
+  --ink-2:      #4A443B;   /* secondary text */
+  --ink-3:      #756D62;   /* captions, meta (AA-corrected) */
+  --rule:       #16130F;
+
+  /* --- brand accents ------------------------------------------- */
+  --marigold:   #FFB703;   /* primary accent, the logo glyph */
+  --marigold-d: #E09500;   /* marigold, pressed/hover */
+  --indigo:     #2B2A7A;
+  --indigo-l:   #4A48C4;
+  --pomegranate:#E02B3C;
+  --mint:       #0D8459;   /* white-text surface (AA-corrected) */
+  --mint-l:     #D6F2E6;
+  --sky:        #BFE3F5;
+
+  /* --- type ---------------------------------------------------- */
+  --sans: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+
+  /* --- layout -------------------------------------------------- */
+  --maxw: 1200px;
+  --gutter: 26px;
+  --bw: 2px;                       /* border weight: hard 2px rules */
+  --shadow: 5px 5px 0 var(--ink);
+  --shadow-sm: 3px 3px 0 var(--ink);
+
+  /* The design relies on the browser default focus ring, which is
+     invisible against marigold. */
+  --focus: var(--pomegranate);
+
+  /* --- brand / logo -------------------------------------------- */
+  /* Consumed by the logo SVGs via CSS custom properties, so one
+     symbol serves every colourway. Defaults = positive on paper. */
+  --logo-tile:  var(--ink);
+  --logo-glyph: var(--marigold);
+  --logo-word:  var(--ink);
+}

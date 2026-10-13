@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="32" height="32" role="img" aria-label="FoodOS.ai">
+  <title>FoodOS.ai</title>
+  <!-- ============================================================
+       FoodOS.ai FAVICON.
+
+       The glyph here is IDENTICAL to logo-mark.svg — one drawing
+       at every size, no simplified small cut. export.mjs compares
+       the two path strings and fails the export if they drift, so
+       the two files cannot silently diverge.
+
+       The only difference is colour behaviour: on a dark browser
+       chrome the ink tile sinks into the surrounding UI, so it
+       takes a marigold keyline there. Safari ignores SVG favicons
+       entirely and falls back to favicon.ico, which cannot carry a
+       media query — dark-theme Safari users get the plain ink
+       tile. That is a browser limit, not a drawing problem.
+
+       NOTE: headless Chrome reports prefers-color-scheme: dark by
+       default. export.mjs pins the light scheme so the keyline
+       does not get baked into the rasters.
+       ============================================================ -->
+  <style>
+    .tile  { fill: #16130F; }
+    .glyph { fill: #FFB703; }
+    .edge  { stroke: none; }
+    @media (prefers-color-scheme: dark) {
+      .edge { stroke: #FFB703; }
+    }
+  </style>
+  <rect class="tile" width="100" height="100"/>
+  <rect class="edge" x="3" y="3" width="94" height="94" fill="none" stroke-width="6"/>
+  <path class="glyph" fill-rule="evenodd"
+        d="M18 14 H82 V74 L74 86 L66 74 L58 86 L50 74 L42 86 L34 74 L26 86 L18 74 Z
+           M28 28 H72 V41 H28 Z
+           M28 51 H58 V64 H28 Z"/>
+</svg>

@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>FoodOS.ai — og:image source (1200×630)</title>
+<style>
+/* ============================================================
+   FoodOS.ai — SOCIAL CARD SOURCE, 1200 x 630.
+   Render with:
+     chrome --headless --window-size=1200,630 \
+            --screenshot=og-image.png og-image.html
+
+   CROP DISCIPLINE. Link previews do not all show 1.91:1:
+     · 1200x630 full      WhatsApp large, LinkedIn, Slack, Facebook
+     · 1200x600 (2:1)     X / Twitter summary_large_image
+     · 630x630  centre    WhatsApp + iMessage small thumbnails
+   So every piece of content — logo, headline, sub, chips — lives
+   inside the centred 630-wide column (x 285..915). The outer
+   columns carry only the torn-chit motif, which is the one thing
+   that can be cropped away without losing the message.
+
+   MOTIF vs LOGO. The chit is now the logo, so the margin chits are
+   drawn as tinted outlines only — no solid ink field, no marigold
+   fill. The logo tile is the single filled chit on the card, and
+   the motif reads as the same object repeated in the background
+   rather than four rivals to the mark.
+
+   No external fonts, no CDNs. Palette is design/system/tokens.css,
+   inlined here so this file renders standalone.
+   ============================================================ */
+
+:root{
+  --paper:#FFFCF5; --paper-2:#FFF7E6;
+  --ink:#16130F;   --ink-2:#4A443B;
+  --marigold:#FFB703; --mint-l:#D6F2E6; --sky:#BFE3F5;
+  --sans: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+}
+*,*::before,*::after{ box-sizing:border-box; }
+html,body{ margin:0; padding:0; }
+body{
+  width:1200px; height:630px; overflow:hidden; position:relative;
+  background:var(--paper); color:var(--ink);
+  font-family:var(--sans); -webkit-font-smoothing:antialiased;
+}
+svg{ display:block; }
+
+/* ---- top ticker band ---- */
+.ticker{
+  /* 52px, not 46: X crops 1200x630 to 2:1, losing 15px top and
+     bottom. At 46px the ticker type sat 1px inside that cut. */
+  position:absolute; inset:0 0 auto 0; height:52px;
+  background:var(--ink); color:var(--paper);
+  display:flex; align-items:center; gap:34px; padding:0 26px;
+  font-family:var(--mono); font-size:14px; font-weight:700;
+  letter-spacing:.12em; text-transform:uppercase; white-space:nowrap;
+}
+.ticker b{ color:var(--marigold); font-weight:700; }
+
+/* ---- bottom band ---- */
+.foot{
+  position:absolute; inset:auto 0 0 0; height:50px;
+  background:var(--ink); color:var(--marigold);
+  display:flex; align-items:center; justify-content:space-between; padding:0 26px;
+  font-family:var(--mono); font-size:15px; font-weight:700; letter-spacing:.12em; text-transform:uppercase;
+}
+.foot span:last-child{ color:var(--paper); }
+
+/* ---- the safe centre column ---- */
+.stage{
+  position:absolute; left:285px; top:52px; width:630px; height:528px;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  text-align:center; gap:0;
+}
+.stage__logo{ margin-bottom:34px; }
+h1{
+  margin:0; font-weight:800; font-size:56px; line-height:1.07;
+  letter-spacing:-.042em;
+}
+h1 mark{
+  background:var(--marigold); color:var(--ink);
+  padding:0 .1em; box-decoration-break:clone; -webkit-box-decoration-break:clone;
+}
+.sub{
+  margin:24px 0 0; font-size:21px; line-height:1.4; font-weight:450;
+  color:var(--ink-2); max-width:560px;
+}
+.tags{ display:flex; gap:12px; margin-top:32px; }
+.tag{
+  border:3px solid var(--ink); background:var(--paper);
+  font-family:var(--mono); font-size:15px; font-weight:700;
+  padding:9px 14px; box-shadow:4px 4px 0 var(--ink);
+}
+.tag--mint{ background:var(--mint-l); }
+.tag--sky{ background:var(--sky); }
+
+/* ---- the torn-chit motif, in the columns a square crop discards ---- */
+.chit{ position:absolute; opacity:1; }
+.chit--l{ left:-54px;  top:150px;  transform:rotate(-8deg); }
+.chit--r{ right:-62px; top:120px;  transform:rotate(7deg); }
+.chit--r2{ right:38px; top:400px;  transform:rotate(-5deg); }
+.chit--l2{ left:52px;  top:412px;  transform:rotate(6deg); }
+
+/* The 630-wide safe column. Flip to `block` to check that nothing
+   that matters strays outside it, then flip back before rendering
+   the committed PNG. */
+.guides{ display:none; position:absolute; inset:0; }
+.guides i{ position:absolute; top:0; bottom:0; width:2px; background:#E02B3C; opacity:.55; }
+.guides i:nth-child(1){ left:285px; }
+.guides i:nth-child(2){ left:913px; }
+</style>
+</head>
+<body>
+
+  <div class="ticker">
+    <span>GST BILLING</span><b>·</b><span>KOT TO KITCHEN</span><b>·</b>
+    <span>ZOMATO + SWIGGY IN ONE QUEUE</span><b>·</b><span>WORKS OFFLINE</span><b>·</b>
+    <span>9 LANGUAGES</span>
+  </div>
+
+  <!-- ---------- torn chit motif: tinted outlines, never filled ----------
+       The mark is a filled chit, so these stay as outlines on tint.
+       Three bill lines here against the mark's two, so the motif is
+       read as background texture rather than as a repeated logo. -->
+  <svg class="chit chit--l" width="150" height="196" viewBox="0 0 100 130" aria-hidden="true">
+    <path fill="#FFF7E6" stroke="#16130F" stroke-width="5"
+          d="M2.5 2.5 H97.5 V105 L87.5 119 L75 103 L62.5 119 L50 103 L37.5 119 L25 103 L12.5 119 L2.5 105 Z"/>
+    <g fill="#16130F">
+      <rect x="18" y="24" width="64" height="11"/><rect x="18" y="48" width="40" height="11"/>
+      <rect x="18" y="72" width="64" height="8"/>
+    </g>
+  </svg>
+  <svg class="chit chit--r" width="168" height="218" viewBox="0 0 100 130" aria-hidden="true">
+    <path fill="#BFE3F5" stroke="#16130F" stroke-width="5"
+          d="M2.5 2.5 H97.5 V105 L87.5 119 L75 103 L62.5 119 L50 103 L37.5 119 L25 103 L12.5 119 L2.5 105 Z"/>
+    <g fill="#16130F">
+      <rect x="18" y="24" width="64" height="11"/><rect x="18" y="48" width="40" height="11"/>
+      <rect x="18" y="72" width="64" height="8"/>
+    </g>
+  </svg>
+  <svg class="chit chit--l2" width="104" height="135" viewBox="0 0 100 130" aria-hidden="true">
+    <path fill="#D6F2E6" stroke="#16130F" stroke-width="5"
+          d="M2.5 2.5 H97.5 V105 L87.5 119 L75 103 L62.5 119 L50 103 L37.5 119 L25 103 L12.5 119 L2.5 105 Z"/>
+    <g fill="#16130F">
+      <rect x="18" y="26" width="64" height="11"/><rect x="18" y="50" width="40" height="11"/>
+    </g>
+  </svg>
+  <svg class="chit chit--r2" width="98" height="127" viewBox="0 0 100 130" aria-hidden="true">
+    <path fill="#FFFCF5" stroke="#16130F" stroke-width="5"
+          d="M2.5 2.5 H97.5 V105 L87.5 119 L75 103 L62.5 119 L50 103 L37.5 119 L25 103 L12.5 119 L2.5 105 Z"/>
+    <g fill="#16130F">
+      <rect x="18" y="26" width="64" height="11"/><rect x="18" y="50" width="40" height="11"/>
+    </g>
+  </svg>
+
+  <!-- ---------- the safe centre column ---------- -->
+  <div class="stage">
+
+    <!-- FoodOS.ai horizontal lockup, inlined from logo.svg -->
+    <svg class="stage__logo" viewBox="0 0 858 216" width="330" height="83" role="img" aria-label="FoodOS.ai">
+      <g transform="scale(2.16)">
+        <rect width="100" height="100" fill="#16130F"/>
+        <path fill="#FFB703" fill-rule="evenodd"
+              d="M18 14 H82 V74 L74 86 L66 74 L58 86 L50 74 L42 86 L34 74 L26 86 L18 74 Z
+                 M28 28 H72 V41 H28 Z
+                 M28 51 H58 V64 H28 Z"/>
+      </g>
+      <g transform="translate(266 58)">
+        <g fill="#16130F" fill-rule="evenodd">
+          <path d="M0 0 H58 V24 H24 V39 H52 V61 H24 V100 H0 Z"/>
+          <path transform="translate(64 0)"  d="M30 24 H42 A30 30 0 0 1 72 54 V72 A30 30 0 0 1 42 102 H30 A30 30 0 0 1 0 72 V54 A30 30 0 0 1 30 24 Z
+                                                M34 49 H38 A9 9 0 0 1 47 58 V68 A9 9 0 0 1 38 77 H34 A9 9 0 0 1 25 68 V58 A9 9 0 0 1 34 49 Z"/>
+          <path transform="translate(142 0)" d="M30 24 H42 A30 30 0 0 1 72 54 V72 A30 30 0 0 1 42 102 H30 A30 30 0 0 1 0 72 V54 A30 30 0 0 1 30 24 Z
+                                                M34 49 H38 A9 9 0 0 1 47 58 V68 A9 9 0 0 1 38 77 H34 A9 9 0 0 1 25 68 V58 A9 9 0 0 1 34 49 Z"/>
+          <path transform="translate(220 0)" d="M48 -8 H72 V102 H30 A30 30 0 0 1 0 72 V54 A30 30 0 0 1 30 24 H48 Z
+                                                M48 49 H34 A9 9 0 0 0 25 58 V68 A9 9 0 0 0 34 77 H48 Z"/>
+          <path transform="translate(302 0)" d="M36 -2 H46 A36 36 0 0 1 82 34 V66 A36 36 0 0 1 46 102 H36 A36 36 0 0 1 0 66 V34 A36 36 0 0 1 36 -2 Z
+                                                M36 24 H46 A10 10 0 0 1 56 34 V66 A10 10 0 0 1 46 76 H36 A10 10 0 0 1 26 66 V34 A10 10 0 0 1 36 24 Z"/>
+          <path transform="translate(392 0)" d="M72 0 H30 A30 30 0 1 0 30 60 L42 64 A6 6 0 1 1 42 76 H0 V100 H42 A30 30 0 1 0 42 40 L30 36 A6 6 0 1 1 30 24 H72 Z"/>
+        </g>
+        <rect x="483.5" y="21.5" width="105" height="83" fill="#FFB703" stroke="#16130F" stroke-width="7"/>
+        <g transform="translate(495 35.4) scale(0.6)" fill="#16130F" fill-rule="evenodd">
+          <path d="M0 76 H24 V100 H0 Z"/>
+          <path transform="translate(32 0)"  d="M48 24 H72 V102 H30 A30 30 0 0 1 0 72 V54 A30 30 0 0 1 30 24 Z
+                                                M48 49 H34 A9 9 0 0 0 25 58 V68 A9 9 0 0 0 34 77 H48 Z"/>
+          <path transform="translate(112 0)" d="M0 24 H24 V100 H0 Z M0 -10 H24 V14 H0 Z"/>
+        </g>
+      </g>
+    </svg>
+
+    <h1>Bill fast. Waste less.<br><mark>Know your numbers.</mark></h1>
+
+    <p class="sub">The restaurant POS with AI built in.<br>Made in India, for Indian restaurants.</p>
+
+    <div class="tags">
+      <span class="tag">₹ GST-ready</span>
+      <span class="tag tag--mint">Offline billing</span>
+      <span class="tag tag--sky">9 languages</span>
+    </div>
+  </div>
+
+  <div class="foot">
+    <span>foodos.ai</span>
+    <span>Book a demo →</span>
+  </div>
+
+  <div class="guides"><i></i><i></i></div>
+
+</body>
+</html>

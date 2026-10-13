@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FoodOS.ai — exported icon check</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="favicon.ico" sizes="48x48">
+<link rel="stylesheet" href="../system/tokens.css">
+<style>
+/* ============================================================
+   EXPORTED ICON CHECK
+   The actual PNG/ICO files from export.mjs, shown at 1:1 and
+   magnified with nearest-neighbour so the real pixel grid is
+   visible. This page also wires up favicon.svg and favicon.ico,
+   so the browser tab itself is a live test.
+   ============================================================ */
+*,*::before,*::after{ box-sizing:border-box; }
+body{ margin:0; background:var(--paper); color:var(--ink); font-family:var(--sans); font-size:15px; line-height:1.55; }
+.wrap{ max-width:1100px; margin-inline:auto; padding:0 26px 70px; }
+h1,h2{ margin:0; font-weight:800; letter-spacing:-.04em; line-height:1.05; }
+h1{ font-size:clamp(28px,3.8vw,44px); }
+h2{ font-size:22px; margin:40px 0 4px; }
+p{ margin:0; }
+.top{ background:var(--ink); color:var(--paper); margin-bottom:30px; }
+.top .wrap{ padding-block:28px 32px; }
+.top h1{ color:var(--paper); margin:14px 0 10px; }
+.top p{ color:#CFC7BA; max-width:74ch; }
+.sticker{ display:inline-block; background:var(--marigold); color:var(--ink); border:2px solid var(--ink); box-shadow:3px 3px 0 var(--ink); font-family:var(--mono); font-size:11.5px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; padding:5px 11px; transform:rotate(-1.2deg); }
+.note{ color:var(--ink-2); font-size:14px; max-width:76ch; margin-bottom:18px; }
+.mono{ font-family:var(--mono); font-size:10.5px; letter-spacing:.07em; text-transform:uppercase; color:var(--ink-3); margin-top:8px; }
+
+.row{ display:flex; gap:30px; flex-wrap:wrap; align-items:flex-end; }
+figure{ margin:0; text-align:center; }
+img{ display:block; image-rendering:pixelated; }
+.on-paper{ background:var(--paper); }
+.on-ink{ background:var(--ink); padding:14px; }
+.on-ink .mono{ color:#9B9185; }
+
+.pane{ border:2px solid var(--ink); box-shadow:5px 5px 0 var(--ink); padding:24px 26px; background:var(--paper); }
+.pane--ink{ background:var(--ink); }
+.pane--ink .mono{ color:#9B9185; }
+
+/* maskable safe-circle overlay */
+.mask{ position:relative; width:256px; height:256px; }
+.mask img{ width:256px; height:256px; }
+.mask::after{
+  content:""; position:absolute; left:50%; top:50%; width:204.8px; height:204.8px;
+  transform:translate(-50%,-50%); border:2px dashed var(--pomegranate); border-radius:50%;
+}
+.mask--circle img{ border-radius:50%; }
+.mask--squircle img{ border-radius:26%; }
+/* The safe circle only means something for the maskable source.
+   Drawing it over a full-bleed icon implies a constraint that
+   does not apply to it. */
+.mask--nozone::after{ display:none; }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <span class="sticker">FOO-5 · exported assets</span>
+    <h1>The files, at the size they ship</h1>
+    <p>Every image below is the real exported file, not a live SVG. Magnified views use
+       nearest-neighbour so you can count pixels. This page also sets the tab icon from
+       <code>favicon.svg</code> / <code>favicon.ico</code> — check the browser tab.</p>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <h2>1 — favicon, at 1:1</h2>
+  <p class="note">The same drawing as the app icons — there is no separate small cut. Each image
+     below is rendered at its own size rather than downscaled from a bigger one, so this is the
+     real 16px, not a smooth resample of the 32.</p>
+  <div class="pane">
+    <div class="row">
+      <figure><img src="favicon-16.png" width="16" height="16" alt=""><div class="mono">16</div></figure>
+      <figure><img src="favicon-32.png" width="32" height="32" alt=""><div class="mono">32</div></figure>
+      <figure><img src="favicon-48.png" width="48" height="48" alt=""><div class="mono">48</div></figure>
+    </div>
+  </div>
+
+  <h2>2 — magnified 8×</h2>
+  <p class="note">The real pixel grids. 16px is the floor the geometry was tuned against: the
+     bars are 13 units deep, which lands as just over 2px, and the torn edge still breaks the
+     silhouette rather than reading as a plain rectangle.</p>
+  <div class="pane">
+    <div class="row">
+      <figure><img src="favicon-16.png" width="256" height="256" alt=""><div class="mono">16 → 16×</div></figure>
+      <figure><img src="favicon-32.png" width="256" height="256" alt=""><div class="mono">32 → 8×</div></figure>
+      <figure class="on-ink"><img src="favicon-32.png" width="256" height="256" alt=""><div class="mono">on ink</div></figure>
+    </div>
+  </div>
+
+  <h2>3 — App icons, at 1:1 and shaped</h2>
+  <p class="note">The mark, full bleed. iOS and Android round the corners themselves, so these
+     ship square. The dashed circle on the maskable icon is Android's 80% safe zone.</p>
+  <div class="pane">
+    <div class="row">
+      <figure><img src="apple-touch-icon.png" width="180" height="180" alt=""><div class="mono">apple-touch-icon · 180</div></figure>
+      <figure class="mask mask--squircle mask--nozone"><img src="apple-touch-icon.png" alt=""><div class="mono">iOS mask</div></figure>
+      <figure><img src="icon-192.png" width="192" height="192" alt=""><div class="mono">icon-192</div></figure>
+    </div>
+  </div>
+
+  <h2>4 — Maskable icon vs the safe circle</h2>
+  <p class="note">Android crops this to whatever the launcher wants. The chit's corners sit at a
+     radius of 197.5 inside the guaranteed 204.8 circle, so a circle mask, a squircle mask and a
+     full square all keep the whole ticket — including the torn edge, which is the first thing a
+     tight crop would eat.</p>
+  <div class="pane">
+    <div class="row">
+      <figure class="mask"><img src="icon-maskable-512.png" alt=""><div class="mono">safe zone</div></figure>
+      <figure class="mask mask--circle"><img src="icon-maskable-512.png" alt=""><div class="mono">circle mask</div></figure>
+      <figure class="mask mask--squircle"><img src="icon-maskable-512.png" alt=""><div class="mono">squircle mask</div></figure>
+      <figure><img src="icon-512.png" width="256" height="256" alt=""><div class="mono">icon-512 (not maskable)</div></figure>
+    </div>
+  </div>
+
+  <h2>5 — Tab strips</h2>
+  <p class="note">16px in the chrome it actually lives in.</p>
+  <div class="pane">
+    <div class="row" style="align-items:flex-start">
+      <div style="width:260px;background:#DEDAD3;border:2px solid var(--ink);padding:7px 7px 0">
+        <div style="display:flex;align-items:center;gap:7px;background:var(--paper);border:2px solid var(--ink);border-bottom:0;padding:7px 10px">
+          <img src="favicon-32.png" width="16" height="16" alt="" style="flex:none">
+          <span style="font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">FoodOS.ai — restaurant POS with…</span>
+        </div>
+        <div style="height:9px;background:var(--paper);border:2px solid var(--ink)"></div>
+      </div>
+      <div style="width:260px;background:#15100C;border:2px solid var(--ink);padding:7px 7px 0">
+        <div style="display:flex;align-items:center;gap:7px;background:#2A241D;border:2px solid #000;border-bottom:0;padding:7px 10px">
+          <img src="favicon-32.png" width="16" height="16" alt="" style="flex:none">
+          <span style="font-size:12px;color:#E6E0D6;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">FoodOS.ai — restaurant POS with…</span>
+        </div>
+        <div style="height:9px;background:#2A241D;border:2px solid #000"></div>
+      </div>
+    </div>
+    <p class="note" style="margin:18px 0 0">On dark browser chrome the ink tile sinks into the UI.
+       <code>favicon.svg</code> handles that with a <code>prefers-color-scheme: dark</code> rule that
+       adds the marigold keyline; the <code>.ico</code> cannot carry a media query, so Safari — which
+       ignores SVG favicons — gets the plain ink tile. That is the one place the mark is quieter
+       than it should be, and it is a browser limit rather than a drawing problem.</p>
+  </div>
+
+</div>
+</body>
+</html>

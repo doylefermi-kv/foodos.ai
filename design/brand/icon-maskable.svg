@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="FoodOS.ai">
+  <title>FoodOS.ai — maskable icon</title>
+  <!-- ============================================================
+       FoodOS.ai — MASKABLE icon source (Android adaptive icons).
+
+       Android crops this to whatever shape the launcher wants —
+       circle, squircle, teardrop, rounded square. Only the centred
+       circle of 80% diameter (r = 204.8 about 256,256) is
+       guaranteed to survive, so the glyph is inset to sit inside
+       it while the ink field runs full bleed.
+
+       Same drawing as logo-mark.svg, scaled and centred:
+         glyph bbox   x 18..82, y 14..86 on the 100-unit grid
+         centre       (50,50) -> (256,256) at translate(51 51)
+         scale 4.1    corner radius 197.5 < 204.8 safe radius
+                      chit 262px wide = 51% of the icon
+
+       The non-maskable icons (icon-192, icon-512, apple-touch-icon)
+       use logo-mark.svg full bleed instead: those are never
+       cropped, so the glyph can run larger.
+       ============================================================ -->
+  <rect width="512" height="512" fill="#16130F"/>
+  <g transform="translate(51 51) scale(4.1)">
+    <path fill="#FFB703" fill-rule="evenodd"
+          d="M18 14 H82 V74 L74 86 L66 74 L58 86 L50 74 L42 86 L34 74 L26 86 L18 74 Z
+             M28 28 H72 V41 H28 Z
+             M28 51 H58 V64 H28 Z"/>
+  </g>
+</svg>

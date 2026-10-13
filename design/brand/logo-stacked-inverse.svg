@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 592 378" width="592" height="378" role="img" aria-label="FoodOS.ai">
+  <title>FoodOS.ai — stacked, inverse</title>
+  <!-- ============================================================
+       Stacked lockup for INK / dark backgrounds. Same geometry as
+       logo-stacked.svg; marigold keyline on the tile, paper-white
+       wordmark, marigold .ai chip unchanged.
+       ============================================================ -->
+
+  <g transform="translate(188 0) scale(2.16)">
+    <rect width="100" height="100" fill="#16130F"/>
+    <rect x="3" y="3" width="94" height="94" fill="none" stroke="#FFB703" stroke-width="6"/>
+    <g fill="#FFB703">
+      <path fill-rule="evenodd"
+            d="M18 14 H82 V74 L74 86 L66 74 L58 86 L50 74 L42 86 L34 74 L26 86 L18 74 Z
+               M28 28 H72 V41 H28 Z
+               M28 51 H58 V64 H28 Z"/>
+    </g>
+  </g>
+
+  <g transform="translate(0 270)">
+    <g fill="#FFFCF5" fill-rule="evenodd">
+      <path d="M0 0 H58 V24 H24 V39 H52 V61 H24 V100 H0 Z"/>
+      <path transform="translate(64 0)"  d="M30 24 H42 A30 30 0 0 1 72 54 V72 A30 30 0 0 1 42 102 H30 A30 30 0 0 1 0 72 V54 A30 30 0 0 1 30 24 Z
+                                            M34 49 H38 A9 9 0 0 1 47 58 V68 A9 9 0 0 1 38 77 H34 A9 9 0 0 1 25 68 V58 A9 9 0 0 1 34 49 Z"/>
+      <path transform="translate(142 0)" d="M30 24 H42 A30 30 0 0 1 72 54 V72 A30 30 0 0 1 42 102 H30 A30 30 0 0 1 0 72 V54 A30 30 0 0 1 30 24 Z
+                                            M34 49 H38 A9 9 0 0 1 47 58 V68 A9 9 0 0 1 38 77 H34 A9 9 0 0 1 25 68 V58 A9 9 0 0 1 34 49 Z"/>
+      <path transform="translate(220 0)" d="M48 -8 H72 V102 H30 A30 30 0 0 1 0 72 V54 A30 30 0 0 1 30 24 H48 Z
+                                            M48 49 H34 A9 9 0 0 0 25 58 V68 A9 9 0 0 0 34 77 H48 Z"/>
+      <path transform="translate(302 0)" d="M36 -2 H46 A36 36 0 0 1 82 34 V66 A36 36 0 0 1 46 102 H36 A36 36 0 0 1 0 66 V34 A36 36 0 0 1 36 -2 Z
+                                            M36 24 H46 A10 10 0 0 1 56 34 V66 A10 10 0 0 1 46 76 H36 A10 10 0 0 1 26 66 V34 A10 10 0 0 1 36 24 Z"/>
+      <path transform="translate(392 0)" d="M72 0 H30 A30 30 0 1 0 30 60 L42 64 A6 6 0 1 1 42 76 H0 V100 H42 A30 30 0 1 0 42 40 L30 36 A6 6 0 1 1 30 24 H72 Z"/>
+    </g>
+    <rect x="483.5" y="21.5" width="105" height="83" fill="#FFB703" stroke="#16130F" stroke-width="7"/>
+    <g transform="translate(495 35.4) scale(0.6)" fill="#16130F" fill-rule="evenodd">
+      <path d="M0 76 H24 V100 H0 Z"/>
+      <path transform="translate(32 0)"  d="M48 24 H72 V102 H30 A30 30 0 0 1 0 72 V54 A30 30 0 0 1 30 24 Z
+                                            M48 49 H34 A9 9 0 0 0 25 58 V68 A9 9 0 0 0 34 77 H48 Z"/>
+      <path transform="translate(112 0)" d="M0 24 H24 V100 H0 Z M0 -10 H24 V14 H0 Z"/>
+    </g>
+  </g>
+</svg>

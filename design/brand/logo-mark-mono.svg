@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100" role="img" aria-label="FoodOS.ai">
+  <title>FoodOS.ai — symbol, one colour</title>
+  <!-- ============================================================
+       One-colour symbol: rubber stamps, invoices, fax-grade
+       thermal printers, embroidery, single-plate screen print.
+       The tile becomes a keyline so the glyph can carry the ink,
+       and the two bill lines knock out to whatever is behind.
+       Change `currentColor` by setting `color` on the parent, or
+       swap the fills for a knock-out on a solid field.
+       ============================================================ -->
+  <g fill="currentColor" color="#16130F">
+    <rect x="3" y="3" width="94" height="94" fill="none" stroke="currentColor" stroke-width="6"/>
+    <path fill-rule="evenodd"
+          d="M18 14 H82 V74 L74 86 L66 74 L58 86 L50 74 L42 86 L34 74 L26 86 L18 74 Z
+             M28 28 H72 V41 H28 Z
+             M28 51 H58 V64 H28 Z"/>
+  </g>
+</svg>

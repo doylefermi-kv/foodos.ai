@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FoodOS.ai — design index</title>
+<link rel="icon" href="brand/favicon.svg" type="image/svg+xml">
+<style>
+/* Neutral review chrome, matching design/website/index.html.
+   Deliberately unbranded so it doesn't compete with the work it
+   is listing. */
+:root{
+  --bg:#F4F4F2; --panel:#FFFFFF; --ink:#16161A; --ink-2:#55555E; --ink-3:#8A8A93;
+  --line:#E2E2DE; --line-2:#CFCFC9;
+  --sans: ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --mono: ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+  --gutter:28px;
+}
+*,*::before,*::after{ box-sizing:border-box; }
+body{ margin:0; background:var(--bg); color:var(--ink); font-family:var(--sans); font-size:16px; line-height:1.6; -webkit-font-smoothing:antialiased; }
+a{ color:inherit; }
+h1,h2,h3{ margin:0; letter-spacing:-.03em; line-height:1.1; font-weight:650; }
+h1{ font-size:clamp(30px,4vw,46px); }
+h2{ font-size:clamp(20px,2.2vw,26px); }
+h3{ font-size:17px; }
+p{ margin:0; }
+.wrap{ max-width:1320px; margin-inline:auto; padding-inline:var(--gutter); }
+
+header.top{ border-bottom:1px solid var(--line); background:var(--panel); padding:38px 0 34px; }
+.badge{ display:inline-block; font-family:var(--mono); font-size:11px; letter-spacing:.12em; text-transform:uppercase; color:var(--ink-3); border:1px solid var(--line-2); border-radius:4px; padding:3px 9px; margin-bottom:18px; }
+header.top p{ color:var(--ink-2); max-width:76ch; margin-top:16px; }
+.meta{ display:flex; gap:10px; flex-wrap:wrap; margin-top:22px; font-family:var(--mono); font-size:11.5px; color:var(--ink-3); }
+.meta span{ border:1px solid var(--line-2); border-radius:4px; padding:4px 9px; background:var(--bg); }
+
+section{ padding:44px 0 10px; }
+section > .wrap > h2{ margin-bottom:6px; }
+.sub{ color:var(--ink-2); font-size:15px; max-width:76ch; margin-bottom:22px; }
+
+.grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(290px,1fr)); gap:16px; }
+.card{
+  display:block; background:var(--panel); border:1px solid var(--line);
+  border-radius:10px; padding:17px 18px 16px; text-decoration:none;
+  transition:border-color .12s ease, transform .12s ease;
+}
+.card:hover{ border-color:var(--ink-3); transform:translateY(-2px); }
+.card h3{ margin-bottom:5px; }
+.card p{ color:var(--ink-2); font-size:14px; }
+.card .path{ display:block; font-family:var(--mono); font-size:11px; color:var(--ink-3); margin-top:10px; word-break:break-all; }
+.card--flat{ cursor:default; }
+.card--flat:hover{ border-color:var(--line); transform:none; }
+
+.tag{ display:inline-block; font-family:var(--mono); font-size:10px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; border-radius:4px; padding:3px 8px; margin-bottom:9px; }
+.tag--new{ background:#0E8F62; color:#fff; }
+.tag--done{ background:var(--bg); color:var(--ink-3); border:1px solid var(--line-2); }
+
+footer{ padding:50px 0 70px; color:var(--ink-3); font-size:13.5px; }
+footer code{ font-family:var(--mono); font-size:12.5px; }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <span class="badge">FoodOS.ai · design</span>
+    <h1>Design index</h1>
+    <p>Every design artifact in this repo. All of it is static HTML — open any file directly in
+       a browser, no build step and no network. Shared tokens and base components live in
+       <code>design/system/</code>; each feature gets its own folder with a README.</p>
+    <div class="meta">
+      <span>Product Designer</span>
+      <span>Direction C — “Bazaar”</span>
+      <span>No external fonts or CDNs</span>
+    </div>
+  </div>
+</header>
+
+<section>
+  <div class="wrap">
+    <h2>Design system</h2>
+    <p class="sub">The tokens every screen pulls from. Source of truth for the palette, including
+       the two contrast corrections adopted from the Frontend Engineer.</p>
+    <div class="grid">
+      <a class="card" href="system/tokens.css">
+        <span class="tag tag--done">tokens</span>
+        <h3>Colour, type, layout tokens</h3>
+        <p>CSS custom properties, lifted from Direction C with <code>--mint</code> and
+           <code>--ink-3</code> corrected for AA.</p>
+        <span class="path">design/system/tokens.css</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Brand — FOO-5</h2>
+    <p class="sub">Logo, favicon and app icon set, and the social card. Decided by the CTO:
+       Concept 01, “Chit” — the torn KOT ticket. One drawing at every size.</p>
+    <div class="grid">
+      <a class="card" href="brand/logo-explorations.html">
+        <span class="tag tag--done">decided</span>
+        <h3>Logo explorations</h3>
+        <p>Three concepts on light and dark, 16–128px, all three lockups, the scoring behind
+           them, and the decision note on what changed once 01 was picked.</p>
+        <span class="path">design/brand/logo-explorations.html</span>
+      </a>
+      <a class="card" href="brand/icons-check.html">
+        <span class="tag tag--new">verify</span>
+        <h3>Exported icon check</h3>
+        <p>The real PNG and ICO files at 1:1 and magnified, tab strips at 16px, and the
+           Android maskable safe zone.</p>
+        <span class="path">design/brand/icons-check.html</span>
+      </a>
+      <a class="card" href="brand/og-preview-check.html">
+        <span class="tag tag--new">verify</span>
+        <h3>Social card crop check</h3>
+        <p>The 1200×630 card under the WhatsApp, LinkedIn, X, Slack and iMessage crops.</p>
+        <span class="path">design/brand/og-preview-check.html</span>
+      </a>
+      <a class="card" href="brand/og-image.html">
+        <span class="tag tag--done">source</span>
+        <h3>Social card source</h3>
+        <p>The 1200×630 og:image, as HTML. Rendered to PNG by <code>export.mjs</code>.</p>
+        <span class="path">design/brand/og-image.html</span>
+      </a>
+      <a class="card" href="brand/README.md">
+        <span class="tag tag--done">spec</span>
+        <h3>Brand README</h3>
+        <p>Concept rationale, construction, clear space, minimum sizes, colour usage,
+           do/don't, file list and the handoff checklist.</p>
+        <span class="path">design/brand/README.md</span>
+      </a>
+      <a class="card" href="brand/logo.svg">
+        <span class="tag tag--done">asset</span>
+        <h3>logo.svg</h3>
+        <p>The primary horizontal lockup. Inverse, mono, stacked and symbol-only variants sit
+           beside it.</p>
+        <span class="path">design/brand/logo.svg</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Marketing site — FOO-1</h2>
+    <p class="sub">Three directions for the public site. The CTO picked Direction C, “Bazaar”,
+       which is what the brand work above builds on.</p>
+    <div class="grid">
+      <a class="card" href="website/index.html">
+        <span class="tag tag--done">compare</span>
+        <h3>All three directions</h3>
+        <p>Side-by-side review page with the recommendation.</p>
+        <span class="path">design/website/index.html</span>
+      </a>
+      <a class="card" href="website/v3-bazaar/index.html">
+        <span class="tag tag--done">chosen</span>
+        <h3>C — Bazaar</h3>
+        <p>Ink on paper-white, marigold and indigo blocks, hard rules, receipt motif.</p>
+        <span class="path">design/website/v3-bazaar/index.html</span>
+      </a>
+      <a class="card" href="website/v1-tandoor/index.html">
+        <span class="tag tag--done">explored</span>
+        <h3>A — Tandoor</h3>
+        <p>Warm, photographic, appetite-led.</p>
+        <span class="path">design/website/v1-tandoor/index.html</span>
+      </a>
+      <a class="card" href="website/v2-slate/index.html">
+        <span class="tag tag--done">explored</span>
+        <h3>B — Slate</h3>
+        <p>Cool, product-led, dashboard-forward.</p>
+        <span class="path">design/website/v2-slate/index.html</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    Product designs are static HTML by convention — see <code>AGENTS.md</code>. Raster assets
+    under <code>design/brand/</code> are generated locally by
+    <code>node design/brand/export.mjs</code>; don't hand-edit them.
+  </div>
+</footer>
+
+</body>
+</html>

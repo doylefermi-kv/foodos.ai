@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100" role="img" aria-label="FoodOS.ai">
+  <title>FoodOS.ai — symbol</title>
+  <!-- ============================================================
+       FoodOS.ai SYMBOL — "Chit"
+       The torn KOT ticket, sharpened: four big teeth instead of a
+       fine perforation, two bill lines instead of three. This is
+       the paper that currently runs every restaurant in the
+       country — FoodOS is what replaces it.
+
+       Grid: 100 x 100, tile full-bleed (the artwork IS the icon).
+         body    x 18..82, y 14..74, torn edge down to y 86
+         teeth   4, pitch 16, depth 12
+         lines   13 deep; long x 28..72, short x 28..58
+
+       ONE DRAWING AT EVERY SIZE. There is no separate small cut:
+       this same artwork is what favicon.svg and the maskable icon
+       carry, and export.mjs fails the build if they diverge. The
+       geometry is tuned for the 16px floor — bars 13 units deep
+       (2.1px at 16px) with 10-unit gaps, body widened to 64 units
+       so the torn edge still breaks the silhouette. See README.md.
+       ============================================================ -->
+  <rect width="100" height="100" fill="#16130F"/>
+  <path fill="#FFB703" fill-rule="evenodd"
+        d="M18 14 H82 V74 L74 86 L66 74 L58 86 L50 74 L42 86 L34 74 L26 86 L18 74 Z
+           M28 28 H72 V41 H28 Z
+           M28 51 H58 V64 H28 Z"/>
+</svg>

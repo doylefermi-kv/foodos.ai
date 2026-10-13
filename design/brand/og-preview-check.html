@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FoodOS.ai — og:image link-preview check</title>
+<link rel="stylesheet" href="../system/tokens.css">
+<style>
+/* ============================================================
+   og:image CROP CHECK
+   The real og-image.png, put through the crops the big link
+   unfurlers actually apply. Every frame below uses object-fit:
+   cover on the same file, so what you see is what the client
+   would show.
+   ============================================================ */
+*,*::before,*::after{ box-sizing:border-box; }
+body{
+  margin:0; background:var(--paper); color:var(--ink);
+  font-family:var(--sans); font-size:15px; line-height:1.55;
+}
+.wrap{ max-width:1180px; margin-inline:auto; padding:0 26px 72px; }
+h1,h2{ margin:0; font-weight:800; letter-spacing:-.035em; line-height:1.05; }
+h1{ font-size:clamp(30px,4vw,46px); letter-spacing:-.045em; }
+h2{ font-size:24px; margin:44px 0 6px; }
+p{ margin:0; }
+
+.top{ background:var(--ink); color:var(--paper); margin-bottom:36px; }
+.top .wrap{ padding-block:30px 34px; }
+.top h1{ color:var(--paper); margin:14px 0 10px; }
+.top p{ color:#CFC7BA; max-width:72ch; }
+.sticker{
+  display:inline-block; background:var(--marigold); color:var(--ink);
+  border:2px solid var(--ink); box-shadow:3px 3px 0 var(--ink);
+  font-family:var(--mono); font-size:11.5px; font-weight:700;
+  letter-spacing:.1em; text-transform:uppercase; padding:5px 11px;
+  transform:rotate(-1.2deg);
+}
+.note{ color:var(--ink-2); font-size:14px; max-width:76ch; margin-bottom:18px; }
+.mono{ font-family:var(--mono); font-size:11px; letter-spacing:.07em; text-transform:uppercase; color:var(--ink-3); }
+
+.row{ display:flex; gap:28px; flex-wrap:wrap; align-items:flex-start; }
+
+/* generic crop frame */
+.crop{ overflow:hidden; background:#000; }
+.crop img{ width:100%; height:100%; object-fit:cover; object-position:center; display:block; }
+
+/* ---- raw crops ---- */
+.raw figure{ margin:0; }
+.raw figcaption{ margin-top:8px; }
+.raw .crop{ border:2px solid var(--ink); }
+
+/* ---- WhatsApp ---- */
+.wa{ width:360px; background:#0B141A; padding:14px; border:2px solid var(--ink); }
+.wa__bub{ background:#005C4B; border-radius:10px 10px 10px 2px; padding:4px 4px 6px; margin-left:auto; width:300px; color:#E9EDEF; }
+.wa__card{ background:#025144; border-radius:7px; overflow:hidden; }
+.wa__card .crop{ aspect-ratio:1.91/1; }
+.wa__meta{ padding:7px 9px 8px; }
+.wa__meta b{ display:block; font-size:13px; font-weight:600; }
+.wa__meta span{ display:block; font-size:12px; color:#9FB0B5; margin-top:2px; }
+.wa__meta i{ display:block; font-style:normal; font-size:11px; color:#8696A0; margin-top:3px; }
+.wa__txt{ font-size:14px; padding:4px 8px 2px; }
+/* the small/thumbnail variant: square crop, text beside it */
+.wa__small{ display:flex; background:#025144; border-radius:7px; overflow:hidden; margin-top:10px; }
+.wa__small .crop{ width:84px; height:84px; flex:none; }
+.wa__small .wa__meta{ padding:8px 9px; }
+
+/* ---- LinkedIn ---- */
+.li{ width:420px; border:1px solid #D4D2CF; background:#fff; }
+.li__crop{ aspect-ratio:1.91/1; }
+.li__meta{ background:#F4F2EE; padding:10px 12px; border-top:1px solid #D4D2CF; }
+.li__meta b{ display:block; font-size:14px; color:#000; }
+.li__meta span{ display:block; font-size:12px; color:#5E5E5E; margin-top:2px; }
+
+/* ---- X / Twitter: 2:1 ---- */
+.x{ width:420px; }
+.x .crop{ aspect-ratio:2/1; border:1px solid #CFD9DE; border-radius:14px; }
+.x__meta{ font-size:13px; color:#536471; margin-top:-26px; margin-left:12px; position:relative; }
+.x__meta b{ background:rgba(0,0,0,.72); color:#fff; font-weight:400; padding:2px 6px; border-radius:4px; }
+
+/* ---- Slack ---- */
+.sl{ width:440px; background:#fff; border:1px solid #DDD; padding:12px 14px; }
+.sl__in{ border-left:4px solid var(--marigold); padding-left:12px; }
+.sl__in b{ display:block; font-size:14px; color:#1264A3; }
+.sl__in span{ display:block; font-size:13px; color:#1D1C1D; margin:2px 0 8px; }
+.sl__in .crop{ width:360px; aspect-ratio:1.91/1; border-radius:8px; }
+
+/* ---- iMessage ---- */
+.im{ width:300px; background:#F2F2F7; padding:14px; border:2px solid var(--ink); }
+.im__card{ width:260px; border-radius:16px; overflow:hidden; background:#fff; margin-left:auto; }
+.im__card .crop{ aspect-ratio:1.91/1; }
+.im__meta{ padding:8px 11px 10px; }
+.im__meta b{ display:block; font-size:13px; }
+.im__meta span{ display:block; font-size:12px; color:#8A8A8E; }
+
+.verdict{ border:2px solid var(--ink); background:var(--mint-l); padding:18px 20px; margin-top:40px; }
+.verdict b{ font-weight:800; }
+.verdict ul{ margin:10px 0 0; padding-left:20px; }
+.verdict li{ margin-bottom:5px; }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <span class="sticker">FOO-5 · og:image crop check</span>
+    <h1>Does the card survive the unfurlers?</h1>
+    <p>Same <code>og-image.png</code> in every frame below, cropped the way each client crops it.
+       The card is built so that the logo, headline, sub and chips all sit inside the centred
+       630-wide column — the only part guaranteed to survive a square thumbnail crop.</p>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <h2>1 — The raw crops</h2>
+  <p class="note">What each client is actually cutting out of the 1200×630 file.</p>
+  <div class="row raw">
+    <figure>
+      <div class="crop" style="width:460px;aspect-ratio:1200/630"><img src="og-image.png" alt="og image, full"></div>
+      <figcaption class="mono">1200 × 630 · full — WhatsApp large, LinkedIn, Slack, Facebook</figcaption>
+    </figure>
+    <figure>
+      <div class="crop" style="width:460px;aspect-ratio:2/1"><img src="og-image.png" alt="og image, 2:1 crop"></div>
+      <figcaption class="mono">2 : 1 centre crop — X / summary_large_image</figcaption>
+    </figure>
+    <figure>
+      <div class="crop" style="width:300px;aspect-ratio:1/1"><img src="og-image.png" alt="og image, square crop"></div>
+      <figcaption class="mono">1 : 1 centre crop — WhatsApp / iMessage thumbnails</figcaption>
+    </figure>
+  </div>
+
+  <h2>2 — In the clients</h2>
+  <p class="note">Rough but honest reconstructions: real bubble widths, real card chrome, real crops.</p>
+
+  <div class="row">
+
+    <!-- WhatsApp -->
+    <div>
+      <div class="wa">
+        <div class="wa__bub">
+          <div class="wa__card">
+            <div class="crop"><img src="og-image.png" alt=""></div>
+            <div class="wa__meta">
+              <b>FoodOS.ai — restaurant POS with AI built in</b>
+              <span>Bill fast. Waste less. Know your numbers. GST bills, KOT, Zomato and Swiggy in one queue.</span>
+              <i>foodos.ai</i>
+            </div>
+          </div>
+          <div class="wa__txt">have a look at this 👀</div>
+        </div>
+        <div class="wa__bub" style="margin-top:12px">
+          <div class="wa__small">
+            <div class="crop"><img src="og-image.png" alt=""></div>
+            <div class="wa__meta">
+              <b>FoodOS.ai — restaurant POS…</b>
+              <i>foodos.ai</i>
+            </div>
+          </div>
+          <div class="wa__txt">foodos.ai</div>
+        </div>
+      </div>
+      <p class="mono" style="margin-top:8px">WhatsApp · large card + small thumbnail</p>
+    </div>
+
+    <!-- LinkedIn -->
+    <div>
+      <div class="li">
+        <div class="crop li__crop"><img src="og-image.png" alt=""></div>
+        <div class="li__meta">
+          <b>FoodOS.ai — restaurant POS with AI built in</b>
+          <span>foodos.ai · 2 min read</span>
+        </div>
+      </div>
+      <p class="mono" style="margin-top:8px">LinkedIn · feed card</p>
+    </div>
+
+  </div>
+
+  <div class="row" style="margin-top:30px">
+
+    <!-- X -->
+    <div>
+      <div class="x">
+        <div class="crop"><img src="og-image.png" alt=""></div>
+        <div class="x__meta"><b>foodos.ai</b></div>
+      </div>
+      <p class="mono" style="margin-top:14px">X · summary_large_image (2:1)</p>
+    </div>
+
+    <!-- Slack -->
+    <div>
+      <div class="sl">
+        <div class="sl__in">
+          <b>FoodOS.ai — restaurant POS with AI built in</b>
+          <span>Bill fast. Waste less. Know your numbers.</span>
+          <div class="crop"><img src="og-image.png" alt=""></div>
+        </div>
+      </div>
+      <p class="mono" style="margin-top:8px">Slack · unfurl</p>
+    </div>
+
+    <!-- iMessage -->
+    <div>
+      <div class="im">
+        <div class="im__card">
+          <div class="crop"><img src="og-image.png" alt=""></div>
+          <div class="im__meta">
+            <b>FoodOS.ai — restaurant POS with AI built in</b>
+            <span>foodos.ai</span>
+          </div>
+        </div>
+      </div>
+      <p class="mono" style="margin-top:8px">iMessage · rich link</p>
+    </div>
+
+  </div>
+
+  <div class="verdict">
+    <b>Result.</b>
+    <ul>
+      <li><b>1.91:1 (WhatsApp large, LinkedIn, Slack, Facebook, iMessage)</b> — full card, nothing lost.</li>
+      <li><b>2:1 (X)</b> — loses 15px top and bottom. Both ink bands were widened to 52px and 50px
+          so their type clears the cut; the torn-chit motif takes the trim instead of anything that matters.</li>
+      <li><b>1:1 (WhatsApp / iMessage thumbnails)</b> — keeps the logo, both headline lines, the sub
+          and all three chips. The chit motif is cropped away entirely, which is what it is there for.</li>
+      <li>At the 84px thumbnail size the headline is unreadable in every design — what has to survive
+          there is the marigold block and the mark, and both do.</li>
+    </ul>
+  </div>
+
+</div>
+</body>
+</html>
