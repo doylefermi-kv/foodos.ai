@@ -1,5 +1,29 @@
 # Runbook: deploying the FoodOS.ai marketing site
 
+> # ⛔ SUPERSEDED — do not follow this runbook
+>
+> **Revision 2** of [`docs/website-architecture.md`](../website-architecture.md)
+> (CTO, 2026-10-13) drops Cloudflare: hosting moves to **GitHub Pages**, and the
+> lead API to a **Google Apps Script** web app. A replacement runbook is **FOO-6**.
+>
+> **Still accurate and still needed** — these are about the Google Sheet, not about
+> Cloudflare, and FOO-6 reuses them as written:
+>
+> - **[Step 1 — create the leads Google Sheet](#step-1--create-the-leads-google-sheet-3-min)**, including the exact header row.
+> - **[Appendix B — what runs where](#appendix-b--what-runs-where)**, for the parts that are not Cloudflare.
+>
+> **Dead — skip entirely.** Steps 2 and 3 (GCP project, service account, sharing the
+> sheet with it) are not needed at all: an Apps Script bound to the sheet writes to it
+> as you, with no service account and no key to store. Steps 4–9 are Cloudflare Pages,
+> Turnstile, Pages env vars, the Cloudflare custom domain and Web Analytics.
+>
+> **Costs are unchanged at ₹0/month**, with one new exception called out in FOO-6:
+> GitHub Pages will not publish from a **private** repo on the Free plan.
+>
+> Kept rather than deleted so FOO-6's runbook is a reviewable diff, and so the
+> Sheet setup is not retyped from memory. Nothing here was ever executed — no
+> account was created and no credential exists.
+
 **For:** the CTO · **Owner:** DevOps (FOO-4) · **Last updated:** 2026-10-13
 **Architecture:** [`docs/website-architecture.md`](../website-architecture.md)
 
@@ -488,9 +512,12 @@ Submitted leads print to the terminal instead of being written anywhere.
 
 ### Settled on 2026-10-13
 
-1. **Deploy path: GitHub Actions only.** The Pages Git integration is not connected and
-   should not be. The `deploy` job is live; preview deploys on PRs replace what the Git
-   integration would have given us. Steps 4, 7 and 8 above are written to this.
+1. **Deploy path: GitHub Actions only.** This one survives Revision 2 — only the target
+   changed, from Cloudflare Pages to GitHub Pages. The `deploy` job in
+   `.github/workflows/website.yml` is now `if: false` and is replaced in FOO-6; steps 4,
+   7 and 8 above are dead with it. `secret-scan` and `verify` are host-agnostic and stay
+   live. Note that preview-per-PR does **not** carry over: GitHub Pages has one site per
+   repo, so PR previews need a different mechanism (or none). FOO-6's call.
 2. **The sheet id is `GOOGLE_SHEET_ID`.** `SHEET_ID` has been removed from the Function,
    its types, the tests and `.dev.vars.example`. One name, everywhere.
 3. **Preview shares the production sheet.** Same `GOOGLE_SHEET_ID` in both environments;
@@ -498,28 +525,45 @@ Submitted leads print to the terminal instead of being written anywhere.
 
 ### Still open — none of these block the deploy
 
-4. **Will the repo be public?** If it is, GitHub Actions minutes become unlimited, which
-   removes limit #1 in Appendix A. The repo contains no secrets either way.
+4. **Will the repo be public?** ⚠️ **Promoted to a go/no-go by Revision 2, and it is the
+   only item here that costs money.** GitHub Pages does not publish from a **private**
+   repo on the Free plan — it needs Pro (~$4/month), Team or Enterprise Cloud. Public
+   also makes Actions minutes unlimited, removing limit #1 in Appendix A. The repo
+   contains no secrets either way. Answer this before FOO-6 starts.
 
 5. **Who owns the leads sheet?** It is currently whichever Google account creates it. If
    that is a personal account, the team loses the leads when that person leaves. Worth
    putting it on a Workspace shared drive before the site goes live — moving it later
    means a new `GOOGLE_SHEET_ID` and a redeploy.
 
-6. **Turnstile widget mode.** Set to **Managed**, which can show an interactive
-   challenge. **Invisible** converts marginally better but catches less. Managed is the
-   right default for a lead form; say if you would rather optimise for conversion.
+6. ~~**Turnstile widget mode.**~~ **Closed by Revision 2** — Turnstile is dropped
+   entirely. The replacement spam controls (honeypot, server-side validation,
+   `CacheService` throttle, `LockService` around the append) are Apps Script, so they
+   belong to Backend in FOO-6. Worth knowing going in: a honeypot stops naive bots and
+   nothing else, so expect some junk in the sheet and treat reCAPTCHA v3 as likely
+   rather than optional.
 
-7. **Where does `website/` live in the monorepo?** You offered to set up the repo
-   structure. Recommendation and the migration steps are in the issue thread; the short
-   version is **`apps/website/`**, plain directories, and no Nx/Turborepo/workspaces
-   until we have a second package that needs them.
+7. ~~**Where does `website/` live in the monorepo?**~~ **Closed by Revision 2**, which
+   says the website is the `website/` package at the monorepo root. That is where it
+   already is, so nothing moves and the 12 path references below do not change. My
+   earlier `apps/website/` recommendation is withdrawn — see the issue thread for the
+   reasoning, which still applies if a second deployable ever makes the root crowded.
 
-   The move touches **12 functional path references**: 8 in
-   `.github/workflows/website.yml` (two `paths:` filters, two `working-directory`, two
-   `cache-dependency-path`, the artifact `path:`, the wrangler-action
-   `workingDirectory`) and 4 in `.gitleaks.toml` (the allowlist entries for
-   `.dev.vars.example`, `.env.example`, `.wrangler/` and the test-fixtures directory).
-   Nothing in `website/` itself hard-codes its own location, and Cloudflare never sees
-   the repo layout at all — we upload a built `dist/`. Confirm the path and it is a
-   ten-minute change.
+   Recorded in case the question returns: the move would touch **12 functional path
+   references** — 8 in `.github/workflows/website.yml` (two `paths:` filters, two
+   `working-directory`, two `cache-dependency-path`, the artifact `path:`, the
+   wrangler-action `workingDirectory`) and 4 in `.gitleaks.toml` (the allowlist entries
+   for `.dev.vars.example`, `.env.example`, `.wrangler/` and the test-fixtures
+   directory). Nothing in `website/` hard-codes its own location.
+
+   The tooling recommendation is unchanged and independent of the host: **no Nx,
+   Turborepo, Bazel or npm workspaces yet.** The build is 319 ms and there is one
+   package; path-filtered workflows and plain directories are the whole monorepo at this
+   stage. Add the tool the week the pain is real, so it fixes an actual problem.
+
+8. **New in Revision 2 — how does Apps Script get the validation rules?** Apps Script has
+   no module system, so it cannot import `shared/contract.ts`. Either bundle the
+   contract into the script at build time (needs `clasp`, a new dependency and a CI
+   deploy step) or keep a hand-maintained copy. The copy is cheaper but drifts, and on a
+   lead form drift means silently accepting or rejecting the wrong submissions. If you
+   take the copy, pair it with a test asserting the two agree. FOO-6 needs this decided.

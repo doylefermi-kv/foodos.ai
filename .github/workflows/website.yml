@@ -4,15 +4,13 @@
 # Three jobs:
 #   secret-scan  — gitleaks over the repo, so no credential ever lands in git
 #   verify       — install, lint, typecheck, test, build
-#   deploy       — uploads to Cloudflare Pages (direct upload)
+#   deploy       — DISABLED. Cloudflare Pages, superseded by Revision 2.
 #
-# GitHub Actions is the ONLY deploy path (CTO decision, 2026-10-13). The
-# Cloudflare Pages Git integration is deliberately not connected — connecting it
-# as well would build and deploy the site twice on every push.
-#
-# `deploy` is live. It needs three repo-level settings to exist; until they do it
-# fails fast with an explanatory message rather than a cryptic wrangler error.
-# See docs/runbooks/website-setup.md step 7.
+# GitHub Actions is the only deploy path (CTO decision, 2026-10-13), but the
+# target changed the same day: Revision 2 of docs/website-architecture.md moves
+# hosting to GitHub Pages. `secret-scan` and `verify` are unaffected and stay
+# live — they do not touch the host. The `deploy` job is `if: false` and is
+# replaced in FOO-6. See the comment above that job.
 
 name: website
 
@@ -127,20 +125,25 @@ jobs:
           retention-days: 7
 
   # ---------------------------------------------------------------------------
-  # DEPLOY — Cloudflare Pages, direct upload. This is the only deploy path.
+  # DEPLOY — Cloudflare Pages. SUPERSEDED, AND DISABLED.
   # ---------------------------------------------------------------------------
-  # push to main  -> production deploy  (foodos.ai)
-  # pull request  -> preview deploy     (<branch>.foodos-website.pages.dev)
+  # Revision 2 of docs/website-architecture.md (CTO, 2026-10-13) drops Cloudflare
+  # entirely: hosting moves to GitHub Pages, and the lead API to a Google Apps
+  # Script web app. There is no Cloudflare account and there never was one, so
+  # this job can only fail. `if: false` keeps it from running on the first push.
   #
-  # Preview deploys replace what the Pages Git integration would have given us
-  # for free. They are skipped for pull requests from forks, which by design
-  # cannot read repository secrets.
+  # It is disabled rather than deleted on purpose: FOO-6 replaces it with the
+  # GitHub Pages job, and that diff is much easier to review against a job that
+  # is still here than against one reconstructed from history. FOO-6 deletes it.
+  #
+  # Do not re-enable. The original condition — run on main and on same-repo PRs,
+  # skip fork PRs, which cannot read secrets — is kept here for FOO-6's reference:
+  #   github.event_name != 'pull_request' ||
+  #   github.event.pull_request.head.repo.full_name == github.repository
   deploy:
-    name: Deploy to Cloudflare Pages
+    name: Deploy to Cloudflare Pages (disabled — superseded by FOO-6)
     needs: [secret-scan, verify]
-    if: >-
-      github.event_name != 'pull_request' ||
-      github.event.pull_request.head.repo.full_name == github.repository
+    if: false
     runs-on: ubuntu-latest
     environment:
       # `production` is a protected GitHub environment — add required reviewers
