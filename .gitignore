@@ -1,12 +1,16 @@
 # --- Secrets: never commit anything from this block ---------------------------
-# Wrangler local dev secrets (website/.dev.vars). The .example file is tracked.
-.dev.vars
-.dev.vars.*
-!.dev.vars.example
+# Local build-time env (website/.env). `.env.example` is the tracked template;
+# everything in it is public by design — VITE_* values ship in the bundle.
 .env
 .env.*
 !.env.example
-# Google service-account keys. Real keys live only in Cloudflare secrets.
+# `.dev.vars` was wrangler's local secret file. Wrangler is gone (FOO-6) and so
+# is the file, but the pattern stays: it costs nothing and the day someone
+# recreates one is exactly the day this would have mattered.
+.dev.vars
+.dev.vars.*
+# Google service-account keys. Not used any more either — the Apps Script runs
+# as the sheet's owner, so there is no key to hold — but same reasoning.
 *service-account*.json
 *-key.json
 *.pem
@@ -16,7 +20,6 @@ credentials.json
 # --- Build output -------------------------------------------------------------
 dist/
 build/
-.wrangler/
 .vite/
 *.tsbuildinfo
 

@@ -1,16 +1,16 @@
-# CI for the FoodOS.ai marketing site (website/).
-# Owned by DevOps (FOO-4). Stack decision: docs/website-architecture.md.
+# CI/CD for the FoodOS.ai marketing site (website/).
+#
+# Owned by DevOps (FOO-6). Stack decision: "Revision 2" in
+# docs/website-architecture.md — GitHub Pages, deployed by GitHub Actions.
+# There is no Cloudflare anywhere in this pipeline.
 #
 # Three jobs:
-#   secret-scan  — gitleaks over the repo, so no credential ever lands in git
-#   verify       — install, lint, typecheck, test, build
-#   deploy       — DISABLED. Cloudflare Pages, superseded by Revision 2.
+#   secret-scan  gitleaks over the full history, so no credential lands in git
+#   verify       install, lint, typecheck, test, build, gate the build output
+#   deploy       main only — build with the live endpoint, publish to Pages
 #
-# GitHub Actions is the only deploy path (CTO decision, 2026-10-13), but the
-# target changed the same day: Revision 2 of docs/website-architecture.md moves
-# hosting to GitHub Pages. `secret-scan` and `verify` are unaffected and stay
-# live — they do not touch the host. The `deploy` job is `if: false` and is
-# replaced in FOO-6. See the comment above that job.
+# The repo is a monorepo. Every trigger is filtered to `website/**` so a future
+# package cannot deploy the marketing site by accident.
 
 name: website
 
@@ -26,31 +26,37 @@ on:
       - '.github/workflows/website.yml'
   workflow_dispatch:
 
-# Default to read-only. The deploy job raises what it needs explicitly.
+# Read-only by default. `deploy` raises exactly what Pages needs and nothing
+# else; no other job can write anything.
 permissions:
   contents: read
 
-# A new push to the same branch cancels the previous run. Never cancel main:
-# a half-finished deploy is worse than a slow one.
+# A new push to the same branch supersedes the previous run. Never cancel main:
+# a half-finished deploy is worse than a slow one, and `deploy-pages` does not
+# tolerate being interrupted mid-publish.
 concurrency:
   group: website-${{ github.ref }}
   cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 env:
-  # 24, not 22: the test suite is written against the built-in `node:test`
-  # runner and imports `.ts` files directly, which relies on Node's native type
-  # stripping. That is stable from Node 24. This is the only place the Node
-  # version is pinned — Cloudflare never builds the site, it only receives
-  # `dist/`, so there is no NODE_VERSION to keep in step on the Pages project.
+  # 24, not 22: the test suite uses the built-in `node:test` runner and imports
+  # `.ts` files directly, which relies on Node's native type stripping. That is
+  # stable from Node 24.
   NODE_VERSION: '24'
   GITLEAKS_VERSION: '8.30.1'
+  # The site is a GitHub Pages *project* site, so it is served from the repo
+  # name as a sub-path. This is the single source of truth for that: it is the
+  # Vite `base`, and the value `check:dist` asserts every asset URL against.
+  # On a custom domain this becomes `/` — see docs/runbooks/website-setup.md.
+  BASE_PATH: '/foodos.ai/'
+  SITE_ORIGIN: 'https://doylefermi-kv.github.io'
 
 jobs:
   secret-scan:
     name: Secret scan
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
         with:
           # gitleaks scans history, not just the tip, so it catches a secret
           # that was committed and then "removed" in a later commit.
@@ -78,16 +84,16 @@ jobs:
       run:
         working-directory: website
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
           cache-dependency-path: website/package-lock.json
 
-      # `npm ci` (not `npm install`) so CI builds exactly the committed
-      # lockfile and fails loudly if package.json and the lockfile disagree.
+      # `npm ci` (not `npm install`) so CI builds exactly the committed lockfile
+      # and fails loudly if package.json and the lockfile disagree.
       - name: Install
         run: npm ci
 
@@ -100,124 +106,112 @@ jobs:
       - name: Test
         run: npm test
 
-      # No real secrets here: the build only needs the public Turnstile site
-      # key, and CI uses Cloudflare's dummy key so PRs from forks still build.
+      # Deliberately built WITHOUT VITE_DEMO_REQUEST_URL. Repository variables
+      # are not exposed to pull requests from forks, so depending on one here
+      # would make every fork PR fail; and the "not configured" path is a real
+      # state the form must handle, so building it is a check, not a gap.
       - name: Build
         run: npm run build
-        env:
-          VITE_TURNSTILE_SITE_KEY: '1x00000000000000000000AA'
 
-      # Guards the two things that silently break a Pages deploy: a missing
-      # entrypoint, and _headers not being copied out of public/ into dist/.
-      - name: Check build output
-        run: |
-          set -euo pipefail
-          test -f dist/index.html || { echo "::error::dist/index.html missing"; exit 1; }
-          test -f dist/_headers  || { echo "::error::dist/_headers missing — is it in website/public/?"; exit 1; }
-          echo "dist/ looks deployable:"
-          ls -la dist
+      - name: Gate the build output
+        run: npm run check:dist
 
       - name: Upload build output
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
         with:
           name: website-dist
           path: website/dist
           retention-days: 7
 
   # ---------------------------------------------------------------------------
-  # DEPLOY — Cloudflare Pages. SUPERSEDED, AND DISABLED.
+  # DEPLOY — GitHub Pages. Runs on main (and workflow_dispatch) only.
   # ---------------------------------------------------------------------------
-  # Revision 2 of docs/website-architecture.md (CTO, 2026-10-13) drops Cloudflare
-  # entirely: hosting moves to GitHub Pages, and the lead API to a Google Apps
-  # Script web app. There is no Cloudflare account and there never was one, so
-  # this job can only fail. `if: false` keeps it from running on the first push.
-  #
-  # It is disabled rather than deleted on purpose: FOO-6 replaces it with the
-  # GitHub Pages job, and that diff is much easier to review against a job that
-  # is still here than against one reconstructed from history. FOO-6 deletes it.
-  #
-  # Do not re-enable. The original condition — run on main and on same-repo PRs,
-  # skip fork PRs, which cannot read secrets — is kept here for FOO-6's reference:
-  #   github.event_name != 'pull_request' ||
-  #   github.event.pull_request.head.repo.full_name == github.repository
+  # Prerequisite, one time: Settings > Pages > Source = "GitHub Actions".
+  # Without it this job fails at `configure-pages` with "Pages is not enabled".
+  # docs/runbooks/website-setup.md, step 1.
   deploy:
-    name: Deploy to Cloudflare Pages (disabled — superseded by FOO-6)
+    name: Deploy to GitHub Pages
     needs: [secret-scan, verify]
-    if: false
+    # main only. `push` is already filtered to main; this also stops a
+    # `workflow_dispatch` on a side branch from publishing it to the live site,
+    # and stops pull requests dead. There is one Pages site and it is main's.
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-    environment:
-      # `production` is a protected GitHub environment — add required reviewers
-      # there if you ever want a manual gate before the live site changes.
-      name: ${{ github.ref == 'refs/heads/main' && 'production' || 'preview' }}
-      url: ${{ steps.deploy.outputs.deployment-url }}
+    # The three Pages needs, and nothing more: read the code, mint the OIDC
+    # token `deploy-pages` authenticates with, and publish.
     permissions:
       contents: read
-      deployments: write
-    defaults:
-      run:
-        working-directory: website
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
 
-      # Fails with a readable message if the runbook's step 7 has not been done,
-      # instead of letting wrangler fail on an empty API token.
-      - name: Check deploy credentials are configured
-        env:
-          CF_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CF_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          SITE_KEY: ${{ vars.TURNSTILE_SITE_KEY }}
-        run: |
-          set -euo pipefail
-          missing=()
-          [ -n "$CF_API_TOKEN" ]  || missing+=("secret CLOUDFLARE_API_TOKEN")
-          [ -n "$CF_ACCOUNT_ID" ] || missing+=("secret CLOUDFLARE_ACCOUNT_ID")
-          [ -n "$SITE_KEY" ]      || missing+=("variable TURNSTILE_SITE_KEY")
-          if [ ${#missing[@]} -gt 0 ]; then
-            echo "::error::Not configured for deploy. Missing: ${missing[*]}."
-            echo "::error::Add them under Settings > Secrets and variables > Actions."
-            echo "::error::Full instructions: docs/runbooks/website-setup.md (step 7)."
-            exit 1
-          fi
-
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
           cache-dependency-path: website/package-lock.json
 
+      - uses: actions/configure-pages@983d7736d9b0ae728b81ab479565c72886d7745b # v5
+
       - name: Install
+        working-directory: website
         run: npm ci
 
-      # Built here, not reused from `verify`: that build deliberately uses the
-      # dummy Turnstile key so fork PRs can still build. A deployable bundle
-      # needs the real (public) site key compiled in.
+      # A warning, not a failure: until the CTO has deployed the Apps Script and
+      # run `gh variable set DEMO_REQUEST_URL`, the right behaviour is to ship a
+      # site whose form says "not configured" — not to block the whole deploy.
+      - name: Check the lead endpoint is configured
+        env:
+          DEMO_REQUEST_URL: ${{ vars.DEMO_REQUEST_URL }}
+        run: |
+          set -euo pipefail
+          if [ -z "${DEMO_REQUEST_URL}" ]; then
+            echo "::warning::Repository variable DEMO_REQUEST_URL is not set. The site will deploy with the demo form in its 'not configured' state. Fix: gh variable set DEMO_REQUEST_URL -R ${{ github.repository }} — see docs/runbooks/website-setup.md step 5."
+          else
+            echo "DEMO_REQUEST_URL is set (${#DEMO_REQUEST_URL} chars)."
+          fi
+
+      # Built here rather than reusing `verify`'s artifact: that build has no
+      # endpoint compiled in. VITE_* values end up in the shipped JavaScript and
+      # are public by definition, which is why the /exec URL is a repository
+      # *variable* and not a secret.
       - name: Build
+        working-directory: website
         run: npm run build
         env:
-          VITE_TURNSTILE_SITE_KEY: ${{ vars.TURNSTILE_SITE_KEY }}
+          VITE_DEMO_REQUEST_URL: ${{ vars.DEMO_REQUEST_URL }}
 
-      # The branch name decides the Pages environment: `main` is production,
-      # anything else is a preview. Runtime secrets and vars come from the Pages
-      # project, not from here — see docs/runbooks/website-setup.md step 6.
+      - name: Gate the build output
+        working-directory: website
+        run: npm run check:dist
+
+      - uses: actions/upload-pages-artifact@7b1f4a764d45c48632c6b24a0339c27f5614fb0b # v4
+        with:
+          path: website/dist
+
       - name: Deploy
         id: deploy
-        uses: cloudflare/wrangler-action@v4
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          # `defaults.run.working-directory` does not apply to actions.
-          workingDirectory: website
-          command: >-
-            pages deploy dist
-            --project-name=foodos-website
-            --branch=${{ github.head_ref || github.ref_name }}
+        uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4
 
       - name: Summarise
+        env:
+          DEMO_REQUEST_URL: ${{ vars.DEMO_REQUEST_URL }}
         run: |
           {
-            echo "### Deployed to Cloudflare Pages"
+            echo "### Deployed to GitHub Pages"
             echo
-            echo "- Environment: **${{ github.ref == 'refs/heads/main' && 'production' || 'preview' }}**"
-            echo "- Branch: \`${{ github.head_ref || github.ref_name }}\`"
-            echo "- URL: ${{ steps.deploy.outputs.deployment-url }}"
+            echo "- URL: ${{ steps.deploy.outputs.page_url }}"
+            echo "- Base path: \`${BASE_PATH}\`"
+            echo "- Commit: \`${{ github.sha }}\`"
+            if [ -z "${DEMO_REQUEST_URL}" ]; then
+              echo "- Demo form: **not configured** — set the \`DEMO_REQUEST_URL\` repository variable and re-run."
+            else
+              echo "- Demo form: configured."
+            fi
+            echo
+            echo "Rollback: re-run the last known-good run of this workflow from the Actions tab."
           } >> "$GITHUB_STEP_SUMMARY"

@@ -19,7 +19,7 @@ import tseslint from 'typescript-eslint'
 
 export default tseslint.config(
   {
-    ignores: ['dist/**', 'node_modules/**', '.wrangler/**', 'coverage/**'],
+    ignores: ['dist/**', 'node_modules/**', 'coverage/**'],
   },
 
   // Baseline for every TypeScript file in the package.
@@ -71,9 +71,12 @@ export default tseslint.config(
     },
   },
 
-  // Build tooling runs in Node.
+  // Build tooling and CI helper scripts run in Node. `scripts/*.mjs` is plain
+  // JavaScript (it runs under bare `node`, with no build step), so it needs
+  // js.configs.recommended explicitly — the baseline block above is TS-only.
   {
-    files: ['*.config.ts', '*.config.js', 'vite.config.ts'],
+    files: ['*.config.ts', '*.config.js', 'vite.config.ts', 'scripts/**/*.mjs'],
+    extends: [js.configs.recommended],
     languageOptions: {
       globals: globals.node,
     },

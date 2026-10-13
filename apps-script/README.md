@@ -62,10 +62,17 @@ Cloud project is involved.
    `Leads` tab for the row.
 
 7. **Give the URL to the site.** In GitHub: **Settings → Secrets and variables →
-   Actions → Variables → New repository variable**, named
-   `VITE_DEMO_REQUEST_URL`, with the `/exec` URL. It is a *variable*, not a
-   secret — it is public in the JS bundle either way. Re-run the `website`
-   workflow to rebuild with it.
+   Actions → Variables → New repository variable**, named **`DEMO_REQUEST_URL`**,
+   with the `/exec` URL — or `gh variable set DEMO_REQUEST_URL -R
+   doylefermi-kv/foodos.ai`. It is a *variable*, not a secret — it is public in
+   the JS bundle either way. Re-run the `website` workflow to rebuild with it.
+
+   > The repository variable is `DEMO_REQUEST_URL`; the workflow passes it to
+   > the build as `VITE_DEMO_REQUEST_URL`, which is the name the frontend reads
+   > (only `VITE_`-prefixed variables reach the bundle). Naming the *repository*
+   > variable `VITE_…` would work too but reads as though GitHub knew about
+   > Vite. See `.github/workflows/website.yml` and
+   > [`docs/runbooks/website-setup.md`](../docs/runbooks/website-setup.md) step 4.
 
 The `Leads` tab does not need to exist beforehand: the first lead creates it,
 with the 20 headers in the fixed order and a frozen header row.

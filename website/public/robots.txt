@@ -1,8 +1,14 @@
 # FoodOS.ai marketing site
+#
+# The SITE_URL placeholder below is replaced at build time with the site's real
+# base URL (vite.config.ts), so the sub-path build and the custom-domain build
+# each get a correct, absolute Sitemap line.
+#
+# NOTE for the sub-path deploy: crawlers only read robots.txt at the ORIGIN
+# root, so while the site lives at https://doylefermi-kv.github.io/foodos.ai/
+# this file is never fetched by a crawler — github.io's own robots.txt applies.
+# It becomes live the moment the site moves to the foodos.ai apex.
 User-agent: *
 Allow: /
 
-# The lead endpoint has nothing to index and should never be crawled.
-Disallow: /api/
-
-Sitemap: https://foodos.ai/sitemap.xml
+Sitemap: %SITE_URL%sitemap.xml

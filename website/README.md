@@ -7,23 +7,41 @@ live in [`docs/website-architecture.md`](../docs/website-architecture.md).
 ## Running it
 
 ```bash
-npm install
+npm ci
 
-npm run dev       # build + `wrangler pages dev ./dist` — site AND /api together
-npm run dev:ui    # Vite dev server with HMR on :5173, /api proxied to :8788
-npm run build     # tsc -b && vite build -> dist/
-npm run preview   # serve dist/ with Vite (no Functions)
+npm run dev         # Vite dev server with HMR on :5173
+npm run build       # tsc -b && vite build -> dist/
+npm run check:dist  # gate dist/ the way CI does (run it after build)
+npm run preview     # serve dist/ — at the real sub-path, like production
 npm run typecheck
 npm run lint
 npm test
 ```
 
-`npm run dev:ui` only reaches the demo endpoint if a `wrangler pages dev` is
-already running on 8788 — the Vite proxy forwards `/api` there. Use plain
-`npm run dev` if you want one command.
+The site is static — there is no local API to run alongside it. The form posts
+straight to the Apps Script web app named by `VITE_DEMO_REQUEST_URL`; with no
+`.env` it shows its "not configured yet" state, which is a fine way to work on
+everything else.
 
-First run needs `cp .dev.vars.example .dev.vars` (safe defaults: ConsoleSink,
-Turnstile test keys, no Google credentials).
+### The sub-path
+
+Production is a GitHub Pages **project** site, so it is served from
+`https://doylefermi-kv.github.io/foodos.ai/`, not from a domain root. Vite's
+`base` comes from `BASE_PATH` (default `/foodos.ai/`, see `vite.config.ts`), and
+`npm run check:dist` fails the build if any asset URL disagrees with it — the
+failure mode otherwise is a silently blank page in production.
+
+`npm run dev` serves from `/` because Vite's dev server does; `npm run preview`
+serves the real sub-path. **Preview, not dev, is what production looks like.**
+
+To build as it would be served from a custom domain:
+
+```bash
+BASE_PATH=/ SITE_ORIGIN=https://foodos.ai npm run build
+```
+
+The deploy pipeline and both of those variables are documented in
+[`docs/runbooks/website-setup.md`](../docs/runbooks/website-setup.md).
 
 ## Layout
 
@@ -34,19 +52,20 @@ src/
   components/           one component per section of the design, same order
     DemoModal.tsx       native <dialog> + showModal()
     DemoForm.tsx        the whole Book-a-demo form
-    Turnstile.tsx       explicit-render wrapper around the CF widget
   lib/
-    api.ts              POST /api/demo-requests, maps 400/403/429/502 to copy
+    api.ts              POST to the Apps Script /exec URL; maps its JSON body
+    analytics.ts        no-op track(event, props) — the seam for a future tool
     attribution.ts      utm_* / referrer / landingPath, first visit wins
     demo-modal.tsx      open/close context + the #book-a-demo deep link
-    turnstile.ts        lazy script loader
+    meta.ts             canonical/OG URLs made absolute under a sub-path
   styles/
     tokens.css          the design's :root, lifted verbatim (see below)
     base.css            reset, type scale, buttons, .sticker, .ph
     sections.css        every section, plus the responsive block
     form.css            modal + form (not in the design; built from the tokens)
 shared/contract.ts      owned by Backend; the form imports its types + validators
-public/                 favicons, og-image, robots.txt, sitemap.xml, _headers
+public/                 favicons, og-image, robots.txt, sitemap.xml
+scripts/check-dist.mjs  the build-output gate CI runs (DevOps)
 ```
 
 Class names match the design file one-for-one, so `sections.css` can be diffed
@@ -89,19 +108,51 @@ Every "Book a demo" CTA (nav, hero, closing section) and the footer "Contact"
 link open one modal. `https://foodos.ai/#book-a-demo` opens it on load, so ads
 and WhatsApp messages can deep-link straight to the form.
 
-Validation is `validateDemoRequest` from `shared/contract.ts` — the same
-function the Pages Function runs, so the client and the server cannot drift.
-The phone is normalised to `+91XXXXXXXXXX` before it is sent.
+Validation is `validateDemoRequest` from `shared/contract.ts` — the same rules
+the Apps Script runs, so the client and the server cannot drift. The phone is
+normalised to `+91XXXXXXXXXX` before it is sent.
 
-Spam handling: Turnstile (lazily loaded when the modal first opens, so it never
-touches the landing page's critical path) plus a `website` honeypot that is
-positioned off-screen rather than `display: none`, and is `aria-hidden` and out
-of the tab order.
+Spam handling: the `website` honeypot, positioned off-screen rather than
+`display: none`, `aria-hidden` and out of the tab order. Turnstile was dropped
+in Revision 2; the rest of the spam handling is server-side, in the Apps Script.
+
+### Talking to the Apps Script endpoint
+
+`lib/api.ts` POSTs to `import.meta.env.VITE_DEMO_REQUEST_URL`. Three rules that
+are easy to break and hard to notice:
+
+1. **No custom headers.** Exactly `Content-Type: text/plain;charset=utf-8`, so
+   the request stays a CORS *simple request*. Adding any other header makes the
+   browser send a preflight, and Apps Script cannot answer `OPTIONS`.
+2. **`redirect: 'follow'`** — `/exec` answers with a redirect to
+   googleusercontent.com.
+3. **Branch on the body, never the status.** Apps Script always returns HTTP
+   200. `mapResponseBody` turns the body into what the form renders:
+
+   | Body | What the visitor sees |
+   |---|---|
+   | `{ ok: true, id }` | success panel with the reference |
+   | `{ ok: false, error: "validation", fields }` | inline errors on those fields |
+   | `{ ok: false, error: "bot" }` | "couldn't verify you're human" |
+   | `{ ok: false, error: "rate_limited" }` | "wait a minute and try again" |
+   | `{ ok: false, error: "upstream" }` | "did not reach us", retryable |
+   | non-JSON, or an unknown code | generic failure, not retryable |
+   | network failure | "couldn't reach the server" |
+   | no reply in 15s (`AbortController`) | "that took too long" |
+
+   Errors for fields the form does not render are dropped rather than shown.
 
 States covered: inline field errors with focus moved to the first bad field,
 sending (button disabled and guarded by a ref, so repeated clicks send once),
-success with the reference id, and distinct copy for 400 / 403 / 429 / 502 and
-for a dead network.
+success with the reference id, each failure above, and — when the build has no
+endpoint — an inline "Demo booking isn't configured yet" banner with the submit
+button disabled, so nobody fills in a form that cannot be sent.
+
+### Analytics
+
+`lib/analytics.ts` exports a no-op `track(event, props)`, called on
+`demo_open` and `demo_submit`. Which tool to wire up is an open CTO decision;
+until it is made this logs in dev and does nothing in production.
 
 ## Attribution
 
@@ -116,12 +167,28 @@ must not break the form.
 
 | Variable | Default | What it does |
 |---|---|---|
-| `VITE_TURNSTILE_SITE_KEY` | Cloudflare's test key `1x00000000000000000000AA` | Turnstile site key (public; the secret lives in the Function) |
+| `VITE_DEMO_REQUEST_URL` | empty | The Apps Script web-app `/exec` URL the form POSTs to. Public by design — it ends up in the bundle. |
 
-In a **dev** build only, if the Turnstile script cannot load at all the widget
-falls back to a visibly fake token so the rest of the flow stays testable. The
-Function rejects it with 403, which is correct. Production never does this — it
-shows an error instead.
+Unset is a supported state, not a bug: a fresh clone runs with no setup, the
+form shows its "not configured yet" banner, and a dev build logs one console
+warning. `cp .env.example .env` and paste the `/exec` URL to exercise it.
+
+## Hosting under a sub-path
+
+GitHub Pages serves the site from `/foodos.ai/`, so nothing may hard-code a
+leading `/`. Assets, the favicon, the manifest and the canonical/OG URLs are
+all written against `%BASE_URL%` in `index.html` (Vite substitutes it at build
+time); `site.webmanifest` uses `./`-relative URLs, which resolve against its own
+location; `lib/meta.ts` turns the canonical and OG URLs absolute on boot, from
+whatever origin actually served the page. Every in-page link is a `#hash`.
+
+Check it after any change to `index.html` or `public/`:
+
+```bash
+npx vite build --base=/foodos.ai/ && npx vite preview --base=/foodos.ai/
+```
+
+Nothing in the page should request a URL outside `/foodos.ai/`.
 
 ## Known placeholders
 

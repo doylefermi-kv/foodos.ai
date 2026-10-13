@@ -21,13 +21,15 @@ description = "Google service-account PEM private key (the Sheets credential)"
 regex = '''-----BEGIN(?: RSA| PRIVATE| OPENSSH| PGP| EC)? PRIVATE KEY-----'''
 keywords = ["BEGIN", "PRIVATE KEY"]
 
-[[rules]]
-id = "turnstile-secret-key"
-description = "Cloudflare Turnstile secret key"
-# Real secret keys are 0x4AAAAAAA…-prefixed. Cloudflare's published dummy
-# testing keys start 1x/2x/3x and are allowlisted below.
-regex = '''0x4[A-Za-z0-9_-]{30,}'''
-keywords = ["0x4"]
+# REMOVED in FOO-6: the `turnstile-secret-key` rule. Revision 2 of the
+# architecture doc drops Turnstile, so there is no such credential to protect
+# any more — and its regex (`0x4` + 30 base62 chars) was broad enough to fire on
+# minified third-party JavaScript: it matched five random substrings inside the
+# Lighthouse report HTML under qa/reports/. Deleting a dead rule is better than
+# accumulating allowlist exceptions to it. The dummy-key allowlist entries below
+# stay: those keys are still in git history and must not start tripping the
+# entropy-based default rules.
+# If Turnstile ever comes back, so does this rule — with an anchored regex.
 
 # Note: these are `[[allowlists]]` (plural) entries, not the deprecated
 # singular `[allowlist]` table — gitleaks refuses to load a config that mixes
@@ -39,8 +41,12 @@ description = "Known-safe values and paths"
 
 paths = [
   # Documented placeholders and dummy keys only. CI additionally fails if a
-  # real `.dev.vars` or `.env` is ever committed, because .gitignore excludes
-  # them — these *.example files are the tracked counterparts.
+  # real `.env` is ever committed, because .gitignore excludes it — the
+  # *.example file is the tracked counterpart.
+  #
+  # `.dev.vars.example` was deleted in FOO-6 along with wrangler, but CI scans
+  # the full HISTORY, where it still exists. Removing this line would fail the
+  # scan on old commits.
   '''website/\.dev\.vars\.example''',
   '''website/\.env\.example''',
   # The runbook walks the CTO through credential handling and necessarily
@@ -51,9 +57,8 @@ paths = [
 
   # Build artifacts and dependencies. All are gitignored, so CI (which runs
   # `gitleaks git` over history) never sees them — but a local `gitleaks dir`
-  # scans the working tree, and bundled Function output trips the
-  # entropy-based rules. Excluded so a local run is usefully quiet.
-  '''website/\.wrangler/''',
+  # scans the working tree and the bundled output trips the entropy-based
+  # rules. Excluded so a local run is usefully quiet.
   '''website/dist/''',
   '''node_modules/''',
 ]
@@ -78,10 +83,13 @@ regexes = [
 # key. The one in that file is a throwaway generated for the test suite and
 # signs nothing that leaves the process (the token endpoint is mocked).
 #
+# FOO-7 deleted `website/functions/`, so this path no longer exists in the tree.
+# It is still in git history, which is what CI scans — keep this entry.
+#
 # Scoped deliberately narrowly: this exempts ONLY the private-key rules, and
-# ONLY under the Functions test directory. An AWS key, a Slack token or a
-# Turnstile secret pasted into the same file is still caught, and a private key
-# anywhere else in the repo is still caught.
+# ONLY under the Functions test directory. An AWS key or a Slack token pasted
+# into the same file is still caught, and a private key anywhere else in the
+# repo is still caught.
 #
 # The residual risk is someone replacing that constant with a real
 # service-account key. That is a code-review check, not an automated one —

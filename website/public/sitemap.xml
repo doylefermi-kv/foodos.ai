@@ -2,11 +2,14 @@
 <!--
   One page for now. The footer links to /features, /pricing, /about and a blog;
   those are out of scope until the CTO sequences them (README open question 12).
-  Add a <url> entry here when each ships.
+  Add a <url> entry when each ships.
+
+  The SITE_URL placeholder below is replaced at build time with the site's real
+  base URL (vite.config.ts) — the Pages sub-path today, the custom domain later.
 -->
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://foodos.ai/</loc>
+    <loc>%SITE_URL%</loc>
     <lastmod>2026-10-13</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
