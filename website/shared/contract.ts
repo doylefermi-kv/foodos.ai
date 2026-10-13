@@ -1,20 +1,18 @@
 /**
- * POST /api/demo-requests — request/response contract.
+ * The demo-request contract: what the browser sends, and what comes back.
  *
  * Owned by Backend (FOO-2), imported by Frontend. Source of truth is
  * `docs/website-architecture.md` — change that first, then this file.
  *
- * This is the Backend version that replaces the Frontend's parallel stub. It
- * keeps every export name the stub published (`OUTLETS`, `RESTAURANT_TYPES`,
- * `normalisePhone`, `validateDemoRequest`, `INDIAN_MOBILE_RE`, `EMAIL_RE`,
- * `LIMITS`, the response types) with the same signatures and the same message
- * strings, so the form needs no change. What's new is additive: `parseDemoRequest`
- * (validate *and* normalise, for the server), `isHoneypotTripped`, `SHEET_COLUMNS`,
- * and US-spelling aliases.
+ * Since Revision 2 (no Cloudflare) the server is a Google Apps Script web app
+ * bound to the leads Sheet; its source is `apps-script/Code.gs` and it carries
+ * a hand-port of the validation below. The two are held together by
+ * `apps-script/tests/parity.test.ts`, which runs both over one set of fixtures:
+ * edit the rules here and that test fails until the port catches up.
  *
  * Zero dependencies on purpose: this module is imported by the React bundle
- * (Vite) *and* by the Pages Function (Workers runtime), so it must stay
- * runtime-agnostic — no Node built-ins, no validation library.
+ * (Vite) and read line-by-line by whoever maintains the Apps Script port, so it
+ * must stay runtime-agnostic — no Node built-ins, no validation library.
  */
 
 /* ------------------------------------------------------------------ */
@@ -67,7 +65,18 @@ export interface DemoRequest {
   /** must be true */
   consent: true
   attribution: Attribution
-  turnstileToken: string
+  /**
+   * The browser's own user agent, for the `userAgent` sheet column. Apps Script
+   * never sees request headers, so unlike the old Pages Function the server
+   * cannot read this itself — if the form doesn't send it, the column is empty.
+   */
+  userAgent?: string
+  /**
+   * @deprecated Turnstile was dropped in Revision 2 of the architecture doc.
+   * Still accepted (and ignored) by the server so a cached old bundle keeps
+   * working; delete it from the form whenever the Frontend next touches it.
+   */
+  turnstileToken?: string
   /** honeypot — must be empty */
   website?: string
 }
@@ -87,33 +96,72 @@ export interface ValidatedDemoRequest extends DemoRequest {
 /* Responses                                                           */
 /* ------------------------------------------------------------------ */
 
-/** 201 */
+export type DemoRequestErrorCode = 'validation' | 'bot' | 'rate_limited' | 'upstream'
+
+/**
+ * What the Apps Script web app returns.
+ *
+ * READ THIS BEFORE WIRING THE FORM: an Apps Script web app answers HTTP 200 to
+ * everything, including its own crashes, so `response.status` tells you nothing.
+ * Branch on `ok` in the body instead. The old status codes map like this:
+ *
+ * | body                                    | was | show the visitor            |
+ * |-----------------------------------------|-----|-----------------------------|
+ * | `{ ok: true, id }`                      | 201 | the success state           |
+ * | `{ ok: false, error: 'validation', … }` | 400 | `fields`, inline            |
+ * | `{ ok: false, error: 'bot' }`           | 403 | generic "could not verify"  |
+ * | `{ ok: false, error: 'rate_limited' }`  | 429 | "wait a minute and retry"   |
+ * | `{ ok: false, error: 'upstream' }`      | 502 | "try again / WhatsApp us"   |
+ */
+export interface DemoRequestOk {
+  ok: true
+  id: string
+}
+
+export interface DemoRequestFailure {
+  ok: false
+  error: DemoRequestErrorCode
+  /** Present only when `error` is `validation`. */
+  fields?: Partial<Record<DemoRequestField, string>>
+}
+
+export type DemoResponseBody = DemoRequestOk | DemoRequestFailure
+
+/* --- The Cloudflare-era response shapes. ----------------------------
+ * Still exported so `src/lib/api.ts` keeps compiling until the Frontend
+ * switches it to `readDemoResponse`; nothing serves them any more. */
+
+/** @deprecated status codes are gone — see `DemoRequestOk`. */
 export interface DemoRequestCreated {
   id: string
 }
 
-/** 400 */
+/** @deprecated see `DemoRequestFailure`. */
 export interface DemoRequestValidationError {
   error: 'validation'
   fields: Partial<Record<DemoRequestField, string>>
 }
 
-/** 403 | 429 | 502 */
+/** @deprecated see `DemoRequestFailure`. */
 export interface DemoRequestError {
   error: 'bot' | 'rate_limited' | 'upstream'
 }
 
+/** @deprecated see `DemoResponseBody`. */
 export type DemoRequestResponse =
   | DemoRequestCreated
   | DemoRequestValidationError
   | DemoRequestError
 
-export type DemoRequestErrorCode = 'validation' | 'bot' | 'rate_limited' | 'upstream'
-
-/** Aliases for the same shapes. */
+/** @deprecated aliases for the same shapes. */
 export type ValidationErrorResponse = DemoRequestValidationError
+/** @deprecated aliases for the same shapes. */
 export type SimpleErrorResponse = DemoRequestError
 
+/**
+ * @deprecated There is no same-origin API any more. The endpoint is the Apps
+ * Script `/exec` URL, injected at build time as `VITE_DEMO_REQUEST_URL`.
+ */
 export const DEMO_REQUEST_ENDPOINT = '/api/demo-requests'
 
 /* ------------------------------------------------------------------ */
@@ -129,6 +177,8 @@ export const LIMITS = {
   preferredLanguage: { max: 10 },
   /** Attribution values longer than this are truncated, never rejected. */
   attributionValue: { max: 500 },
+  /** Same treatment for the browser-supplied user agent. */
+  userAgent: { max: 500 },
 } as const
 
 /* ------------------------------------------------------------------ */
@@ -232,10 +282,8 @@ export function validateDemoRequest(
     fields.consent = 'Please agree to be contacted so we can call you back.'
   }
 
-  // Presence only; the real verification happens server-side against Turnstile.
-  if (!str(body.turnstileToken).trim()) {
-    fields.turnstileToken = 'Please complete the spam check.'
-  }
+  // No Turnstile check: Turnstile was dropped in Revision 2. `turnstileToken`
+  // is accepted and ignored so a cached old bundle keeps working.
 
   return fields
 }
@@ -281,6 +329,8 @@ export function parseDemoRequest(input: unknown): ParseResult {
   if (Object.keys(fields).length > 0) return { ok: false, fields }
 
   const body = input as Record<string, unknown>
+  const userAgent = optional(body.userAgent)
+
   return {
     ok: true,
     value: {
@@ -295,7 +345,7 @@ export function parseDemoRequest(input: unknown): ParseResult {
       message: optional(body.message),
       consent: true,
       attribution: sanitiseAttribution(body.attribution),
-      turnstileToken: str(body.turnstileToken).trim(),
+      userAgent: userAgent?.slice(0, LIMITS.userAgent.max),
     },
   }
 }

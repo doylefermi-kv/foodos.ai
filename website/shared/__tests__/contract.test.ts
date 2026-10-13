@@ -1,6 +1,9 @@
 /**
- * Validation, phone normalisation and the honeypot.
- * Run with: node --test "website/functions/api/_lib/__tests__/*.test.ts"
+ * The shared contract: validation, phone normalisation, the honeypot and the
+ * response reader. Run with `npm test` from `website/`.
+ *
+ * The server-side half of these rules lives in `apps-script/Code.gs`;
+ * `apps-script/tests/parity.test.ts` checks the two still answer identically.
  */
 
 import test from 'node:test'
@@ -12,7 +15,7 @@ import {
   normalisePhone,
   parseDemoRequest,
   validateDemoRequest,
-} from '../../../../shared/contract.ts'
+} from '../contract.ts'
 
 function validBody(overrides: Record<string, unknown> = {}): Record<string, unknown> {
   return {
@@ -27,7 +30,7 @@ function validBody(overrides: Record<string, unknown> = {}): Record<string, unkn
     message: 'Looking to switch from our current POS.',
     consent: true,
     attribution: { utmSource: 'google', utmMedium: 'cpc', landingPath: '/' },
-    turnstileToken: 'test-token',
+    userAgent: 'Mozilla/5.0 (test)',
     website: '',
     ...overrides,
   }
@@ -90,24 +93,26 @@ test('a minimal request (only required fields) validates', () => {
     outlets: '1',
     consent: true,
     attribution: {},
-    turnstileToken: 't',
   }
   assert.deepEqual(validateDemoRequest(minimal), {})
 })
 
 test('each required field is reported by name when missing', () => {
   const fields = validateDemoRequest({})
-  for (const key of [
-    'name',
-    'phone',
-    'restaurantName',
-    'city',
-    'outlets',
-    'consent',
-    'turnstileToken',
-  ]) {
+  for (const key of ['name', 'phone', 'restaurantName', 'city', 'outlets', 'consent']) {
     assert.ok(fields[key as keyof typeof fields], `expected an error for ${key}`)
   }
+})
+
+test('a request with no turnstile token is fine — Turnstile was dropped', () => {
+  // Revision 2 of the architecture doc. An old cached bundle still sends one;
+  // it must be ignored rather than rejected.
+  assert.deepEqual(validateDemoRequest(validBody({ turnstileToken: undefined })), {})
+  assert.deepEqual(validateDemoRequest(validBody({ turnstileToken: 'stale-token' })), {})
+
+  const parsed = parseDemoRequest(validBody({ turnstileToken: 'stale-token' }))
+  assert.ok(parsed.ok)
+  assert.ok(!('turnstileToken' in parsed.value), 'the token must not reach the sheet')
 })
 
 test('field-length boundaries are inclusive', () => {
@@ -208,6 +213,17 @@ test('attribution being absent or junk never fails a lead', () => {
   }
 })
 
+test('the user agent the browser sends is kept, trimmed and capped', () => {
+  // Apps Script cannot read request headers, so the form supplies this itself.
+  const result = parseDemoRequest(validBody({ userAgent: 'u'.repeat(LIMITS.userAgent.max + 10) }))
+  assert.ok(result.ok)
+  assert.equal(result.value.userAgent?.length, LIMITS.userAgent.max)
+
+  const absent = parseDemoRequest(validBody({ userAgent: undefined }))
+  assert.ok(absent.ok)
+  assert.equal(absent.value.userAgent, undefined)
+})
+
 test('parseDemoRequest returns the field map on failure', () => {
   const result = parseDemoRequest(validBody({ phone: '12345' }))
   assert.ok(!result.ok)
@@ -230,7 +246,7 @@ test('honeypot trips only when the hidden field has content', () => {
 })
 
 test('a filled honeypot is not reported as a validation error', () => {
-  // The bot must get a flat 403, never a hint about which field gave it away.
+  // The bot must get a flat `bot`, never a hint about which field gave it away.
   const fields = validateDemoRequest(validBody({ website: 'http://spam.example' }))
   assert.deepEqual(fields, {})
 })

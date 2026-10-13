@@ -1,0 +1,19 @@
+{
+  "name": "Anjali Menon",
+  "phone": "98765 43210",
+  "email": "anjali@spicegarden.in",
+  "restaurantName": "Spice Garden",
+  "city": "Kochi",
+  "outlets": "2-5",
+  "restaurantType": "casual_dining",
+  "preferredLanguage": "ml",
+  "message": "Test lead from the runbook — safe to delete.",
+  "consent": true,
+  "attribution": {
+    "utmSource": "runbook",
+    "utmMedium": "curl",
+    "landingPath": "/"
+  },
+  "userAgent": "curl (verification)",
+  "website": ""
+}

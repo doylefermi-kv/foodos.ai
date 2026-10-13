@@ -2,11 +2,15 @@
 // Owned by DevOps (FOO-4); run by `npm run lint` and by CI.
 //
 // Three environments live in this one package and they do NOT share globals:
-//   src/        browser  — DOM, window, sessionStorage
-//   functions/  Workers  — fetch/Request/Response, no DOM, no Node
-//   *.config.ts Node     — build tooling
-// Each gets its own block below so a mistake like using `window` inside a
-// Pages Function is caught by lint rather than at runtime in production.
+//   src/, shared/   browser — DOM, window, sessionStorage
+//   **/__tests__/   Node    — node:test, node:assert
+//   *.config.ts     Node    — build tooling
+// Each gets its own block below so a mistake like reaching for a Node built-in
+// from code that ships to the browser is caught by lint, not by a blank page.
+//
+// There is no server block any more: since Revision 2 of the architecture doc
+// the API is `apps-script/Code.gs`, which is not part of this package and is
+// linted by nothing — Apps Script has no build step. Its guard is its tests.
 
 import js from '@eslint/js'
 import globals from 'globals'
@@ -56,24 +60,11 @@ export default tseslint.config(
     },
   },
 
-  // Pages Functions: Workers runtime. Deliberately NOT browser globals.
-  {
-    files: ['functions/**/*.ts'],
-    languageOptions: {
-      globals: globals.worker,
-    },
-    rules: {
-      // A stray console.log in a Function writes to production logs, which is
-      // where lead payloads land on a 502. Warn, don't block.
-      'no-console': 'warn',
-    },
-  },
-
-  // Tests run under Vitest, in Node.
+  // Tests run under Node's built-in test runner.
   {
     files: ['**/*.test.ts', '**/*.test.tsx', '**/__tests__/**/*.ts'],
     languageOptions: {
-      globals: { ...globals.node, ...globals.worker },
+      globals: { ...globals.node, ...globals.browser },
     },
     rules: {
       'no-console': 'off',

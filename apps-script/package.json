@@ -1,0 +1,11 @@
+{
+  "name": "foodos-apps-script",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Google Apps Script web app that receives demo requests into the leads Sheet",
+  "type": "module",
+  "scripts": {
+    "test": "node --test",
+    "test:watch": "node --test --watch"
+  }
+}
