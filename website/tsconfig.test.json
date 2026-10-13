@@ -1,0 +1,17 @@
+{
+  // Frontend unit tests. They run under Node's built-in test runner (which
+  // strips the types), but they import browser code — so they need both the
+  // DOM lib of `tsconfig.app.json` and Node's `node:test` types, a combination
+  // neither of the other projects should have. `tsconfig.app.json` excludes
+  // every `__tests__` folder so nothing is checked twice.
+  //
+  // `shared/__tests__` is deliberately NOT here: it was covered by
+  // `tsconfig.functions.json`, which FOO-7 deleted along with the Cloudflare
+  // function. Backend owns where those tests get checked (noted on FOO-8).
+  "extends": "./tsconfig.app.json",
+  "compilerOptions": {
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.test.tsbuildinfo",
+    "types": ["vite/client", "node"]
+  },
+  "include": ["src/**/__tests__/**/*.ts", "shared"]
+}

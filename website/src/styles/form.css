@@ -164,10 +164,6 @@ dialog.modal::backdrop { background: rgba(22, 19, 15, .62); }
 .consent--bad { border-color: var(--pomegranate); border-width: var(--bw); background: #FFF4F5; }
 
 /* ---------------------------------------------------------- turnstile */
-.ts { grid-column: 1 / -1; min-height: 70px; }
-.ts__widget { min-height: 65px; }
-.ts__msg { font-family: var(--mono); font-size: 11px; color: var(--ink-3); margin-top: 6px; }
-.ts__msg--bad { color: var(--pomegranate); font-weight: 700; }
 
 /* ---------------------------------------------------------- actions */
 .form__actions {
@@ -193,6 +189,11 @@ dialog.modal::backdrop { background: rgba(22, 19, 15, .62); }
 }
 .banner--bad { background: var(--pomegranate); color: #fff; }
 .banner--bad b { display: block; font-family: var(--mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; margin-bottom: 5px; }
+
+/* Not an error the visitor caused — a build without a booking endpoint. Keeps
+   the marigold of the brand rather than the red of a failure. */
+.banner--warn { background: var(--marigold); color: var(--ink); }
+.banner--warn b { display: block; font-family: var(--mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; margin-bottom: 5px; }
 
 /* ---------------------------------------------------------- success */
 /* Focused on render so the confirmation is announced; like .modal__card it

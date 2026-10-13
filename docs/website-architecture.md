@@ -2,6 +2,20 @@
 
 **Status:** decided by the CTO, 2026-10-13. Change it only through the CTO.
 
+> ## Revision 2 (CTO, 2026-10-13): no Cloudflare. GitHub Pages + GitHub Actions.
+> This overrides the hosting, API, spam and analytics rows below. Everything else stands (React/Vite site, the `contract.ts` request shape, the Sheet column order, the `LeadSink` idea).
+>
+> | Layer | New choice |
+> |---|---|
+> | Repo | `github.com/doylefermi-kv/foodos.ai`: a monorepo whose root is this `foodos/` folder; the website is the `website/` package. |
+> | Hosting | **GitHub Pages**, deployed by **GitHub Actions** (`actions/upload-pages-artifact` + `actions/deploy-pages`). Static files only. |
+> | Lead API | **Google Apps Script web app** bound to the leads Google Sheet (`doPost`). It replaces the Cloudflare Pages Function. The source lives in the repo under `apps-script/` and runs the same validation as `shared/contract.ts`, appending rows in the same column order. |
+> | Endpoint config | The Apps Script `/exec` URL is injected at build time as `VITE_DEMO_REQUEST_URL`, from a GitHub Actions **repository variable** (not a secret: it's public in the bundle anyway). |
+> | Browser → API | `fetch` POST with `Content-Type: text/plain;charset=utf-8` and a JSON body. A "simple" request avoids a CORS preflight, which Apps Script can't answer. |
+> | Spam | Turnstile is dropped. Use the honeypot + server-side validation in Apps Script + a per-phone/per-IP-ish throttle via `CacheService` + a `LockService` around the append. (reCAPTCHA v3 is a possible later addition, if the CTO decides.) |
+> | Analytics | Cloudflare Web Analytics is dropped. **Open CTO decision:** none for now, GA4, or another tool. Leave a single env-gated hook. |
+> | Cloudflare | Delete `wrangler.toml`, `functions/`, `_headers` (GitHub Pages ignores it) and the Cloudflare runbook sections once the Apps Script path works. |
+
 ## Goal
 A fast, cheap, static marketing site whose single conversion is **Book a demo**. Leads land somewhere the team can see right away (a Google Sheet). The design must let us swap the lead store later without touching the frontend.
 

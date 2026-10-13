@@ -8,6 +8,7 @@ import {
   useState,
   type ReactNode,
 } from 'react'
+import { track } from './analytics'
 
 /**
  * `https://foodos.ai/#book-a-demo` opens the form straight away, so a WhatsApp
@@ -35,6 +36,7 @@ export function DemoModalProvider({ children }: { children: ReactNode }) {
     openerRef.current =
       document.activeElement instanceof HTMLElement ? document.activeElement : null
     setSource(from)
+    track('demo_open', { source: from })
   }, [])
 
   const close = useCallback(() => {
@@ -56,13 +58,15 @@ export function DemoModalProvider({ children }: { children: ReactNode }) {
   }, [])
 
   useEffect(() => {
+    // Go through `open` so a hash-opened modal is tracked and returns focus
+    // like any other opener.
     const sync = () => {
-      if (window.location.hash === DEMO_HASH) setSource('hash')
+      if (window.location.hash === DEMO_HASH) open('hash')
     }
     sync()
     window.addEventListener('hashchange', sync)
     return () => window.removeEventListener('hashchange', sync)
-  }, [])
+  }, [open])
 
   const value = useMemo<DemoModalValue>(
     () => ({ isOpen: source !== null, open, close, source }),

@@ -27,5 +27,8 @@
     "skipLibCheck": true,
     "noEmit": true
   },
-  "include": ["src", "shared"]
+  // Tests are their own project (tsconfig.test.json): they need Node's types
+  // for `node:test`, which app code must not have.
+  "include": ["src", "shared"],
+  "exclude": ["**/__tests__/**"]
 }

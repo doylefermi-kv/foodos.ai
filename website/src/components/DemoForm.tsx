@@ -4,15 +4,21 @@ import {
   OUTLETS,
   RESTAURANT_TYPES,
   normalisePhone,
-  validateDemoRequest,
-  type DemoRequest,
   type DemoRequestField,
   type Outlets,
   type RestaurantType,
 } from '../../shared/contract'
-import { submitDemoRequest } from '../lib/api'
+import {
+  DEMO_REQUEST_FIELDS,
+  isDemoRequestConfigured,
+  submitDemoRequest,
+  validateDemoForm,
+  warnIfUnconfigured,
+  type DemoRequestPayload,
+  type FieldErrors,
+} from '../lib/api'
+import { track } from '../lib/analytics'
 import { getAttribution } from '../lib/attribution'
-import { Turnstile } from './Turnstile'
 
 const OUTLET_LABELS: Record<Outlets, string> = {
   '1': 'Just the one',
@@ -72,24 +78,7 @@ const EMPTY: FormState = {
   website: '',
 }
 
-type FieldErrors = Partial<Record<DemoRequestField, string>>
-
-/** Tab order, so "focus the first bad field" means the topmost one. */
-const FIELD_ORDER: DemoRequestField[] = [
-  'name',
-  'phone',
-  'restaurantName',
-  'city',
-  'outlets',
-  'restaurantType',
-  'email',
-  'preferredLanguage',
-  'message',
-  'consent',
-  'turnstileToken',
-]
-
-function toPayload(form: FormState, turnstileToken: string): DemoRequest {
+function toPayload(form: FormState): DemoRequestPayload {
   return {
     name: form.name.trim(),
     // Send the normalised form so the Sheet never holds two spellings of one
@@ -104,7 +93,6 @@ function toPayload(form: FormState, turnstileToken: string): DemoRequest {
     message: form.message.trim() || undefined,
     consent: true,
     attribution: getAttribution(),
-    turnstileToken,
     website: form.website,
   }
 }
@@ -120,7 +108,6 @@ export function DemoForm({ onDone }: Props) {
 
   const [form, setForm] = useState<FormState>(EMPTY)
   const [errors, setErrors] = useState<FieldErrors>({})
-  const [turnstileToken, setTurnstileToken] = useState<string | null>(null)
   const [status, setStatus] = useState<'idle' | 'sending' | 'done'>('idle')
   const [failure, setFailure] = useState<string | null>(null)
   const [createdId, setCreatedId] = useState<string | null>(null)
@@ -132,7 +119,13 @@ export function DemoForm({ onDone }: Props) {
   const inFlight = useRef(false)
   const abortRef = useRef<AbortController | null>(null)
 
+  // A build with no endpoint can't send anything, so say so up front rather
+  // than letting someone fill the whole form and then fail.
+  const configured = isDemoRequestConfigured()
+
   useEffect(() => () => abortRef.current?.abort(), [])
+
+  useEffect(() => warnIfUnconfigured(), [])
 
   useEffect(() => {
     if (status === 'done') doneRef.current?.focus()
@@ -150,7 +143,7 @@ export function DemoForm({ onDone }: Props) {
   }
 
   const focusFirstError = (fieldErrors: FieldErrors) => {
-    const first = FIELD_ORDER.find((field) => field in fieldErrors)
+    const first = DEMO_REQUEST_FIELDS.find((field) => field in fieldErrors)
     if (!first) return
     const element = formRef.current?.querySelector<HTMLElement>(
       `#${CSS.escape(fieldId(first))}`,
@@ -160,12 +153,12 @@ export function DemoForm({ onDone }: Props) {
 
   const onSubmit = async (event: FormEvent) => {
     event.preventDefault()
-    if (inFlight.current) return
+    if (inFlight.current || !configured) return
 
     setFailure(null)
 
-    const payload = toPayload(form, turnstileToken ?? '')
-    const fieldErrors = validateDemoRequest(payload)
+    const payload = toPayload(form)
+    const fieldErrors = validateDemoForm(payload)
     if (Object.keys(fieldErrors).length > 0) {
       setErrors(fieldErrors)
       focusFirstError(fieldErrors)
@@ -178,13 +171,18 @@ export function DemoForm({ onDone }: Props) {
     const controller = new AbortController()
     abortRef.current = controller
 
-    const result = await submitDemoRequest(payload, controller.signal)
+    const result = await submitDemoRequest(payload, { signal: controller.signal })
     inFlight.current = false
 
     if (controller.signal.aborted) return
 
     switch (result.kind) {
       case 'ok':
+        track('demo_submit', {
+          outlets: payload.outlets,
+          city: payload.city,
+          hasReference: Boolean(result.id),
+        })
         setCreatedId(result.id)
         setStatus('done')
         break
@@ -192,6 +190,10 @@ export function DemoForm({ onDone }: Props) {
         setErrors(result.fields)
         setStatus('idle')
         focusFirstError(result.fields)
+        break
+      case 'not_configured':
+        // Belt and braces: the submit button is already disabled.
+        setStatus('idle')
         break
       case 'error':
         setFailure(result.message)
@@ -230,6 +232,14 @@ export function DemoForm({ onDone }: Props) {
 
   return (
     <form className="form__grid" ref={formRef} onSubmit={onSubmit} noValidate>
+      {!configured && (
+        <p className="banner banner--warn" role="status">
+          <b>Demo booking isn’t configured yet</b>
+          This build of the site has no booking endpoint, so the form can’t be
+          sent. Nothing you type here goes anywhere — please try again later.
+        </p>
+      )}
+
       {failure && (
         <p className="banner banner--bad" role="alert">
           <b>Couldn’t send</b>
@@ -468,18 +478,11 @@ export function DemoForm({ onDone }: Props) {
         </label>
       </div>
 
-      <Turnstile onToken={setTurnstileToken} />
-      {errors.turnstileToken && (
-        <p className="field__err" id={errId('turnstileToken')} role="alert">
-          {errors.turnstileToken}
-        </p>
-      )}
-
       <div className="form__actions">
         <button
           type="submit"
           className="btn btn--primary btn--lg"
-          disabled={sending}
+          disabled={sending || !configured}
         >
           {sending && <span className="spin" aria-hidden="true" />}
           {sending ? 'Sending…' : 'Book my demo'}
