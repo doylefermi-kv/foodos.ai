@@ -419,3 +419,35 @@ npm run dev                      # wrangler pages dev, site + /api together
 ```
 
 Submitted leads print to the terminal instead of being written anywhere.
+
+---
+
+## Appendix C — open decisions for the CTO
+
+None of these block the deploy. Each is a judgement call that was not ours to make, so
+the code takes the safe option and waits.
+
+1. **Which deploy path?** Pages Git integration (step 4, Option A) or GitHub Actions
+   (step 9, Option B). Option A is recommended and needs no Cloudflare token in GitHub.
+   Whichever you pick, do **not** run both. If you pick A, delete the `deploy` job from
+   `.github/workflows/website.yml` rather than leaving it disabled.
+
+2. **`SHEET_ID` or `GOOGLE_SHEET_ID`?** FOO-2 specified the first, this runbook and the
+   Pages scaffolding use the second, and the Function currently reads both to unblock
+   parallel work. Pick one and we will delete the other, so there is a single name to
+   get right when you are pasting secrets at 11pm.
+
+3. **Does Preview share the production sheet?** Currently yes — one sheet, nothing to
+   reconcile, but test submissions land among real leads. Alternative is a second sheet
+   and a different `GOOGLE_SHEET_ID` for Preview.
+
+4. **Will the repo be public?** If it is, GitHub Actions minutes become unlimited, which
+   removes limit #2 in Appendix A. The repo contains no secrets either way.
+
+5. **Who owns the leads sheet?** It is currently whichever Google account creates it. If
+   that is a personal account, the team loses the leads when that person leaves. Worth
+   putting it on a Workspace shared drive before the site goes live.
+
+6. **Turnstile widget mode.** Set to **Managed**, which can show an interactive
+   challenge. **Invisible** converts marginally better but catches less. Managed is the
+   right default for a lead form; say if you would rather optimise for conversion.
