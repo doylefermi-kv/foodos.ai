@@ -151,8 +151,8 @@ export function PosMock() {
       <div className="flag">
         <b>★ FoodOS AI says</b>
         <p>
-          Saturday rush expected — <em>+22% covers</em>. Marinate 9 kg mutton
-          tonight, not 6.
+          Fresh cream runs out <em>tonight</em>. Draft order to Sri Lakshmi Dairy
+          is ready — approve on WhatsApp?
         </p>
       </div>
     </div>

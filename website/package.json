@@ -4,6 +4,7 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
+    "predev": "node -e \"const f=require('fs');if(!f.existsSync('.dev.vars'))f.copyFileSync('.dev.vars.example','.dev.vars')\"",
     "dev": "npm run build && wrangler pages dev ./dist",
     "dev:ui": "vite",
     "build": "tsc -b && vite build",

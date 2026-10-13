@@ -5,7 +5,7 @@ const TAGS = [
   '₹ GST-ready',
   'Offline billing',
   'UPI QR',
-  'Hindi + English',
+  '9 Indian languages',
   'Android & Windows',
   'No per-bill cut',
 ]
@@ -24,7 +24,7 @@ export function Hero() {
           <p className="hero__sub">
             The POS built for how restaurants here actually run — GST bills in one
             tap, KOTs to the tandoor, Zomato and Swiggy in the same queue, and AI
-            that tells you what to prep tomorrow.
+            that reorders your stock before you run out.
           </p>
           <div className="hero__actions">
             <button

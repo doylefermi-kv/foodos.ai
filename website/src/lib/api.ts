@@ -45,7 +45,7 @@ export async function submitDemoRequest(
 
   // A 502 from the sink means the lead is logged server-side but unconfirmed;
   // a non-JSON body (an HTML error page from the edge) must not throw here.
-  let body: unknown = null
+  let body: unknown
   try {
     body = (await response.json()) as DemoRequestResponse
   } catch {

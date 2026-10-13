@@ -40,6 +40,10 @@ dialog.modal::backdrop { background: rgba(22, 19, 15, .62); }
   position: relative;
 }
 
+/* Focused programmatically on open purely to anchor the screen reader; the
+   dialog is already unmistakable, so it needs no ring of its own. */
+.modal__card:focus { outline: none; }
+
 .modal__head {
   display: flex;
   align-items: flex-start;
@@ -191,7 +195,10 @@ dialog.modal::backdrop { background: rgba(22, 19, 15, .62); }
 .banner--bad b { display: block; font-family: var(--mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; margin-bottom: 5px; }
 
 /* ---------------------------------------------------------- success */
+/* Focused on render so the confirmation is announced; like .modal__card it
+   does not need a ring of its own. */
 .done { text-align: center; padding: 10px 0 6px; }
+.done:focus { outline: none; }
 .done__tick {
   width: 58px;
   height: 58px;

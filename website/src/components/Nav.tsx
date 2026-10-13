@@ -54,11 +54,8 @@ export function Nav() {
             ))}
           </nav>
           <div className="nav__cta">
-            {/* Pre-launch: there is no app to sign in to yet, so this lands on
-                the closing CTA like every other secondary link in the design. */}
-            <a className="btn" href="#cta" onClick={() => setOpen(false)}>
-              Sign in
-            </a>
+            {/* The design's "Sign in" is gone until there is an app to sign in
+                to — CTO's call: a dead button costs more than the slot. */}
             <button
               type="button"
               className="btn btn--primary"

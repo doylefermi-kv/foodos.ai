@@ -2,11 +2,18 @@ import {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useRef,
   useState,
   type ReactNode,
 } from 'react'
+
+/**
+ * `https://foodos.ai/#book-a-demo` opens the form straight away, so a WhatsApp
+ * message or an ad can deep-link to the one conversion on the page.
+ */
+export const DEMO_HASH = '#book-a-demo'
 
 interface DemoModalValue {
   isOpen: boolean
@@ -32,11 +39,29 @@ export function DemoModalProvider({ children }: { children: ReactNode }) {
 
   const close = useCallback(() => {
     setSource(null)
+    // Leaving #book-a-demo in the URL would both lie about the page state and
+    // stop the hash reopening the form later.
+    if (window.location.hash === DEMO_HASH) {
+      window.history.replaceState(
+        null,
+        '',
+        window.location.pathname + window.location.search,
+      )
+    }
     const opener = openerRef.current
     openerRef.current = null
     if (opener && document.contains(opener)) {
       opener.focus()
     }
+  }, [])
+
+  useEffect(() => {
+    const sync = () => {
+      if (window.location.hash === DEMO_HASH) setSource('hash')
+    }
+    sync()
+    window.addEventListener('hashchange', sync)
+    return () => window.removeEventListener('hashchange', sync)
   }, [])
 
   const value = useMemo<DemoModalValue>(

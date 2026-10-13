@@ -76,7 +76,7 @@ export function AiSection() {
   // Tabs pattern: arrows move between tabs, Home/End jump to the ends.
   const onKeyDown = (event: KeyboardEvent<HTMLButtonElement>, index: number) => {
     const last = CAPABILITIES.length - 1
-    let next: number | null = null
+    let next: number
 
     switch (event.key) {
       case 'ArrowDown':

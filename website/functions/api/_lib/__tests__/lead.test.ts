@@ -274,7 +274,7 @@ test('selectSink defaults to the console sink', () => {
 test('selectSink builds the sheet sink when fully configured', () => {
   const sink = selectSink({
     LEAD_SINK: 'google_sheet',
-    SHEET_ID: 'sheet-123',
+    GOOGLE_SHEET_ID: 'sheet-123',
     GOOGLE_SERVICE_ACCOUNT_EMAIL: 'leads@foodos.iam.gserviceaccount.com',
     GOOGLE_PRIVATE_KEY: TEST_KEY,
   })
@@ -283,33 +283,58 @@ test('selectSink builds the sheet sink when fully configured', () => {
 
 test('selectSink names the missing variables rather than failing on the first lead', () => {
   assert.throws(
-    () => selectSink({ LEAD_SINK: 'google_sheet', SHEET_ID: 'sheet-123' }),
+    () => selectSink({ LEAD_SINK: 'google_sheet', GOOGLE_SHEET_ID: 'sheet-123' }),
     /GOOGLE_SERVICE_ACCOUNT_EMAIL, GOOGLE_PRIVATE_KEY/,
   )
 })
 
-test('the sheet id is accepted under either agreed name', () => {
+test('the sheet id is read from GOOGLE_SHEET_ID only', () => {
   const base = {
     GOOGLE_SERVICE_ACCOUNT_EMAIL: 'leads@foodos.iam.gserviceaccount.com',
     GOOGLE_PRIVATE_KEY: TEST_KEY,
   }
-  // FOO-2 says SHEET_ID; DevOps's scaffolding says GOOGLE_SHEET_ID.
-  assert.equal(selectSink({ ...base, LEAD_SINK: 'google-sheet', SHEET_ID: 'a' }).name, 'google_sheet')
   assert.equal(
-    selectSink({ ...base, LEAD_SINK: 'google-sheet', GOOGLE_SHEET_ID: 'b' }).name,
+    selectSink({ ...base, LEAD_SINK: 'google_sheet', GOOGLE_SHEET_ID: 'b' }).name,
     'google_sheet',
   )
-  assert.throws(() => selectSink({ ...base, LEAD_SINK: 'google-sheet' }), /SHEET_ID/)
+  // The CTO retired SHEET_ID: a stale one must fail loudly, not quietly win.
+  assert.throws(
+    () => selectSink({ ...base, LEAD_SINK: 'google_sheet', SHEET_ID: 'a' } as never),
+    /GOOGLE_SHEET_ID/,
+  )
+  assert.throws(() => selectSink({ ...base, LEAD_SINK: 'google_sheet' }), /GOOGLE_SHEET_ID/)
 })
 
-test('selectSink accepts the hyphenated LEAD_SINK spelling used in wrangler.toml', () => {
-  const sink = selectSink({
-    LEAD_SINK: 'google-sheet',
-    GOOGLE_SHEET_ID: 'sheet-123',
-    GOOGLE_SERVICE_ACCOUNT_EMAIL: 'leads@foodos.iam.gserviceaccount.com',
-    GOOGLE_PRIVATE_KEY: TEST_KEY,
-  })
+test('the hyphenated LEAD_SINK spelling still works, but warns', () => {
+  const warnings: unknown[] = []
+  const sink = selectSink(
+    {
+      LEAD_SINK: 'google-sheet',
+      GOOGLE_SHEET_ID: 'sheet-123',
+      GOOGLE_SERVICE_ACCOUNT_EMAIL: 'leads@foodos.iam.gserviceaccount.com',
+      GOOGLE_PRIVATE_KEY: TEST_KEY,
+    },
+    { warn: (...args: unknown[]) => warnings.push(args[0]) },
+  )
   assert.equal(sink.name, 'google_sheet')
+  assert.match(String(warnings[0]), /deprecated/)
+
+  // The agreed spelling must stay silent, or the warning becomes noise.
+  const quiet: unknown[] = []
+  selectSink(
+    {
+      LEAD_SINK: 'google_sheet',
+      GOOGLE_SHEET_ID: 'sheet-123',
+      GOOGLE_SERVICE_ACCOUNT_EMAIL: 'leads@foodos.iam.gserviceaccount.com',
+      GOOGLE_PRIVATE_KEY: TEST_KEY,
+    },
+    { warn: (...args: unknown[]) => quiet.push(args[0]) },
+  )
+  assert.deepEqual(quiet, [])
+})
+
+test('selectSink rejects the dropped "sheet" shorthand', () => {
+  assert.throws(() => selectSink({ LEAD_SINK: 'sheet' }), /Unknown LEAD_SINK/)
 })
 
 test('selectSink rejects an unknown sink name', () => {

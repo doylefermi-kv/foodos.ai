@@ -22,15 +22,6 @@ export function CtaSection() {
           >
             Book a demo
           </button>
-          {/* Both CTAs post to the same endpoint — the contract has no field to
-              tell a waitlist signup from a demo request. Flagged for the CTO. */}
-          <button
-            type="button"
-            className="btn btn--lg"
-            onClick={() => open('cta-waitlist')}
-          >
-            Join the waitlist
-          </button>
         </div>
         <ul className="cta__meta">
           {META.map((item) => (

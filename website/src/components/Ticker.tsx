@@ -5,7 +5,7 @@ const PHRASES = [
   'Works without internet',
   'Zomato + Swiggy in one queue',
   'UPI, card, cash',
-  'Hindi & English',
+  '9 Indian languages',
   'Setup in one day',
 ]
 

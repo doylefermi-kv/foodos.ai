@@ -10,14 +10,21 @@
   --paper-2:    #FFF7E6;
   --ink:        #16130F;
   --ink-2:      #4A443B;
-  --ink-3:      #7D756A;
+  /* Design value is #7D756A: 4.43:1 on --paper and 4.26:1 on --paper-2, both
+     just under AA for the 12.5px body text it carries. Same note as --mint. */
+  --ink-3:      #756D62;
   --rule:       #16130F;
   --marigold:   #FFB703;
   --marigold-d: #E09500;
   --indigo:     #2B2A7A;
   --indigo-l:   #4A48C4;
   --pomegranate:#E02B3C;
-  --mint:       #0E8F62;
+  /* Design value is #0E8F62. White text on it measures 4.10:1, which fails
+     WCAG AA — and mint is a white-text surface everywhere it appears (stat
+     block, .tag--ok, .bub--out, Settle button, sticker--mint). Darkened the
+     smallest amount that clears 4.5:1 (now 4.71:1). Flagged to the Designer;
+     revert this line if design/ adopts the same correction. */
+  --mint:       #0D8459;
   --mint-l:     #D6F2E6;
   --sky:        #BFE3F5;
 

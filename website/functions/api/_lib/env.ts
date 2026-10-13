@@ -14,11 +14,11 @@ export interface Env {
   /** PKCS#8 PEM. Literal `\n` escapes are accepted and unescaped. */
   GOOGLE_PRIVATE_KEY?: string;
   /**
-   * The spreadsheet id. FOO-2 specifies `SHEET_ID`; DevOps's scaffolding and
-   * runbook use `GOOGLE_SHEET_ID`. Both are read, `SHEET_ID` wins, so neither
-   * side has to change before the CTO picks one.
+   * The spreadsheet id. FOO-2 originally said `SHEET_ID`; the CTO settled on
+   * `GOOGLE_SHEET_ID`, matching the DevOps scaffolding and the runbook. That is
+   * now the only name read — `SHEET_ID` is gone, so a stale one fails loudly at
+   * sink selection rather than silently overriding.
    */
-  SHEET_ID?: string;
   GOOGLE_SHEET_ID?: string;
   /** Tab/range to append to. Defaults to `Leads`. */
   SHEET_RANGE?: string;

@@ -361,7 +361,9 @@
 .stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin: 34px 0 0; padding: 0; list-style: none; }
 .stat { border: var(--bw) solid var(--paper); padding: 20px 16px; text-align: center; }
 .stat:nth-child(1) { background: var(--marigold);    color: var(--ink); border-color: var(--marigold); }
-.stat:nth-child(2) { background: var(--pomegranate); border-color: var(--pomegranate); }
+/* #fff rather than the inherited --paper (#FFFCF5): the warm tint costs just
+   enough contrast on pomegranate to fail AA (4.47:1 vs 4.58:1). */
+.stat:nth-child(2) { background: var(--pomegranate); border-color: var(--pomegranate); color: #fff; }
 .stat:nth-child(3) { background: var(--mint);        border-color: var(--mint); }
 .stat:nth-child(4) { background: var(--indigo);      border-color: var(--indigo); }
 .stat b {
@@ -371,7 +373,9 @@
   letter-spacing: -.045em;
   font-variant-numeric: tabular-nums;
 }
-.stat span { font-size: 12.5px; font-weight: 600; opacity: .92; }
+/* The design has `opacity: .92` here. On the pomegranate and mint tiles that
+   drags white text to 3.97:1 and 3.62:1; at full opacity both clear AA. */
+.stat span { font-size: 12.5px; font-weight: 600; }
 
 /* ---------------------------------------------------------- FEATURES */
 .feat { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 16px; margin-top: 46px; }
@@ -740,9 +744,13 @@
 .foot { background: var(--ink); color: #A79E92; padding: 54px 0 30px; }
 .foot__g { display: grid; grid-template-columns: 1.6fr repeat(3, minmax(0, 1fr)); gap: 30px; }
 .foot__about { font-size: 14px; margin-top: 16px; max-width: 32ch; line-height: 1.6; }
-.foot h4 {
+/* h3, not the design's h4: the last heading before the footer is an h2, and
+   jumping h2 -> h4 breaks the document outline for screen-reader users who
+   navigate by heading. Styling is unchanged. */
+.foot h3 {
   font-family: var(--mono);
   font-size: 11px;
+  line-height: 1.03;
   letter-spacing: .12em;
   text-transform: uppercase;
   color: var(--marigold);

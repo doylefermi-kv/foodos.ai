@@ -126,7 +126,7 @@ export async function handleDemoRequest(
 
   let sink: LeadSink
   try {
-    sink = deps.sink ?? selectSink(env)
+    sink = deps.sink ?? selectSink(env, logger)
   } catch (error) {
     // Misconfiguration, not a transient fault — but the lead still must survive.
     logger.error(`[demo-requests] sink misconfigured: ${String(error)}`)

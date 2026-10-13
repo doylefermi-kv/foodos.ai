@@ -111,11 +111,9 @@ function toPayload(form: FormState, turnstileToken: string): DemoRequest {
 
 interface Props {
   onDone: () => void
-  /** Used only to title the success state; not sent to the API. */
-  source: string | null
 }
 
-export function DemoForm({ onDone, source }: Props) {
+export function DemoForm({ onDone }: Props) {
   const uid = useId()
   const fieldId = (field: string) => `${uid}-${field}`
   const errId = (field: string) => `${uid}-${field}-err`
@@ -208,9 +206,7 @@ export function DemoForm({ onDone, source }: Props) {
         <p className="done__tick" aria-hidden="true">
           ✓
         </p>
-        <h3>
-          {source === 'cta-waitlist' ? 'You’re on the list.' : 'Request received.'}
-        </h3>
+        <h3>Request received.</h3>
         <p>
           We’ll call you on <b>{normalisePhone(form.phone) ?? form.phone}</b>{' '}
           within one working day to fix a time. Keep your menu handy — we’ll set
