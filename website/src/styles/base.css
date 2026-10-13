@@ -1,0 +1,169 @@
+/* ============================================================
+   BASE — reset, typography, shared primitives
+   Ported from design/website/v3-bazaar/index.html
+   ============================================================ */
+
+*,
+*::before,
+*::after { box-sizing: border-box; }
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 17px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+a { color: inherit; }
+button { font: inherit; cursor: pointer; }
+svg { display: block; }
+
+h1, h2, h3, h4 {
+  margin: 0;
+  font-weight: 800;
+  line-height: 1.03;
+  letter-spacing: -.035em;
+}
+h1 { font-size: clamp(42px, 6.6vw, 82px); letter-spacing: -.045em; }
+h2 { font-size: clamp(32px, 4.4vw, 56px); letter-spacing: -.04em; }
+h3 { font-size: clamp(19px, 1.6vw, 24px); letter-spacing: -.025em; line-height: 1.2; }
+p  { margin: 0; }
+
+/* The design leaves focus to the UA ring, which disappears on marigold and on
+   the indigo AI panel. One visible ring everywhere instead. */
+:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+.skip-link {
+  position: absolute;
+  left: var(--gutter);
+  top: -100px;
+  z-index: 200;
+  background: var(--marigold);
+  color: var(--ink);
+  border: var(--bw) solid var(--ink);
+  box-shadow: var(--shadow-sm);
+  padding: 10px 16px;
+  font-weight: 750;
+  text-decoration: none;
+}
+.skip-link:focus { top: 10px; }
+
+.wrap {
+  max-width: var(--maxw);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+.section { padding: clamp(60px, 7.5vw, 104px) 0; position: relative; }
+.center { text-align: center; }
+.lede {
+  font-size: clamp(17px, 1.4vw, 20px);
+  color: var(--ink-2);
+  max-width: 58ch;
+  font-weight: 450;
+}
+.center .lede { margin-inline: auto; }
+.lede--mt { margin-top: 18px; }
+.head { max-width: 56ch; }
+.head--wide { max-width: 62ch; }
+.head--narrow { max-width: 52ch; }
+
+/* sticker label */
+.sticker {
+  display: inline-block;
+  background: var(--marigold);
+  color: var(--ink);
+  border: var(--bw) solid var(--ink);
+  border-radius: 0;
+  box-shadow: var(--shadow-sm);
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  padding: 6px 13px;
+  margin-bottom: 22px;
+  transform: rotate(-1.2deg);
+}
+.sticker--indigo { background: var(--indigo); color: #fff; }
+.sticker--pom    { background: var(--pomegranate); color: #fff; }
+.sticker--mint   { background: var(--mint); color: #fff; }
+
+/* Unverified-claim chip. One class, removable when the real content exists. */
+.ph {
+  display: inline-block;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--ink);
+  background: repeating-linear-gradient(45deg, #FFE9A8 0 6px, #FFF3CC 6px 12px);
+  border: 1.5px solid var(--ink);
+  padding: 2px 8px;
+  vertical-align: middle;
+  max-width: 100%;
+}
+.ph--proposal { background: repeating-linear-gradient(45deg, #CFEEE0 0 6px, #E6F7EF 6px 12px); }
+
+/* buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  min-height: 52px;
+  padding: 0 24px;
+  border: var(--bw) solid var(--ink);
+  background: var(--paper);
+  color: var(--ink);
+  font-size: 16.5px;
+  font-weight: 750;
+  text-decoration: none;
+  box-shadow: var(--shadow);
+  transition: transform .1s ease, box-shadow .1s ease;
+}
+.btn:hover  { transform: translate(-2px, -2px); box-shadow: 7px 7px 0 var(--ink); }
+.btn:active { transform: translate(2px, 2px);   box-shadow: 2px 2px 0 var(--ink); }
+.btn[disabled],
+.btn[aria-disabled='true'] {
+  opacity: .55;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: var(--shadow-sm);
+}
+.btn--primary { background: var(--marigold); }
+.btn--ink     { background: var(--ink); color: var(--paper); }
+.btn--lg      { min-height: 60px; padding: 0 30px; font-size: 18px; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    transition: none !important;
+    animation: none !important;
+    scroll-behavior: auto !important;
+  }
+  html { scroll-behavior: auto; }
+}

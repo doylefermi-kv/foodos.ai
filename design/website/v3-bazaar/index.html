@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FoodOS.ai — restaurant POS with AI built in</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%2316130F'/><path d='M8 6h16v18l-2.67 2-2.67-2-2.67 2-2.66-2-2.67 2-2.66-2z' fill='%23FFB703'/><rect x='11' y='10.4' width='10' height='2.4' fill='%2316130F'/><rect x='11' y='15' width='6.4' height='2.4' fill='%2316130F'/></svg>">
+<style>
+/* ============================================================
+   DIRECTION C — "BAZAAR"
+   Bold Indian-local. High-contrast ink on paper-white, marigold
+   / indigo / pomegranate blocks, hard 2px rules, chunky type,
+   ₹ + GST + UPI cues front and centre. Confident, not kitsch.
+   Self-contained: no external fonts, no CDNs.
+   ============================================================ */
+
+:root{
+  --paper:     #FFFCF5;
+  --paper-2:   #FFF7E6;
+  --ink:       #16130F;
+  --ink-2:     #4A443B;
+  --ink-3:     #7D756A;
+  --rule:      #16130F;
+  --marigold:  #FFB703;
+  --marigold-d:#E09500;
+  --indigo:    #2B2A7A;
+  --indigo-l:  #4A48C4;
+  --pomegranate:#E02B3C;
+  --mint:      #0E8F62;
+  --mint-l:    #D6F2E6;
+  --sky:       #BFE3F5;
+
+  --sans: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+
+  --maxw:1200px; --gutter:26px;
+  --bw:2px;                      /* border weight */
+  --shadow: 5px 5px 0 var(--ink);
+  --shadow-sm: 3px 3px 0 var(--ink);
+}
+
+*,*::before,*::after{ box-sizing:border-box; }
+html{ scroll-behavior:smooth; -webkit-text-size-adjust:100%; }
+body{
+  margin:0; background:var(--paper); color:var(--ink);
+  font-family:var(--sans); font-size:17px; line-height:1.6;
+  -webkit-font-smoothing:antialiased; overflow-x:hidden;
+}
+a{ color:inherit; } button{ font:inherit; cursor:pointer; } svg{ display:block; }
+
+h1,h2,h3,h4{ margin:0; font-weight:800; line-height:1.03; letter-spacing:-.035em; }
+h1{ font-size:clamp(42px,6.6vw,82px); letter-spacing:-.045em; }
+h2{ font-size:clamp(32px,4.4vw,56px); letter-spacing:-.04em; }
+h3{ font-size:clamp(19px,1.6vw,24px); letter-spacing:-.025em; line-height:1.2; }
+p{ margin:0; }
+
+.wrap{ max-width:var(--maxw); margin-inline:auto; padding-inline:var(--gutter); }
+.section{ padding:clamp(60px,7.5vw,104px) 0; position:relative; }
+.center{ text-align:center; }
+.lede{ font-size:clamp(17px,1.4vw,20px); color:var(--ink-2); max-width:58ch; font-weight:450; }
+.center .lede{ margin-inline:auto; }
+
+/* sticker label */
+.sticker{
+  display:inline-block; background:var(--marigold); color:var(--ink);
+  border:var(--bw) solid var(--ink); border-radius:0; box-shadow:var(--shadow-sm);
+  font-family:var(--mono); font-size:12px; font-weight:700; letter-spacing:.1em; text-transform:uppercase;
+  padding:6px 13px; margin-bottom:22px; transform:rotate(-1.2deg);
+}
+.sticker--indigo{ background:var(--indigo); color:#fff; }
+.sticker--pom{ background:var(--pomegranate); color:#fff; }
+.sticker--mint{ background:var(--mint); color:#fff; }
+
+.ph{
+  display:inline-block; font-family:var(--mono); font-size:10.5px; font-weight:700;
+  letter-spacing:.08em; text-transform:uppercase; color:var(--ink);
+  background:repeating-linear-gradient(45deg,#FFE9A8 0 6px,#FFF3CC 6px 12px);
+  border:1.5px solid var(--ink); padding:2px 8px; vertical-align:middle; max-width:100%;
+}
+.ph--proposal{ background:repeating-linear-gradient(45deg,#CFEEE0 0 6px,#E6F7EF 6px 12px); }
+
+/* buttons */
+.btn{
+  display:inline-flex; align-items:center; justify-content:center; gap:9px;
+  min-height:52px; padding:0 24px; border:var(--bw) solid var(--ink); background:var(--paper);
+  color:var(--ink); font-size:16.5px; font-weight:750; text-decoration:none;
+  box-shadow:var(--shadow); transition:transform .1s ease, box-shadow .1s ease;
+}
+.btn:hover{ transform:translate(-2px,-2px); box-shadow:7px 7px 0 var(--ink); }
+.btn:active{ transform:translate(2px,2px); box-shadow:2px 2px 0 var(--ink); }
+.btn--primary{ background:var(--marigold); }
+.btn--ink{ background:var(--ink); color:var(--paper); }
+.btn--lg{ min-height:60px; padding:0 30px; font-size:18px; }
+
+/* ============================================================
+   TICKER
+   ============================================================ */
+.ticker{ background:var(--ink); color:var(--paper); border-bottom:var(--bw) solid var(--ink); overflow:hidden; }
+.ticker__t{
+  display:flex; gap:40px; white-space:nowrap; padding:9px 0;
+  font-family:var(--mono); font-size:12px; letter-spacing:.1em; text-transform:uppercase;
+  animation:slide 34s linear infinite; width:max-content;
+}
+.ticker__t span{ display:inline-flex; gap:40px; }
+.ticker__t b{ color:var(--marigold); font-weight:700; }
+@keyframes slide{ from{ transform:translateX(0) } to{ transform:translateX(-50%) } }
+
+/* ============================================================
+   NAV
+   ============================================================ */
+.nav{ position:sticky; top:0; z-index:80; background:var(--paper); border-bottom:var(--bw) solid var(--ink); }
+.nav__inner{ display:flex; align-items:center; gap:26px; height:76px; }
+
+/* --- logo: receipt icon + shop-board wordmark ---
+   The icon is a torn thermal receipt with two bill lines. It is the
+   only part that has to survive at 16px, so it carries no type. --- */
+.mark{ display:flex; align-items:center; gap:9px; text-decoration:none; flex:none; }
+.mark__ico{
+  width:34px; height:34px; flex:none; background:var(--ink);
+  border:var(--bw) solid var(--ink); display:block;
+}
+.mark__ico svg{ width:100%; height:100%; display:block; }
+.mark__wd{
+  font-weight:900; font-size:22px; letter-spacing:-.035em; line-height:1;
+  display:inline-flex; align-items:baseline; gap:1px;
+}
+.mark__wd i{
+  font-style:normal; font-family:var(--mono); font-size:14px; font-weight:700;
+  background:var(--marigold); color:var(--ink); padding:2px 5px; margin-left:3px;
+  border:1.5px solid var(--ink); letter-spacing:-.02em;
+}
+/* on the dark footer the ink tile needs an edge to read */
+.foot .mark__ico{ border-color:var(--marigold); }
+.foot .mark__wd{ color:var(--paper); }
+
+.nav__links{ display:flex; gap:0; margin-left:auto; }
+.nav__links a{
+  text-decoration:none; font-size:15px; font-weight:650; padding:10px 14px;
+  min-height:44px; display:inline-flex; align-items:center; border-bottom:3px solid transparent;
+}
+.nav__links a:hover{ border-bottom-color:var(--pomegranate); }
+.nav__cta{ display:flex; gap:10px; }
+.nav__cta .btn{ min-height:44px; padding:0 16px; font-size:14.5px; box-shadow:var(--shadow-sm); }
+.nav__burger{
+  display:none; width:46px; height:46px; border:var(--bw) solid var(--ink); background:var(--marigold);
+  align-items:center; justify-content:center; margin-left:auto; box-shadow:var(--shadow-sm);
+}
+.nav__burger span{ display:block; width:18px; height:2.5px; background:var(--ink); box-shadow:0 -6px 0 var(--ink),0 6px 0 var(--ink); }
+
+/* ============================================================
+   HERO
+   ============================================================ */
+.hero{ padding:clamp(40px,5vw,72px) 0 clamp(56px,6vw,88px); position:relative; overflow:hidden; }
+.hero::before{ /* block-print motif */
+  content:""; position:absolute; inset:0; z-index:0; opacity:.5; pointer-events:none;
+  background-image:
+    radial-gradient(circle at 50% 50%, var(--marigold) 2.2px, transparent 2.4px),
+    radial-gradient(circle at 50% 50%, var(--sky) 2.2px, transparent 2.4px);
+  background-size:38px 38px, 38px 38px;
+  background-position:0 0, 19px 19px;
+  mask-image:linear-gradient(180deg,#000,transparent 70%);
+  -webkit-mask-image:linear-gradient(180deg,#000,transparent 70%);
+}
+.hero__grid{ position:relative; z-index:1; display:grid; grid-template-columns:minmax(0,1.02fr) minmax(0,1fr); gap:clamp(30px,4vw,56px); align-items:center; }
+.hero h1 mark{ background:var(--marigold); color:var(--ink); padding:0 .1em; box-decoration-break:clone; -webkit-box-decoration-break:clone; }
+.hero h1 u{ text-decoration:none; color:var(--pomegranate); }
+.hero__sub{ margin-top:24px; font-size:clamp(17px,1.4vw,20px); color:var(--ink-2); max-width:48ch; font-weight:450; }
+.hero__actions{ display:flex; gap:14px; flex-wrap:wrap; margin-top:32px; }
+.hero__tags{ display:flex; flex-wrap:wrap; gap:8px; margin-top:28px; }
+.hero__tags span{
+  font-family:var(--mono); font-size:12px; font-weight:700; border:1.5px solid var(--ink);
+  background:var(--paper); padding:5px 10px;
+}
+.hero__tags span:nth-child(2n){ background:var(--mint-l); }
+.hero__tags span:nth-child(3n){ background:var(--sky); }
+
+/* ============================================================
+   POS MOCK — hard-edged, bill-forward
+   ============================================================ */
+.pos{ border:var(--bw) solid var(--ink); background:var(--paper); box-shadow:8px 8px 0 var(--ink); position:relative; }
+.pos__bar{ display:flex; align-items:center; gap:10px; padding:10px 14px; background:var(--ink); color:var(--paper); }
+.pos__bar b{ font-family:var(--mono); font-size:12px; font-weight:700; letter-spacing:.04em; }
+.pos__bar .live{ margin-left:auto; font-family:var(--mono); font-size:10.5px; color:#fff; background:var(--mint); padding:3px 8px; letter-spacing:.08em; text-transform:uppercase; font-weight:700; }
+
+.pos__body{ display:grid; grid-template-columns:68px minmax(0,1fr) 250px; min-height:440px; }
+.pos__rail{ border-right:var(--bw) solid var(--ink); display:flex; flex-direction:column; background:var(--paper-2); }
+.rl{ padding:11px 3px; text-align:center; font-size:9.5px; font-weight:800; letter-spacing:.02em; border-bottom:1.5px solid var(--ink); text-transform:uppercase; }
+.rl b{ display:block; font-size:16px; font-weight:700; margin-bottom:2px; }
+.rl.is-on{ background:var(--marigold); }
+
+.pos__menu{ padding:13px; border-right:var(--bw) solid var(--ink); min-width:0; }
+.cats{ display:flex; gap:0; margin-bottom:12px; border:1.5px solid var(--ink); flex-wrap:wrap; }
+.cat{ font-size:11.5px; font-weight:750; padding:7px 11px; border-right:1.5px solid var(--ink); }
+.cat:last-child{ border-right:0; }
+.cat.is-on{ background:var(--ink); color:var(--paper); }
+.items{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; }
+.it{
+  border:1.5px solid var(--ink); background:var(--paper); padding:10px; min-height:82px; min-width:0;
+  display:flex; flex-direction:column; justify-content:space-between;
+}
+.it__n{ font-size:12.5px; font-weight:700; line-height:1.25; }
+.it__b{ display:flex; align-items:center; justify-content:space-between; margin-top:8px; }
+.it__p{ font-family:var(--mono); font-size:12.5px; font-weight:700; }
+.dot{ width:11px; height:11px; border:1.5px solid var(--mint); position:relative; flex:none; }
+.dot::after{ content:""; position:absolute; inset:2px; border-radius:50%; background:var(--mint); }
+.dot--n{ border-color:var(--pomegranate); } .dot--n::after{ background:var(--pomegranate); }
+.it.is-on{ background:var(--marigold); box-shadow:var(--shadow-sm); }
+
+/* bill as a thermal receipt */
+.pos__bill{ background:var(--paper-2); padding:14px; display:flex; flex-direction:column; }
+.rcpt__h{ text-align:center; border-bottom:2px dashed var(--ink); padding-bottom:10px; }
+.rcpt__h b{ display:block; font-size:16px; font-weight:800; letter-spacing:-.02em; }
+.rcpt__h span{ font-family:var(--mono); font-size:10.5px; color:var(--ink-3); }
+.rcpt__meta{ display:flex; justify-content:space-between; font-family:var(--mono); font-size:10.5px; padding:9px 0; border-bottom:1.5px solid var(--ink); }
+.rcpt__lines{ padding:10px 0; display:flex; flex-direction:column; gap:9px; flex:1; }
+.ln{ display:grid; grid-template-columns:20px minmax(0,1fr) auto; gap:8px; align-items:start; }
+.ln__q{ font-family:var(--mono); font-size:11.5px; font-weight:800; }
+.ln__n{ display:block; font-size:12.5px; font-weight:650; line-height:1.3; }
+.ln__m{ display:block; font-size:10px; color:var(--ink-3); font-family:var(--mono); }
+.ln__a{ font-family:var(--mono); font-size:12.5px; font-weight:700; }
+.rcpt__t{ border-top:2px dashed var(--ink); padding-top:10px; display:flex; flex-direction:column; gap:5px; }
+.tr{ display:flex; justify-content:space-between; font-family:var(--mono); font-size:11.5px; color:var(--ink-2); }
+.tr--g{ font-family:var(--sans); font-size:24px; font-weight:900; letter-spacing:-.04em; color:var(--ink); border-top:1.5px solid var(--ink); padding-top:8px; margin-top:4px; }
+.rcpt__gst{ font-family:var(--mono); font-size:9.5px; color:var(--ink-3); text-align:center; margin-top:6px; }
+.rcpt__btn{ display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:7px; margin-top:11px; }
+.rcpt__btn button{ min-height:44px; border:1.5px solid var(--ink); background:var(--paper); font-size:12px; font-weight:800; text-transform:uppercase; letter-spacing:.03em; }
+.rcpt__btn button.pay{ grid-column:1/-1; background:var(--mint); color:#fff; }
+
+/* AI flag taped onto the mock */
+.flag{
+  position:absolute; right:-18px; bottom:-38px; width:258px; z-index:3;
+  background:var(--indigo); color:#fff; border:var(--bw) solid var(--ink);
+  box-shadow:var(--shadow); padding:13px 15px; transform:rotate(-1.6deg);
+}
+.flag b{ display:block; font-family:var(--mono); font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--marigold); margin-bottom:6px; }
+.flag p{ font-size:13px; line-height:1.5; }
+.flag p em{ font-style:normal; background:var(--marigold); color:var(--ink); padding:0 4px; font-weight:700; }
+
+/* ============================================================
+   PROOF
+   ============================================================ */
+.proof{ background:var(--ink); color:var(--paper); border-block:var(--bw) solid var(--ink); padding:44px 0; }
+.proof__l{ text-align:center; font-family:var(--mono); font-size:11.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--marigold); margin-bottom:24px; }
+.logos{ display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); gap:12px; }
+.logo-ph{ height:54px; border:1.5px dashed #5B544A; display:grid; place-items:center; font-family:var(--mono); font-size:11px; color:#8A8176; letter-spacing:.06em; }
+.stats{ display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:14px; margin-top:34px; }
+.stat{ border:var(--bw) solid var(--paper); padding:20px 16px; text-align:center; }
+.stat:nth-child(1){ background:var(--marigold); color:var(--ink); border-color:var(--marigold); }
+.stat:nth-child(2){ background:var(--pomegranate); border-color:var(--pomegranate); }
+.stat:nth-child(3){ background:var(--mint); border-color:var(--mint); }
+.stat:nth-child(4){ background:var(--indigo); border-color:var(--indigo); }
+.stat b{ display:block; font-size:clamp(26px,3vw,38px); font-weight:900; letter-spacing:-.045em; font-variant-numeric:tabular-nums; }
+.stat span{ font-size:12.5px; font-weight:600; opacity:.92; }
+
+/* ============================================================
+   FEATURES
+   ============================================================ */
+.feat{ display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); gap:16px; margin-top:46px; }
+.card{
+  border:var(--bw) solid var(--ink); background:var(--paper); padding:24px; grid-column:span 2;
+  box-shadow:var(--shadow); transition:transform .12s, box-shadow .12s;
+}
+.card:hover{ transform:translate(-2px,-2px); box-shadow:7px 7px 0 var(--ink); }
+.card--3{ grid-column:span 3; }
+.card__n{
+  display:inline-flex; align-items:center; justify-content:center; width:38px; height:38px;
+  border:var(--bw) solid var(--ink); font-family:var(--mono); font-size:13px; font-weight:800;
+  background:var(--marigold); margin-bottom:16px;
+}
+.card:nth-child(2) .card__n{ background:var(--sky); }
+.card:nth-child(3) .card__n{ background:var(--mint-l); }
+.card:nth-child(4) .card__n{ background:var(--marigold); }
+.card:nth-child(5) .card__n{ background:var(--sky); }
+.card:nth-child(6) .card__n{ background:var(--mint-l); }
+.card:nth-child(7) .card__n{ background:var(--marigold); }
+.card h3{ margin-bottom:9px; }
+.card p{ font-size:15px; color:var(--ink-2); }
+.card ul{ list-style:none; padding:0; margin:15px 0 0; display:flex; flex-wrap:wrap; gap:6px; }
+.card li{ font-family:var(--mono); font-size:10.5px; font-weight:700; border:1.5px solid var(--ink); padding:3px 8px; }
+
+/* ============================================================
+   AI
+   ============================================================ */
+.ai{ background:var(--indigo); color:#fff; border-block:var(--bw) solid var(--ink); position:relative; overflow:hidden; }
+.ai::before{
+  content:""; position:absolute; inset:0; opacity:.16; pointer-events:none;
+  background-image:repeating-linear-gradient(90deg, #fff 0 1px, transparent 1px 56px),
+                   repeating-linear-gradient(0deg, #fff 0 1px, transparent 1px 56px);
+  mask-image:radial-gradient(70% 70% at 70% 0%, #000, transparent 72%);
+  -webkit-mask-image:radial-gradient(70% 70% at 70% 0%, #000, transparent 72%);
+}
+.ai > *{ position:relative; }
+.ai h2 mark{ background:var(--marigold); color:var(--ink); padding:0 .1em; }
+.ai .lede{ color:#C9C8EE; }
+.ai__grid{ display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.04fr); gap:clamp(26px,3.5vw,48px); margin-top:44px; align-items:start; }
+.ailist{ display:flex; flex-direction:column; gap:10px; }
+.aicard{
+  width:100%; text-align:left; border:var(--bw) solid var(--ink); background:#3A38A0; color:#fff;
+  padding:16px 18px; display:grid; grid-template-columns:34px minmax(0,1fr); gap:14px; align-items:start;
+  box-shadow:var(--shadow-sm); transition:transform .12s, box-shadow .12s, background .12s;
+}
+.aicard:hover{ transform:translate(-2px,-2px); box-shadow:5px 5px 0 var(--ink); }
+.aicard.is-on{ background:var(--marigold); color:var(--ink); }
+.aicard__n{ width:34px; height:34px; border:var(--bw) solid var(--ink); background:var(--paper); color:var(--ink); display:grid; place-items:center; font-family:var(--mono); font-size:12px; font-weight:800; }
+.aicard h3{ font-size:18px; margin-bottom:4px; }
+.aicard p{ font-size:14px; color:#C9C8EE; }
+.aicard.is-on p{ color:var(--ink-2); }
+
+.panel{ background:var(--paper); color:var(--ink); border:var(--bw) solid var(--ink); box-shadow:8px 8px 0 rgba(0,0,0,.45); padding:18px; position:sticky; top:96px; }
+.panel__h{ display:flex; align-items:center; gap:9px; border-bottom:2px dashed var(--ink); padding-bottom:12px; margin-bottom:15px; }
+.panel__h i{ width:26px; height:26px; background:var(--pomegranate); color:#fff; display:grid; place-items:center; font-style:normal; font-size:13px; border:1.5px solid var(--ink); }
+.panel__h b{ font-size:14px; font-weight:800; }
+.panel__h span{ margin-left:auto; font-family:var(--mono); font-size:10px; color:var(--ink-3); }
+.pane{ display:none; } .pane.is-on{ display:block; }
+
+.bars{ display:flex; align-items:flex-end; gap:8px; height:130px; margin:4px 0 28px; }
+.bars > div{ flex:1; border:1.5px solid var(--ink); background:var(--sky); position:relative; }
+.bars > div.hi{ background:var(--marigold); }
+.bars > div.fc{ background:repeating-linear-gradient(45deg, var(--pomegranate) 0 6px, #F9A6AE 6px 12px); }
+.bars > div span{ position:absolute; bottom:-21px; left:0; right:0; text-align:center; font-family:var(--mono); font-size:10px; }
+.rows{ display:flex; flex-direction:column; gap:7px; }
+.row{ display:flex; justify-content:space-between; align-items:center; gap:10px; border:1.5px solid var(--ink); padding:10px 12px; font-size:13.5px; font-weight:600; }
+.row b{ font-family:var(--mono); font-weight:800; }
+.tag{ font-family:var(--mono); font-size:10px; font-weight:800; padding:2px 7px; border:1.5px solid var(--ink); text-transform:uppercase; }
+.tag--ok{ background:var(--mint); color:#fff; }
+.tag--warn{ background:var(--marigold); }
+.tag--bad{ background:var(--pomegranate); color:#fff; }
+
+.q{ border:1.5px solid var(--ink); background:var(--paper-2); padding:11px 13px; font-size:14px; font-weight:600; margin-bottom:12px; }
+.q small{ display:block; font-family:var(--mono); font-size:10px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-3); margin-bottom:4px; }
+.a{ font-size:14.5px; color:var(--ink-2); line-height:1.6; }
+.a b{ color:var(--ink); } .a .num{ background:var(--marigold); padding:0 4px; font-weight:800; color:var(--ink); }
+/* --- language scroll wheel -----------------------------------
+   12 rows = 9 languages + 3 duplicates, so the loop is seamless.
+   Row height 74px, 3 rows visible, selection band over the middle.
+   ------------------------------------------------------------- */
+.wheel{
+  position:relative; height:222px; overflow:hidden; margin-top:14px;
+  border:1.5px solid var(--ink); background:var(--paper-2);
+  -webkit-mask-image:linear-gradient(180deg,transparent,#000 24%,#000 76%,transparent);
+          mask-image:linear-gradient(180deg,transparent,#000 24%,#000 76%,transparent);
+}
+.wheel__band{
+  position:absolute; left:0; right:0; top:74px; height:74px; z-index:0;
+  background:var(--marigold); border-block:1.5px solid var(--ink);
+}
+.wheel__track{ position:relative; z-index:1; animation:wheelspin 18s cubic-bezier(.3,1.5,.5,1) infinite; }
+.wl{
+  height:74px; padding:0 16px; display:flex; flex-direction:column; justify-content:center; gap:1px;
+}
+.wl b{ font-size:19px; font-weight:800; letter-spacing:-.02em; line-height:1.15; }
+.wl i{ font-style:normal; font-family:var(--mono); font-size:10px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-3); }
+.wl em{ font-style:normal; font-size:12.5px; color:var(--ink-2); line-height:1.3; }
+
+@keyframes wheelspin{
+  0%,8.9%      { transform:translateY(0) }
+  11.1%,20%    { transform:translateY(-74px) }
+  22.2%,31.1%  { transform:translateY(-148px) }
+  33.3%,42.2%  { transform:translateY(-222px) }
+  44.4%,53.3%  { transform:translateY(-296px) }
+  55.6%,64.4%  { transform:translateY(-370px) }
+  66.7%,75.6%  { transform:translateY(-444px) }
+  77.8%,86.7%  { transform:translateY(-518px) }
+  88.9%,97.8%  { transform:translateY(-592px) }
+  100%         { transform:translateY(-666px) }
+}
+/* with motion off, show the list rather than freezing on one language */
+@media (prefers-reduced-motion:reduce){
+  .wheel{ height:auto; -webkit-mask-image:none; mask-image:none; }
+  .wheel__band{ display:none; }
+  .wl{ height:auto; padding:12px 16px; border-bottom:1.5px solid var(--ink); }
+  .wl:nth-child(n+10){ display:none; }   /* hide the loop duplicates */
+}
+
+.wa{ display:flex; flex-direction:column; gap:9px; }
+.bub{ max-width:86%; padding:10px 13px; border:1.5px solid var(--ink); font-size:13.5px; line-height:1.5; }
+.bub--in{ background:var(--paper-2); }
+.bub--out{ background:var(--mint); color:#fff; align-self:flex-end; }
+.note{ font-family:var(--mono); font-size:10.5px; color:var(--ink-3); margin-top:12px; }
+
+/* ============================================================
+   WHO
+   ============================================================ */
+.who{ display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:0; margin-top:44px; border:var(--bw) solid var(--ink); box-shadow:var(--shadow); }
+.who__c{ padding:26px 20px; border-right:var(--bw) solid var(--ink); }
+.who__c:last-child{ border-right:0; }
+.who__c:nth-child(1){ background:var(--marigold); }
+.who__c:nth-child(2){ background:var(--sky); }
+.who__c:nth-child(3){ background:var(--mint-l); }
+.who__c:nth-child(4){ background:var(--paper-2); }
+.who__c:nth-child(5){ background:#F3DDF5; }
+.who__c b{ display:block; font-family:var(--mono); font-size:11px; font-weight:800; letter-spacing:.1em; margin-bottom:14px; }
+.who__c h3{ font-size:18px; margin-bottom:7px; }
+.who__c p{ font-size:13.5px; color:var(--ink-2); }
+
+/* ============================================================
+   QUOTES / FAQ / CTA / FOOTER
+   ============================================================ */
+.quotes{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:18px; margin-top:44px; text-align:left; }
+.quote{ border:var(--bw) dashed var(--ink); background:var(--paper); padding:24px; margin:0; }
+.quote p{ font-size:16.5px; font-weight:600; line-height:1.5; }
+.quote figcaption{ display:flex; align-items:center; gap:11px; margin-top:20px; padding-top:15px; border-top:1.5px solid var(--ink); }
+.av{ width:40px; height:40px; border:1.5px dashed var(--ink); background:var(--paper-2); display:grid; place-items:center; font-family:var(--mono); font-size:11px; font-weight:800; flex:none; }
+.quote b{ display:block; font-size:14px; }
+.quote span{ font-size:12.5px; color:var(--ink-3); }
+
+.faq{ max-width:860px; margin:40px auto 0; border:var(--bw) solid var(--ink); background:var(--paper); box-shadow:var(--shadow); }
+.faq details{ border-bottom:1.5px solid var(--ink); }
+.faq details:last-child{ border-bottom:0; }
+.faq summary{ list-style:none; cursor:pointer; padding:20px 54px 20px 20px; position:relative; font-size:17.5px; font-weight:750; letter-spacing:-.02em; min-height:44px; }
+.faq summary::-webkit-details-marker{ display:none; }
+.faq summary::after{
+  content:"+"; position:absolute; right:16px; top:50%; transform:translateY(-50%);
+  width:26px; height:26px; border:1.5px solid var(--ink); background:var(--marigold);
+  display:grid; place-items:center; font-size:17px; font-weight:800; line-height:1;
+}
+.faq details[open] summary{ background:var(--paper-2); }
+.faq details[open] summary::after{ content:"–"; background:var(--pomegranate); color:#fff; }
+.faq p{ padding:0 20px 20px; color:var(--ink-2); font-size:15.5px; }
+
+.cta{ background:var(--marigold); border-block:var(--bw) solid var(--ink); position:relative; overflow:hidden; }
+.cta::before{
+  content:""; position:absolute; inset:0; opacity:.3; pointer-events:none;
+  background-image:radial-gradient(circle at 50% 50%, var(--ink) 2px, transparent 2.2px);
+  background-size:34px 34px;
+  mask-image:radial-gradient(60% 80% at 50% 120%, #000, transparent 70%);
+  -webkit-mask-image:radial-gradient(60% 80% at 50% 120%, #000, transparent 70%);
+}
+.cta > *{ position:relative; }
+.cta h2{ max-width:17ch; margin-inline:auto; }
+.cta .lede{ color:var(--ink); }
+.cta__row{ display:flex; gap:14px; justify-content:center; flex-wrap:wrap; margin-top:30px; }
+.cta__meta{ display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-top:26px; }
+.cta__meta span{ font-family:var(--mono); font-size:11.5px; font-weight:700; border:1.5px solid var(--ink); background:var(--paper); padding:5px 10px; }
+
+.foot{ background:var(--ink); color:#A79E92; padding:54px 0 30px; }
+.foot__g{ display:grid; grid-template-columns:1.6fr repeat(3,minmax(0,1fr)); gap:30px; }
+.foot__about{ font-size:14px; margin-top:16px; max-width:32ch; line-height:1.6; }
+.foot h4{ font-family:var(--mono); font-size:11px; letter-spacing:.12em; text-transform:uppercase; color:var(--marigold); margin-bottom:14px; font-weight:800; }
+.foot ul{ list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:9px; }
+.foot a{ text-decoration:none; font-size:14.5px; color:#A79E92; }
+.foot a:hover{ color:var(--marigold); }
+.foot__base{ margin-top:40px; padding-top:20px; border-top:1.5px solid #3A352E; display:flex; justify-content:space-between; gap:14px; flex-wrap:wrap; font-family:var(--mono); font-size:11.5px; }
+
+.review-note{
+  background:var(--pomegranate); color:#fff; font-family:var(--mono); font-size:11.5px; font-weight:700;
+  padding:9px var(--gutter); display:flex; gap:14px; align-items:center; justify-content:center;
+  flex-wrap:wrap; text-align:center; border-bottom:var(--bw) solid var(--ink);
+}
+.review-note a{ color:var(--marigold); }
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width:1080px){
+  .hero__grid{ grid-template-columns:minmax(0,1fr); }
+  .flag{ right:8px; bottom:-34px; }
+  .pos__body{ grid-template-columns:60px minmax(0,1fr) 230px; }
+  .logos{ grid-template-columns:repeat(3,minmax(0,1fr)); }
+  .card,.card--3{ grid-column:span 3; }
+  .ai__grid{ grid-template-columns:minmax(0,1fr); }
+  .panel{ position:static; }
+  .who{ grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .who__c{ border-bottom:var(--bw) solid var(--ink); }
+  .who__c:nth-child(2n){ border-right:0; }
+  .who__c:nth-child(5){ grid-column:1/-1; border-bottom:0; }
+  .foot__g{ grid-template-columns:minmax(0,1fr) minmax(0,1fr); }
+  .stats{ grid-template-columns:repeat(2,minmax(0,1fr)); }
+}
+@media (max-width:860px){
+  .nav__links,.nav__cta{ display:none; }
+  .nav__burger{ display:flex; }
+  .nav.is-open .nav__links{
+    display:flex; flex-direction:column; position:absolute; top:76px; left:0; right:0;
+    background:var(--paper); border-bottom:var(--bw) solid var(--ink); padding:8px var(--gutter) 16px; margin:0;
+  }
+  .nav.is-open .nav__links a{ border-bottom:1.5px solid var(--ink); }
+  .quotes{ grid-template-columns:minmax(0,1fr); }
+}
+@media (max-width:680px){
+  :root{ --gutter:18px; --shadow:4px 4px 0 var(--ink); }
+  .pos{ box-shadow:5px 5px 0 var(--ink); }
+  .pos__body{ grid-template-columns:minmax(0,1fr); min-height:0; }
+  .pos__rail{ flex-direction:row; border-right:0; border-bottom:var(--bw) solid var(--ink); overflow-x:auto; }
+  .rl{ flex:none; min-width:62px; border-bottom:0; border-right:1.5px solid var(--ink); }
+  .pos__menu{ border-right:0; border-bottom:var(--bw) solid var(--ink); }
+  .items{ grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .flag{ position:static; width:auto; margin-top:22px; transform:none; }
+  .card,.card--3{ grid-column:span 6; }
+  .who{ grid-template-columns:minmax(0,1fr); }
+  .who__c{ border-right:0; }
+  .who__c:nth-child(5){ grid-column:auto; }
+  .foot__g{ grid-template-columns:minmax(0,1fr); }
+  .hero__actions .btn{ width:100%; }
+  .faq summary{ font-size:16px; padding-right:48px; }
+}
+@media (prefers-reduced-motion:reduce){ *{ transition:none !important; animation:none !important; scroll-behavior:auto; } }
+</style>
+</head>
+<body>
+
+<div class="review-note">
+  <span>SELECTED DIRECTION — “Bazaar”. Updated with the CTO’s decisions on FOO-1.</span>
+  <a href="../index.html">← Compare all 3 directions</a>
+</div>
+
+<!-- ========================= TICKER ========================= -->
+<div class="ticker">
+  <div class="ticker__t">
+    <span>GST-ready bills<b>•</b>Works without internet<b>•</b>Zomato + Swiggy in one queue<b>•</b>UPI, card, cash<b>•</b>9 Indian languages<b>•</b>Setup in one day<b>•</b></span>
+    <span>GST-ready bills<b>•</b>Works without internet<b>•</b>Zomato + Swiggy in one queue<b>•</b>UPI, card, cash<b>•</b>9 Indian languages<b>•</b>Setup in one day<b>•</b></span>
+  </div>
+</div>
+
+<!-- ========================= NAV ========================= -->
+<header class="nav" id="nav">
+  <div class="wrap nav__inner">
+    <a class="mark" href="#top" aria-label="FoodOS.ai home"><span class="mark__ico"><svg viewBox="0 0 32 32" aria-hidden="true" focusable="false"><path d="M8 6h16v18l-2.67 2-2.67-2-2.67 2-2.66-2-2.67 2-2.66-2z" fill="#FFB703"/><rect x="11" y="10.4" width="10" height="2.4" fill="#16130F"/><rect x="11" y="15" width="6.4" height="2.4" fill="#16130F"/></svg></span><span class="mark__wd">FoodOS<i>.ai</i></span></a>
+    <nav class="nav__links" id="navlinks">
+      <a href="#features">Features</a>
+      <a href="#ai">AI</a>
+      <a href="#who">Who it's for</a>
+      <a href="#faq">FAQ</a>
+    </nav>
+    <div class="nav__cta">
+      <a class="btn" href="#cta">Sign in</a>
+      <a class="btn btn--primary" href="#cta">Book a demo</a>
+    </div>
+    <button class="nav__burger" id="burger" aria-label="Open menu" aria-expanded="false"><span></span></button>
+  </div>
+</header>
+
+<main id="top">
+<!-- ========================= HERO ========================= -->
+<section class="hero">
+  <div class="wrap hero__grid">
+    <div>
+      <span class="sticker">Made in India · for Indian restaurants</span>
+      <h1>Bill fast. Waste less. <mark>Know your numbers.</mark></h1>
+      <p class="hero__sub">
+        The POS built for how restaurants here actually run — GST bills in one tap, KOTs to the tandoor,
+        Zomato and Swiggy in the same queue, and AI that reorders your stock before you run out.
+      </p>
+      <div class="hero__actions">
+        <a class="btn btn--primary btn--lg" href="#cta">Book a demo</a>
+        <a class="btn btn--lg" href="#features">See everything it does</a>
+      </div>
+      <div class="hero__tags">
+        <span>₹ GST-ready</span><span>Offline billing</span><span>UPI QR</span>
+        <span>9 Indian languages</span><span>Android &amp; Windows</span><span>No per-bill cut</span>
+      </div>
+    </div>
+
+    <!-- POS MOCK -->
+    <div class="pos">
+      <div class="pos__bar">
+        <b>FOODOS POS — SPICE ROUTE, INDIRANAGAR</b>
+        <span class="live">Online</span>
+      </div>
+      <div class="pos__body">
+        <aside class="pos__rail">
+          <div class="rl is-on"><b>▤</b>Bill</div>
+          <div class="rl"><b>▦</b>Table</div>
+          <div class="rl"><b>◎</b>KOT</div>
+          <div class="rl"><b>≣</b>Menu</div>
+          <div class="rl"><b>◱</b>Stock</div>
+          <div class="rl"><b>◔</b>Report</div>
+        </aside>
+
+        <div class="pos__menu">
+          <div class="cats">
+            <span class="cat is-on">Starters</span><span class="cat">Main</span><span class="cat">Biryani</span><span class="cat">Breads</span><span class="cat">Drinks</span>
+          </div>
+          <div class="items">
+            <div class="it is-on"><span class="it__n">Paneer Tikka</span><span class="it__b"><span class="dot"></span><span class="it__p">₹320</span></span></div>
+            <div class="it"><span class="it__n">Chicken 65</span><span class="it__b"><span class="dot dot--n"></span><span class="it__p">₹340</span></span></div>
+            <div class="it"><span class="it__n">Gobi Manchurian</span><span class="it__b"><span class="dot"></span><span class="it__p">₹260</span></span></div>
+            <div class="it is-on"><span class="it__n">Dum Biryani (Mutton)</span><span class="it__b"><span class="dot dot--n"></span><span class="it__p">₹480</span></span></div>
+            <div class="it"><span class="it__n">Butter Naan</span><span class="it__b"><span class="dot"></span><span class="it__p">₹60</span></span></div>
+            <div class="it"><span class="it__n">Masala Chaas</span><span class="it__b"><span class="dot"></span><span class="it__p">₹60</span></span></div>
+          </div>
+        </div>
+
+        <aside class="pos__bill">
+          <div class="rcpt__h">
+            <b>SPICE ROUTE</b>
+            <span>GSTIN 29ABCDE1234F1Z5</span>
+          </div>
+          <div class="rcpt__meta"><span>TABLE 07</span><span>KOT #1042</span></div>
+          <div class="rcpt__lines">
+            <div class="ln"><span class="ln__q">2×</span><span><span class="ln__n">Paneer Tikka</span><span class="ln__m">less spicy</span></span><span class="ln__a">640</span></div>
+            <div class="ln"><span class="ln__q">1×</span><span><span class="ln__n">Dum Biryani (Mutton)</span></span><span class="ln__a">480</span></div>
+            <div class="ln"><span class="ln__q">4×</span><span><span class="ln__n">Butter Naan</span></span><span class="ln__a">240</span></div>
+            <div class="ln"><span class="ln__q">2×</span><span><span class="ln__n">Masala Chaas</span></span><span class="ln__a">120</span></div>
+          </div>
+          <div class="rcpt__t">
+            <div class="tr"><span>SUB-TOTAL</span><span>1,480.00</span></div>
+            <div class="tr"><span>CGST 2.5%</span><span>37.00</span></div>
+            <div class="tr"><span>SGST 2.5%</span><span>37.00</span></div>
+            <div class="tr tr--g"><span>TOTAL</span><span>₹1,554</span></div>
+            <p class="rcpt__gst">Tax invoice · HSN 996331 · Thank you, visit again</p>
+          </div>
+          <div class="rcpt__btn">
+            <button>KOT</button><button>Print</button>
+            <button class="pay">Settle · UPI</button>
+          </div>
+        </aside>
+      </div>
+
+      <div class="flag">
+        <b>★ FoodOS AI says</b>
+        <p>Fresh cream runs out <em>tonight</em>. Draft order to Sri Lakshmi Dairy is ready — approve on WhatsApp?</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========================= PROOF ========================= -->
+<section class="proof">
+  <div class="wrap">
+    <p class="proof__l">Kitchens running on FoodOS <span class="ph">Placeholder — pre-launch</span></p>
+    <div class="logos">
+      <div class="logo-ph">LOGO 01</div><div class="logo-ph">LOGO 02</div><div class="logo-ph">LOGO 03</div>
+      <div class="logo-ph">LOGO 04</div><div class="logo-ph">LOGO 05</div><div class="logo-ph">LOGO 06</div>
+    </div>
+    <div class="stats">
+      <div class="stat"><b>1,200+</b><span>Outlets live <span class="ph">PH</span></span></div>
+      <div class="stat"><b>₹480 Cr</b><span>Billed a year <span class="ph">PH</span></span></div>
+      <div class="stat"><b>18 sec</b><span>Avg. bill time <span class="ph">PH</span></span></div>
+      <div class="stat"><b>12%</b><span>Less wastage <span class="ph">PH</span></span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ========================= FEATURES ========================= -->
+<section class="section" id="features">
+  <div class="wrap">
+    <div style="max-width:56ch">
+      <span class="sticker sticker--pom">Everything inside</span>
+      <h2>Seven jobs. One system. No extra software.</h2>
+      <p class="lede" style="margin-top:18px">
+        A sale moves stock. Stock updates the menu. The menu updates Zomato. Nobody retypes anything,
+        and nobody keeps a parallel register in a notebook.
+      </p>
+    </div>
+
+    <div class="feat">
+      <article class="card card--3">
+        <span class="card__n">01</span>
+        <h3>Billing &amp; GST</h3>
+        <p>Dine-in, parcel and delivery on one screen. Split and merge bills, part payments, manager-PIN
+          discounts, UPI QR, and a proper tax invoice with CGST/SGST, HSN and your GSTIN — printed in a second.</p>
+        <ul><li>SPLIT / MERGE</li><li>UPI · CARD · CASH</li><li>CGST + SGST</li><li>OFFLINE</li></ul>
+      </article>
+
+      <article class="card card--3">
+        <span class="card__n">02</span>
+        <h3>Tables &amp; floors</h3>
+        <p>Ground floor, terrace, bar counter — drawn the way your place actually is. Live table status,
+          service timers, waiter assignment and reservations for the weekend rush.</p>
+        <ul><li>MULTI-FLOOR</li><li>TIMERS</li><li>WAITER-WISE</li><li>RESERVATIONS</li></ul>
+      </article>
+
+      <article class="card">
+        <span class="card__n">03</span>
+        <h3>KOT &amp; kitchen display</h3>
+        <p>Tickets go to the right station — tandoor, Chinese, dessert — on paper or on a KDS screen,
+          with modifiers and a timer on every ticket.</p>
+        <ul><li>STATION-WISE</li><li>KDS</li><li>VOID / RECALL</li></ul>
+      </article>
+
+      <article class="card">
+        <span class="card__n">04</span>
+        <h3>Menu &amp; inventory</h3>
+        <p>Recipes linked to stock: sell a biryani and the rice, mutton and ghee come off by themselves.
+          Alerts before the rush, not after.</p>
+        <ul><li>RECIPES</li><li>WASTAGE</li><li>VENDOR PO</li><li>AUTO-86</li></ul>
+      </article>
+
+      <article class="card">
+        <span class="card__n">05</span>
+        <h3>Zomato, Swiggy &amp; your own site</h3>
+        <p>Every channel in one ticket queue. One menu pushes everywhere; one stock count keeps it honest.</p>
+        <ul><li>ZOMATO</li><li>SWIGGY</li><li>OWN SITE</li><li>ONE MENU</li></ul>
+      </article>
+
+      <article class="card card--3">
+        <span class="card__n">06</span>
+        <h3>Reports your CA will like</h3>
+        <p>Day-close in one tap. Sales by item, hour, channel and payment mode; discount and void audit by
+          staff; food cost, wastage and a GST summary that's ready to file.</p>
+        <ul><li>DAY CLOSE</li><li>ITEM-WISE</li><li>FOOD COST %</li><li>GST SUMMARY</li></ul>
+      </article>
+
+      <article class="card card--3">
+        <span class="card__n">07</span>
+        <h3>Two outlets or twenty</h3>
+        <p>Push a price change to every outlet at once. Compare Koramangala with Indiranagar side by side.
+          Keep recipes, vendors and staff roles central, with franchise-level access.</p>
+        <ul><li>CENTRAL MENU</li><li>COMPARE OUTLETS</li><li>ROLES</li><li>FRANCHISE</li></ul>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ========================= AI ========================= -->
+<section class="section ai" id="ai">
+  <div class="wrap">
+    <div style="max-width:62ch">
+      <span class="sticker">The real difference</span>
+      <h2>Your POS should also <mark>do the thinking.</mark></h2>
+      <p class="lede" style="margin-top:18px">
+        Every bill teaches FoodOS something about your restaurant. It turns that into a reorder before
+        you run out, a price worth changing, and an order taken on WhatsApp — in your customer's own language.
+      </p>
+    </div>
+
+    <div class="ai__grid">
+      <div class="ailist">
+        <button class="aicard is-on" data-pane="b1">
+          <span class="aicard__n">01</span>
+          <span><h3>Stock that reorders itself</h3><p>Predicts run-outs against your vendor's delivery days and drafts the purchase order for you to approve on WhatsApp.</p></span>
+        </button>
+        <button class="aicard" data-pane="b2">
+          <span class="aicard__n">02</span>
+          <span><h3>Menu &amp; pricing insights</h3><p>Finds dishes that sell but don't earn, suggests combos, and shows the impact before you change a price.</p></span>
+        </button>
+        <button class="aicard" data-pane="b3">
+          <span class="aicard__n">03</span>
+          <span><h3>WhatsApp pe order</h3><p>Regulars order on your own number in their own words. The order lands in the kitchen queue — no commission.</p></span>
+        </button>
+        <button class="aicard" data-pane="b4">
+          <span class="aicard__n">04</span>
+          <span><h3>Aapki bhasha mein</h3><p>Not just Hindi and English. Tamil, Telugu, Malayalam, Kannada, Marathi, Bengali, Gujarati — the POS, the KOT and your customer's replies, all in the language your floor actually speaks.</p></span>
+        </button>
+      </div>
+
+      <div class="panel">
+        <div class="panel__h"><i>★</i><b>FoodOS AI</b><span>mock preview</span></div>
+
+        <div class="pane is-on" id="b1">
+          <div class="q"><small>Stock risk · next 48 hours</small>3 items run out before Monday's delivery.</div>
+          <div class="rows">
+            <div class="row"><span>Fresh cream</span><span><b>2.0 L</b> <span class="tag tag--bad">today</span></span></div>
+            <div class="row"><span>Paneer</span><span><b>4.2 kg</b> <span class="tag tag--bad">2 days</span></span></div>
+            <div class="row"><span>Basmati rice</span><span><b>18 kg</b> <span class="tag tag--warn">3 days</span></span></div>
+            <div class="row"><span>Ghee</span><span><b>11 kg</b> <span class="tag tag--ok">9 days</span></span></div>
+          </div>
+          <p class="note">Draft PO ready — Sri Lakshmi Dairy, ₹8,340. Send on WhatsApp?</p>
+        </div>
+
+        <div class="pane" id="b2">
+          <div class="q"><small>Menu engineering · last 90 days</small>Two dishes are quietly losing you money.</div>
+          <div class="rows">
+            <div class="row"><span>Fresh Lime Soda</span><span><b>84%</b> <span class="tag tag--ok">star</span></span></div>
+            <div class="row"><span>Veg Hakka Noodles</span><span><b>71%</b> <span class="tag tag--ok">star</span></span></div>
+            <div class="row"><span>Paneer Butter Masala</span><span><b>58%</b> <span class="tag tag--warn">watch</span></span></div>
+            <div class="row"><span>Mutton Rogan Josh</span><span><b>38%</b> <span class="tag tag--bad">puzzle</span></span></div>
+          </div>
+          <p class="note">Rogan Josh ₹480 → ₹520: about −6 orders a week, +₹14,200 a month.</p>
+        </div>
+
+        <div class="pane" id="b3">
+          <div class="wa">
+            <div class="bub bub--in">Bhaiya 2 butter naan aur ek paneer butter masala parcel, 8 baje tak</div>
+            <div class="bub bub--out">2 × Butter Naan (₹120) + 1 × Paneer Butter Masala (₹340). With GST: ₹483. Pickup 8:00 pm. Confirm?</div>
+            <div class="bub bub--in">Haan, ek gulab jamun bhi</div>
+            <div class="bub bub--out">Added (₹110). New total ₹598. UPI link bhej diya.</div>
+            <div class="bub bub--in">Done ✅</div>
+            <div class="bub bub--out">Order #2271 kitchen queue mein hai. Pack hote hi message karenge.</div>
+          </div>
+          <p class="note">Never sells an item that's out of stock — it reads live inventory.</p>
+        </div>
+
+        <div class="pane" id="b4">
+          <div class="q"><small>Order confirmation · same message, nine languages</small>Pick the language your floor speaks. Everything follows.</div>
+
+          <!-- scroll-wheel language switcher -->
+          <div class="wheel" aria-label="Supported languages">
+            <div class="wheel__band" aria-hidden="true"></div>
+            <div class="wheel__track">
+              <!-- trailing duplicate, so the wheel can loop seamlessly -->
+              <div class="wl"><b>ગુજરાતી</b><i>Gujarati</i><em>રસોડામાં મોકલ્યું</em></div>
+              <div class="wl"><b>हिन्दी</b><i>Hindi</i><em>ऑर्डर रसोई में भेजा गया</em></div>
+              <div class="wl"><b>தமிழ்</b><i>Tamil</i><em>சமையலறைக்கு அனுப்பப்பட்டது</em></div>
+              <div class="wl"><b>తెలుగు</b><i>Telugu</i><em>వంటగదికి పంపబడింది</em></div>
+              <div class="wl"><b>മലയാളം</b><i>Malayalam</i><em>അടുക്കളയിലേക്ക് അയച്ചു</em></div>
+              <div class="wl"><b>ಕನ್ನಡ</b><i>Kannada</i><em>ಅಡುಗೆಮನೆಗೆ ಕಳುಹಿಸಲಾಗಿದೆ</em></div>
+              <div class="wl"><b>मराठी</b><i>Marathi</i><em>ऑर्डर स्वयंपाकघरात पाठवली</em></div>
+              <div class="wl"><b>বাংলা</b><i>Bengali</i><em>রান্নাঘরে পাঠানো হয়েছে</em></div>
+              <div class="wl"><b>English</b><i>English</i><em>Order sent to the kitchen</em></div>
+              <div class="wl"><b>ગુજરાતી</b><i>Gujarati</i><em>રસોડામાં મોકલ્યું</em></div>
+              <div class="wl"><b>हिन्दी</b><i>Hindi</i><em>ऑर्डर रसोई में भेजा गया</em></div>
+              <div class="wl"><b>தமிழ்</b><i>Tamil</i><em>சமையலறைக்கு அனுப்பப்பட்டது</em></div>
+            </div>
+          </div>
+
+          <div class="rows" style="margin-top:16px">
+            <div class="row"><span>Billing screen &amp; menu</span><span class="tag tag--ok">switches</span></div>
+            <div class="row"><span>Printed KOT &amp; bill</span><span class="tag tag--ok">switches</span></div>
+            <div class="row"><span>WhatsApp replies to customers</span><span class="tag tag--ok">switches</span></div>
+          </div>
+          <p class="note">Each staff member picks their own language — the kitchen can read Tamil while the counter bills in English.</p>
+          <p class="note" style="margin-top:8px"><span class="ph">Translations are placeholders — need native-speaker review before launch</span></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========================= WHO ========================= -->
+<section class="section" id="who">
+  <div class="wrap">
+    <div style="max-width:52ch">
+      <span class="sticker sticker--mint">Who it's for</span>
+      <h2>From one counter to twenty outlets.</h2>
+    </div>
+    <div class="who">
+      <div class="who__c"><b>01</b><h3>QSR &amp; takeaway</h3><p>Token numbers, fast counter billing, peak-hour queues.</p></div>
+      <div class="who__c"><b>02</b><h3>Cafés &amp; bakeries</h3><p>Open tabs, weight items, loyalty for regulars.</p></div>
+      <div class="who__c"><b>03</b><h3>Cloud kitchens</h3><p>Many brands, one kitchen, every aggregator in one queue.</p></div>
+      <div class="who__c"><b>04</b><h3>Fine dining</h3><p>Course-wise KOTs, reservations, waiter-wise reports.</p></div>
+      <div class="who__c"><b>05</b><h3>Chains</h3><p>Central menu, outlet comparison, franchise access.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ========================= TESTIMONIALS ========================= -->
+<section class="section center">
+  <div class="wrap">
+    <span class="sticker">Owners</span>
+    <h2>What they tell us.</h2>
+    <p class="lede" style="margin-top:18px"><span class="ph">Placeholder quotes &amp; names — replace after pilots</span></p>
+    <div class="quotes">
+      <figure class="quote"><p>“Day-close was forty minutes. Now it's one tap and I see it on my phone before I leave.”</p>
+        <figcaption><span class="av">PH</span><span><b>Owner name</b><span>Café · Bengaluru</span></span></figcaption></figure>
+      <figure class="quote"><p>“It orders the paneer before I notice it’s running out. That alone paid for it.”</p>
+        <figcaption><span class="av">PH</span><span><b>Owner name</b><span>Multi-cuisine · Pune</span></span></figcaption></figure>
+      <figure class="quote"><p>“Three outlets, one screen. I finally know which kitchen actually makes money.”</p>
+        <figcaption><span class="av">PH</span><span><b>Owner name</b><span>QSR chain · Hyderabad</span></span></figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<!-- ========================= FAQ ========================= -->
+<section class="section" id="faq" style="background:var(--paper-2); border-block:var(--bw) solid var(--ink)">
+  <div class="wrap">
+    <div class="center"><span class="sticker sticker--pom">FAQ</span><h2>Seedha jawab.</h2></div>
+    <div class="faq">
+      <details open><summary>Internet band ho gaya toh?</summary>
+        <p>Billing, KOT and printing keep running on the device itself. Everything syncs the moment the connection is back — you never stop a queue because the router did.</p></details>
+      <details><summary>Will you move my existing menu and data?</summary>
+        <p>Yes — categories, items, variants, taxes, recipes and customer lists, from Petpooja or any other POS. We do the import and check it with you before go-live. <span class="ph">Scope TBD</span></p></details>
+      <details><summary>Do I need to buy new hardware?</summary>
+        <p>No. It runs on the Android tablets and Windows billing machines most restaurants already have, with standard thermal printers and cash drawers. <span class="ph">Hardware list TBD</span></p></details>
+      <details><summary>Is the bill properly GST-compliant?</summary>
+        <p>Item-level tax rates with CGST/SGST or IGST, HSN codes, your GSTIN on the invoice, and a monthly summary your CA can file from.</p></details>
+      <details><summary>Kya yeh meri bhasha mein chalega?</summary>
+        <p>Yes. Hindi, Tamil, Telugu, Malayalam, Kannada, Marathi, Bengali, Gujarati and English — across the billing screen, the printed KOT and the WhatsApp replies your customers get. Each staff member picks their own, so the kitchen and the counter don't have to agree. <span class="ph">Final language list TBD</span></p></details>
+      <details><summary>Kitna time lagta hai setup mein?</summary>
+        <p>Usually one day for a single outlet — menu entry, printer setup and a training session with your staff. <span class="ph">To confirm</span></p></details>
+    </div>
+  </div>
+</section>
+
+<!-- ========================= CTA ========================= -->
+<section class="section cta center" id="cta">
+  <div class="wrap">
+    <span class="sticker sticker--indigo">Get started</span>
+    <h2>Dekhiye, apne hi menu par.</h2>
+    <p class="lede" style="margin-top:18px">
+      A 30-minute demo with your real dishes. We'll raise a live bill, fire a KOT,
+      and show you what the AI says about your Saturday.
+    </p>
+    <div class="cta__row">
+      <a class="btn btn--ink btn--lg" href="#cta">Book a demo</a>
+      <a class="btn btn--lg" href="#cta">Join the waitlist</a>
+    </div>
+    <div class="cta__meta"><span>NO CARD NEEDED</span><span>SETUP INCLUDED</span><span>CANCEL ANYTIME</span></div>
+  </div>
+</section>
+</main>
+
+<!-- ========================= FOOTER ========================= -->
+<footer class="foot">
+  <div class="wrap">
+    <div class="foot__g">
+      <div>
+        <a class="mark" href="#top" aria-label="FoodOS.ai home"><span class="mark__ico"><svg viewBox="0 0 32 32" aria-hidden="true" focusable="false"><path d="M8 6h16v18l-2.67 2-2.67-2-2.67 2-2.66-2-2.67 2-2.66-2z" fill="#FFB703"/><rect x="11" y="10.4" width="10" height="2.4" fill="#16130F"/><rect x="11" y="15" width="6.4" height="2.4" fill="#16130F"/></svg></span><span class="mark__wd">FoodOS<i>.ai</i></span></a>
+        <p class="foot__about">The restaurant POS with AI built in. Made in India, for Indian restaurants.</p>
+      </div>
+      <div><h4>Product</h4><ul><li><a href="#features">Billing</a></li><li><a href="#features">Tables &amp; KOT</a></li><li><a href="#features">Inventory</a></li><li><a href="#features">Online orders</a></li><li><a href="#ai">AI</a></li></ul></div>
+      <div><h4>Company</h4><ul><li><a href="#top">About</a></li><li><a href="#top">Careers</a></li><li><a href="#top">Blog</a></li><li><a href="#cta">Contact</a></li></ul></div>
+      <div><h4>Support</h4><ul><li><a href="#faq">Help centre</a></li><li><a href="#top">Hardware</a></li><li><a href="#top">Status</a></li><li><a href="#top">WhatsApp us</a></li></ul></div>
+    </div>
+    <div class="foot__base">
+      <span>© 2026 FOODOS.AI <span class="ph">ENTITY TBD</span></span>
+      <span>PRIVACY · TERMS · GST</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+var nav=document.getElementById('nav'), burger=document.getElementById('burger');
+burger.addEventListener('click',function(){
+  var o=nav.classList.toggle('is-open'); burger.setAttribute('aria-expanded',o?'true':'false');
+});
+document.getElementById('navlinks').addEventListener('click',function(e){
+  if(e.target.tagName==='A'){ nav.classList.remove('is-open'); burger.setAttribute('aria-expanded','false'); }
+});
+
+var cards=document.querySelectorAll('.aicard');
+cards.forEach(function(c){
+  c.addEventListener('click',function(){
+    cards.forEach(function(x){x.classList.remove('is-on');});
+    document.querySelectorAll('.pane').forEach(function(p){p.classList.remove('is-on');});
+    c.classList.add('is-on');
+    document.getElementById(c.dataset.pane).classList.add('is-on');
+  });
+});
+
+document.querySelectorAll('.it').forEach(function(i){
+  i.addEventListener('click',function(){ i.classList.toggle('is-on'); });
+});
+</script>
+</body>
+</html>

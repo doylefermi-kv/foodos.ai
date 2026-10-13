@@ -1,0 +1,67 @@
+# Local development secrets for `wrangler pages dev`.
+#
+#   cp .dev.vars.example .dev.vars
+#
+# `.dev.vars` is gitignored and must NEVER be committed. Real values for
+# Production and Preview live only in Cloudflare Pages encrypted environment
+# variables — see docs/runbooks/website-setup.md.
+#
+# The defaults below are deliberately safe: they use Cloudflare's published
+# Turnstile *test* keys and the ConsoleSink, so a fresh clone runs end to end
+# with no Google account, no real secrets and no network writes.
+
+# Which LeadSink the Function writes through: "console" | "google-sheet".
+# Keep this as "console" for local dev unless you are specifically testing the
+# Google Sheets path with your own throwaway sheet.
+#
+# The Function accepts "console", "google_sheet", "google-sheet" and "sheet",
+# so the hyphenated spelling in wrangler.toml and the underscored one in FOO-2
+# both work. Unset defaults to "console".
+LEAD_SINK="console"
+
+# --- Turnstile ----------------------------------------------------------------
+# Cloudflare's documented dummy secret key: always passes verification.
+# https://developers.cloudflare.com/turnstile/troubleshooting/testing/
+# Real value in Pages: Settings > Environment variables, encrypted.
+#
+# Swap in 2x0000000000000000000000000000000AA to exercise the 403 "bot" path
+# locally: that test secret always *fails* verification.
+# If this is unset entirely, the Function falls back to the always-pass test
+# secret, so a fresh clone works with no configuration at all.
+TURNSTILE_SECRET_KEY="1x0000000000000000000000000000000AA"
+
+# --- Google Sheets (only needed when LEAD_SINK="google-sheet") -----------------
+# Leave these empty for normal local dev.
+#
+# The sheet id is the long id from the sheet URL:
+#   https://docs.google.com/spreadsheets/d/<THIS PART>/edit
+#
+# NAMING: FOO-2 specifies SHEET_ID; the DevOps scaffolding and runbook use
+# GOOGLE_SHEET_ID. The Function reads both (SHEET_ID wins) so neither side is
+# blocked. Flagged to the CTO to pick one before we set real Pages variables.
+SHEET_ID=""
+GOOGLE_SHEET_ID=""
+
+# The service account's email, e.g. foodos-website@<project>.iam.gserviceaccount.com
+# The sheet must be shared with this address as an Editor, or appends 403.
+GOOGLE_SERVICE_ACCOUNT_EMAIL=""
+
+# The service account's PEM private key, newlines escaped as \n and the whole
+# value on ONE line. Taken from `private_key` in the downloaded JSON key.
+# Never paste a real key into any file other than your local .dev.vars.
+GOOGLE_PRIVATE_KEY=""
+
+# Which tab/range to append to. Optional; defaults to "Leads".
+# SHEET_RANGE="Leads"
+
+# --- Optional tuning ----------------------------------------------------------
+# All optional — the Function has working defaults for each.
+
+# Extra CORS origins, comma separated. localhost/127.0.0.1 are always allowed,
+# and in production the site and the Function share an origin, so this is only
+# needed if the form is ever hosted somewhere else.
+# ALLOWED_ORIGINS="https://foodos.ai,https://www.foodos.ai"
+
+# Per-IP rate limit. Defaults to 5 requests per 10 minutes.
+# RATE_LIMIT_MAX="5"
+# RATE_LIMIT_WINDOW_SECONDS="600"

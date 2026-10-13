@@ -1,0 +1,35 @@
+{
+  "name": "foodos-website",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "npm run build && wrangler pages dev ./dist",
+    "dev:ui": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview",
+    "test": "node --test",
+    "test:watch": "node --test --watch",
+    "lint": "eslint .",
+    "typecheck": "tsc -b --noEmit"
+  },
+  "dependencies": {
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^5.20261013.1",
+    "@eslint/js": "^10.0.1",
+    "@types/node": "^26.6.5",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "@vitejs/plugin-react": "^5.0.4",
+    "eslint": "^10.12.0",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "globals": "^17.13.0",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.71.2",
+    "vite": "^7.1.9",
+    "wrangler": "^4.149.0"
+  }
+}

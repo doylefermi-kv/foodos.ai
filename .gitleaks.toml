@@ -1,0 +1,92 @@
+# gitleaks configuration for the FoodOS.ai repo.
+# Owned by DevOps (FOO-4). Run in CI by .github/workflows/website.yml.
+#
+# Run it locally the same way CI does:
+#   gitleaks git --config .gitleaks.toml --redact --verbose --exit-code 1 .
+#
+# Keep this allowlist tight. Every entry is a place we have promised ourselves
+# a real credential will never appear; widening it weakens the only automated
+# check standing between a service-account key and git history.
+
+[extend]
+# Start from gitleaks' built-in rule set (AWS, GCP, Slack, private keys, …)
+# and only add exceptions below.
+useDefault = true
+
+[[rules]]
+id = "google-service-account-private-key"
+description = "Google service-account PEM private key (the Sheets credential)"
+# Matches a real PEM block. The `.env`/`.dev.vars` examples only ever contain
+# an empty string for this value, so they do not trip it.
+regex = '''-----BEGIN(?: RSA| PRIVATE| OPENSSH| PGP| EC)? PRIVATE KEY-----'''
+keywords = ["BEGIN", "PRIVATE KEY"]
+
+[[rules]]
+id = "turnstile-secret-key"
+description = "Cloudflare Turnstile secret key"
+# Real secret keys are 0x4AAAAAAA…-prefixed. Cloudflare's published dummy
+# testing keys start 1x/2x/3x and are allowlisted below.
+regex = '''0x4[A-Za-z0-9_-]{30,}'''
+keywords = ["0x4"]
+
+# Note: these are `[[allowlists]]` (plural) entries, not the deprecated
+# singular `[allowlist]` table — gitleaks refuses to load a config that mixes
+# the two. Entries are OR'd. An entry with no `targetRules` applies to every
+# rule; one with `targetRules` applies only to the rules it names.
+
+[[allowlists]]
+description = "Known-safe values and paths"
+
+paths = [
+  # Documented placeholders and dummy keys only. CI additionally fails if a
+  # real `.dev.vars` or `.env` is ever committed, because .gitignore excludes
+  # them — these *.example files are the tracked counterparts.
+  '''website/\.dev\.vars\.example''',
+  '''website/\.env\.example''',
+  # The runbook walks the CTO through credential handling and necessarily
+  # shows the *shape* of each value. It must never contain a real one.
+  '''docs/runbooks/website-setup\.md''',
+  # Self-reference: this file names the patterns it is matching on.
+  '''\.gitleaks\.toml''',
+
+  # Build artifacts and dependencies. All are gitignored, so CI (which runs
+  # `gitleaks git` over history) never sees them — but a local `gitleaks dir`
+  # scans the working tree, and bundled Function output trips the
+  # entropy-based rules. Excluded so a local run is usefully quiet.
+  '''website/\.wrangler/''',
+  '''website/dist/''',
+  '''node_modules/''',
+]
+
+regexes = [
+  # Cloudflare's published Turnstile testing keys — public, documented, inert.
+  # https://developers.cloudflare.com/turnstile/troubleshooting/testing/
+  '''1x00000000000000000000AA''',
+  '''2x00000000000000000000AB''',
+  '''3x00000000000000000000FF''',
+  '''1x0000000000000000000000000000000AA''',
+  '''2x0000000000000000000000000000000AA''',
+  '''3x0000000000000000000000000000000AA''',
+
+  # Not secrets: storage keys and namespaces that the entropy-based
+  # `generic-api-key` rule mistakes for credentials. Add to this list only
+  # after confirming the value is a constant in source, never a credential.
+  '''foodos\.attribution\.v1''',
+]
+
+# The Google Sheets sink test signs a JWT, so it needs a syntactically real RSA
+# key. The one in that file is a throwaway generated for the test suite and
+# signs nothing that leaves the process (the token endpoint is mocked).
+#
+# Scoped deliberately narrowly: this exempts ONLY the private-key rules, and
+# ONLY under the Functions test directory. An AWS key, a Slack token or a
+# Turnstile secret pasted into the same file is still caught, and a private key
+# anywhere else in the repo is still caught.
+#
+# The residual risk is someone replacing that constant with a real
+# service-account key. That is a code-review check, not an automated one —
+# flagged here so the next person knows the gap is intentional.
+[[allowlists]]
+description = "Throwaway RSA key used by the Google Sheets sink tests"
+targetRules = ["private-key", "google-service-account-private-key"]
+paths = ['''website/functions/api/_lib/__tests__/.*\.test\.ts''']

@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FoodOS.ai marketing site — 3 design directions (FOO-1)</title>
+<style>
+/* Neutral review chrome. Deliberately unbranded so it doesn't
+   compete with the three directions it's showing. */
+:root{
+  --bg:#F4F4F2; --panel:#FFFFFF; --ink:#16161A; --ink-2:#55555E; --ink-3:#8A8A93;
+  --line:#E2E2DE; --line-2:#CFCFC9; --accent:#16161A;
+  --sans: ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --mono: ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+  --gutter:28px;
+}
+*,*::before,*::after{ box-sizing:border-box; }
+body{ margin:0; background:var(--bg); color:var(--ink); font-family:var(--sans); font-size:16px; line-height:1.6; -webkit-font-smoothing:antialiased; }
+a{ color:inherit; }
+h1,h2,h3{ margin:0; letter-spacing:-.03em; line-height:1.1; font-weight:650; }
+h1{ font-size:clamp(30px,4vw,46px); }
+h2{ font-size:clamp(22px,2.4vw,30px); }
+h3{ font-size:18px; }
+p{ margin:0; }
+.wrap{ max-width:1320px; margin-inline:auto; padding-inline:var(--gutter); }
+
+header.top{ border-bottom:1px solid var(--line); background:var(--panel); padding:38px 0 34px; }
+.badge{ display:inline-block; font-family:var(--mono); font-size:11px; letter-spacing:.12em; text-transform:uppercase; color:var(--ink-3); border:1px solid var(--line-2); border-radius:4px; padding:3px 9px; margin-bottom:18px; }
+header.top p{ color:var(--ink-2); max-width:72ch; margin-top:16px; }
+.meta{ display:flex; gap:10px; flex-wrap:wrap; margin-top:22px; font-family:var(--mono); font-size:11.5px; color:var(--ink-3); }
+.meta span{ border:1px solid var(--line-2); border-radius:4px; padding:4px 9px; background:var(--bg); }
+
+/* recommendation callout */
+.rec{ background:#16161A; color:#F4F4F2; border-radius:12px; padding:22px 24px; margin-top:28px; display:grid; grid-template-columns:auto minmax(0,1fr); gap:18px; align-items:start; }
+.rec__k{ font-family:var(--mono); font-size:11px; letter-spacing:.12em; text-transform:uppercase; color:#A8E6C4; border:1px solid #2E6B4A; border-radius:4px; padding:4px 9px; white-space:nowrap; }
+.pick{ display:inline-flex; align-items:center; gap:7px; font-family:var(--mono); font-size:10.5px; font-weight:700; letter-spacing:.11em; text-transform:uppercase; border-radius:4px; padding:4px 10px; margin-bottom:10px; }
+.pick--yes{ background:#0E8F62; color:#fff; }
+.pick--no{ background:var(--bg); color:var(--ink-3); border:1px solid var(--line-2); }
+section.v--muted .v__head h2, section.v--muted .v__desc{ opacity:.62; }
+.rec p{ color:#C9C9CF; font-size:15px; }
+.rec b{ color:#fff; }
+
+section.v{ padding:48px 0 10px; }
+.v__head{ display:grid; grid-template-columns:minmax(0,1fr) auto; gap:20px; align-items:end; margin-bottom:22px; }
+.v__n{ font-family:var(--mono); font-size:12px; color:var(--ink-3); letter-spacing:.1em; text-transform:uppercase; margin-bottom:8px; }
+.v__desc{ color:var(--ink-2); max-width:70ch; margin-top:12px; font-size:15.5px; }
+.v__open{ display:inline-flex; align-items:center; gap:8px; min-height:46px; padding:0 20px; border-radius:8px; background:var(--ink); color:#fff; text-decoration:none; font-weight:600; font-size:15px; white-space:nowrap; }
+.v__open:hover{ background:#000; }
+
+.v__facts{ display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:14px; margin:20px 0 22px; }
+.fact{ background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:14px 16px; }
+.fact b{ display:block; font-family:var(--mono); font-size:10.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-3); margin-bottom:8px; }
+.fact p{ font-size:14px; color:var(--ink-2); }
+.sw{ display:flex; gap:6px; flex-wrap:wrap; margin-top:4px; }
+.sw i{ width:26px; height:26px; border-radius:6px; border:1px solid rgba(0,0,0,.14); display:block; }
+
+/* preview frame */
+.pv{ background:var(--panel); border:1px solid var(--line); border-radius:12px; overflow:hidden; }
+.pv__bar{ display:flex; align-items:center; gap:10px; padding:10px 14px; border-bottom:1px solid var(--line); flex-wrap:wrap; }
+.pv__bar .lbl{ font-family:var(--mono); font-size:11px; color:var(--ink-3); letter-spacing:.06em; text-transform:uppercase; }
+.sizes{ display:flex; gap:4px; margin-left:auto; background:var(--bg); border:1px solid var(--line); border-radius:8px; padding:3px; }
+.sizes button{ font:inherit; font-size:12.5px; font-weight:600; color:var(--ink-2); background:transparent; border:0; border-radius:6px; padding:7px 13px; cursor:pointer; min-height:38px; }
+.sizes button[aria-pressed="true"]{ background:var(--ink); color:#fff; }
+.pv__stage{ background:var(--bg); padding:20px; display:flex; justify-content:center; overflow:hidden; }
+.pv__hold{ position:relative; overflow:hidden; box-shadow:0 10px 40px -16px rgba(0,0,0,.35); border-radius:6px; background:#fff; }
+.pv__hold iframe{ border:0; display:block; transform-origin:top left; }
+.pv__foot{ padding:9px 14px; border-top:1px solid var(--line); font-family:var(--mono); font-size:11px; color:var(--ink-3); display:flex; gap:14px; flex-wrap:wrap; }
+
+footer.end{ margin-top:56px; border-top:1px solid var(--line); background:var(--panel); padding:40px 0 60px; }
+footer.end h3{ margin-bottom:14px; }
+footer.end ul{ margin:0; padding-left:20px; color:var(--ink-2); font-size:15px; }
+footer.end li{ margin-bottom:9px; }
+footer.end .files{ font-family:var(--mono); font-size:13px; color:var(--ink-2); margin-top:20px; line-height:1.9; }
+
+@media (max-width:860px){
+  :root{ --gutter:18px; }
+  .v__head{ grid-template-columns:1fr; align-items:start; }
+  .rec{ grid-template-columns:1fr; }
+}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <span class="badge">FOO-1 · Product Design · direction selected</span>
+    <h1>FoodOS.ai marketing website — 3 directions, one selected</h1>
+    <p>
+      Three complete homepage concepts for the pre-launch FoodOS.ai site. Each is a self-contained HTML file
+      with no external fonts or CDNs, fully responsive, and uses realistic Indian restaurant data throughout.
+      <strong>Direction C was selected and has been updated to match the CTO's decisions</strong>; A and B are
+      unchanged below as a record of the comparison. Anything still unconfirmed — customer logos, stats,
+      testimonials, the language translations — stays visibly marked as a placeholder on the page itself.
+    </p>
+    <div class="meta">
+      <span>Single long homepage each</span>
+      <span>Static HTML + CSS, minimal vanilla JS</span>
+      <span>Works offline</span>
+      <span>1440 / 1024 / 390 checked</span>
+      <span>Real logo mark in C</span>
+    </div>
+
+    <div class="rec rec--done">
+      <span class="rec__k">Decided</span>
+      <p>
+        The CTO selected <b>Direction C — “Bazaar”</b>. It has since been updated to match the rest of
+        their decisions: the AI section now carries <b>four confirmed capabilities</b> (smart inventory,
+        menu &amp; pricing insights, WhatsApp ordering, and a new <b>regional-language</b> capability with a
+        scroll-wheel animation), the <b>pricing section is removed</b> in favour of a single “Book a demo”
+        path, the proposed AI data-privacy stance is <b>off the public FAQ</b>, and it now carries a
+        <b>real logo mark</b>. A and B are kept unchanged as a record of the comparison.
+        Details in <b>design/website/README.md</b>.
+      </p>
+    </div>
+  </div>
+</header>
+
+
+
+<!-- ======================= V3 ======================= -->
+<section class="v">
+  <div class="wrap">
+    <div class="v__head">
+      <div>
+        <p class="v__n">Direction C</p>
+        <span class="pick pick--yes">✓ Selected by the CTO</span>
+        <h2>Bazaar — bold Indian-local</h2>
+        <p class="v__desc">
+          High-contrast and confident. Ink on paper-white with marigold, indigo and pomegranate blocks,
+          hard 2px rules and offset shadows, chunky display type. The POS mock is drawn as an actual
+          thermal receipt with GSTIN and HSN on it. Indian-ness comes from the operational detail —
+          ₹, GST, UPI, Hinglish in the AI demos — and from colour blocking, not from ornament.
+          <strong>Updated post-decision:</strong> four confirmed AI capabilities including a regional-language
+          switcher with a scroll-wheel animation across nine Indian languages, no pricing section, and a real logo mark.
+        </p>
+      </div>
+      <a class="v__open" href="v3-bazaar/index.html" target="_blank" rel="noopener">Open full page ↗</a>
+    </div>
+
+    <div class="v__facts">
+      <div class="fact"><b>Palette</b>
+        <div class="sw">
+          <i style="background:#FFFCF5"></i><i style="background:#FFB703"></i><i style="background:#2B2A7A"></i>
+          <i style="background:#E02B3C"></i><i style="background:#0E8F62"></i><i style="background:#16130F"></i>
+        </div>
+      </div>
+      <div class="fact"><b>Type</b><p>Heavy system sans (800–900) with aggressive negative tracking · mono for receipts, tags and labels</p></div>
+      <div class="fact"><b>Logo</b><p>Torn-receipt icon tile (works at 16px / favicon) + “FoodOS” with a boxed marigold “.ai”</p></div>
+      <div class="fact"><b>Why it won</b><p>Unmistakably local, and stands out hard against Petpooja's corporate blue</p></div>
+    </div>
+
+    <div class="pv" data-pv>
+      <div class="pv__bar">
+        <span class="lbl">Live preview</span>
+        <div class="sizes" role="group" aria-label="Preview width">
+          <button type="button" data-w="1440" aria-pressed="true">Desktop 1440</button>
+          <button type="button" data-w="1024" aria-pressed="false">Tablet 1024</button>
+          <button type="button" data-w="390" aria-pressed="false">Mobile 390</button>
+        </div>
+      </div>
+      <div class="pv__stage">
+        <div class="pv__hold"><iframe src="v3-bazaar/index.html" title="Direction C — Bazaar" loading="lazy" scrolling="no"></iframe></div>
+      </div>
+      <div class="pv__foot"><span>design/website/v3-bazaar/index.html</span><span data-dims></span><span>Scaled to fit — open the full page to interact</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= V1 ======================= -->
+<section class="v v--muted">
+  <div class="wrap">
+    <div class="v__head">
+      <div>
+        <p class="v__n">Direction A</p>
+        <span class="pick pick--no">Not selected</span>
+        <h2>Tandoor — warm &amp; appetising</h2>
+        <p class="v__desc">
+          Food-led and inviting. Cream canvas, editorial serif headlines, saffron and chilli accents,
+          generous spacing and soft shadows. Reads as hospitality rather than software — closest in feel to a
+          restaurant brand, which makes it approachable for owners who find POS software intimidating.
+          The AI section inverts to a dark warm panel so it still lands as the differentiator.
+        </p>
+      </div>
+      <a class="v__open" href="v1-tandoor/index.html" target="_blank" rel="noopener">Open full page ↗</a>
+    </div>
+
+    <div class="v__facts">
+      <div class="fact"><b>Palette</b>
+        <div class="sw">
+          <i style="background:#FDF7EF"></i><i style="background:#F6EADA"></i><i style="background:#E07B16"></i>
+          <i style="background:#C5351B"></i><i style="background:#2F6B46"></i><i style="background:#231A14"></i>
+        </div>
+      </div>
+      <div class="fact"><b>Type</b><p>Iowan/Palatino/Georgia serif headlines · system sans body · mono for receipt &amp; data details</p></div>
+      <div class="fact"><b>Wordmark</b><p>Serif “food<span style="color:#B65C08">OS</span>.ai” with a saffron dot carrying a small steam curl</p></div>
+      <div class="fact"><b>Best if</b><p>We want to feel like a hospitality brand and differentiate from blue-grey POS incumbents</p></div>
+    </div>
+
+    <div class="pv" data-pv>
+      <div class="pv__bar">
+        <span class="lbl">Live preview</span>
+        <div class="sizes" role="group" aria-label="Preview width">
+          <button type="button" data-w="1440" aria-pressed="true">Desktop 1440</button>
+          <button type="button" data-w="1024" aria-pressed="false">Tablet 1024</button>
+          <button type="button" data-w="390" aria-pressed="false">Mobile 390</button>
+        </div>
+      </div>
+      <div class="pv__stage">
+        <div class="pv__hold"><iframe src="v1-tandoor/index.html" title="Direction A — Tandoor" loading="lazy" scrolling="no"></iframe></div>
+      </div>
+      <div class="pv__foot"><span>design/website/v1-tandoor/index.html</span><span data-dims></span><span>Scaled to fit — open the full page to interact</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= V2 ======================= -->
+<section class="v v--muted">
+  <div class="wrap">
+    <div class="v__head">
+      <div>
+        <p class="v__n">Direction B</p>
+        <span class="pick pick--no">Not selected</span>
+        <h2>Slate — modern SaaS / AI-forward</h2>
+        <p class="v__desc">
+          Dark, crisp and product-led. The hero is the POS itself with an AI copilot drawer acting on live
+          state (86-ing an item across Zomato and Swiggy, drafting a vendor PO). Hairline grids, tight
+          grotesque type, a mint signal colour, violet reserved exclusively for AI. The AI section is a
+          five-tab explorer where each capability is shown as a real UI, not a bullet list.
+        </p>
+      </div>
+      <a class="v__open" href="v2-slate/index.html" target="_blank" rel="noopener">Open full page ↗</a>
+    </div>
+
+    <div class="v__facts">
+      <div class="fact"><b>Palette</b>
+        <div class="sw">
+          <i style="background:#08090B"></i><i style="background:#111419"></i><i style="background:#3DDC97"></i>
+          <i style="background:#4CC2F1"></i><i style="background:#8B7CF6"></i><i style="background:#F5B544"></i>
+        </div>
+      </div>
+      <div class="fact"><b>Type</b><p>System UI sans, tight negative tracking on headlines · mono for labels, metrics and paths</p></div>
+      <div class="fact"><b>Wordmark</b><p>Mint→cyan rounded square with a cut corner + “FoodOS<span style="color:#8A8A93">.ai</span>”</p></div>
+      <div class="fact"><b>Best if</b><p>AI is the wedge and we're also selling to chains, investors and tech-literate operators</p></div>
+    </div>
+
+    <div class="pv" data-pv>
+      <div class="pv__bar">
+        <span class="lbl">Live preview</span>
+        <div class="sizes" role="group" aria-label="Preview width">
+          <button type="button" data-w="1440" aria-pressed="true">Desktop 1440</button>
+          <button type="button" data-w="1024" aria-pressed="false">Tablet 1024</button>
+          <button type="button" data-w="390" aria-pressed="false">Mobile 390</button>
+        </div>
+      </div>
+      <div class="pv__stage">
+        <div class="pv__hold"><iframe src="v2-slate/index.html" title="Direction B — Slate" loading="lazy" scrolling="no"></iframe></div>
+      </div>
+      <div class="pv__foot"><span>design/website/v2-slate/index.html</span><span data-dims></span><span>Scaled to fit — open the full page to interact</span></div>
+    </div>
+  </div>
+</section>
+
+<footer class="end">
+  <div class="wrap">
+    <h3>Decisions made (CTO, 13 Oct 2026)</h3>
+    <ul>
+      <li><strong>Direction C — “Bazaar”</strong> is the chosen direction.</li>
+      <li><strong>AI capabilities:</strong> smart inventory &amp; auto-reorder, menu &amp; pricing insights,
+        WhatsApp / voice ordering, plus <strong>regional language support</strong> across nine Indian languages.
+        Demand forecasting and “ask your sales” are dropped.</li>
+      <li><strong>Framing:</strong> present tense — the features are described as working today.</li>
+      <li><strong>CTA:</strong> “Book a demo”, everywhere.</li>
+      <li><strong>Pricing section removed</strong> for now.</li>
+      <li><strong>AI data-privacy stance is off the public FAQ</strong> until the architecture is settled.</li>
+      <li><strong>Brand:</strong> “FoodOS.ai”, and a real logo is approved.</li>
+    </ul>
+
+    <h3 style="margin-top:28px">Still open</h3>
+    <ul>
+      <li><strong>The nine language translations are placeholders</strong> and need native-speaker review
+        before anything ships. They're marked as such on the page.</li>
+      <li><strong>The logo</strong> in C is my proposal, built in SVG/CSS. If it's going to a designer or
+        agency, it needs a brief — that's a CTO call, not something I should start.</li>
+      <li><strong>Form handling</strong> — nothing submits. Demo requests need a destination.</li>
+      <li>Remaining placeholders: customer logos, stats, testimonials, hardware list, setup time, entity name.</li>
+      <li>Pages beyond the homepage, if this becomes a full site rather than a landing page.</li>
+    </ul>
+    <p class="files">
+      design/website/index.html — this page<br>
+      design/website/README.md — rationale, palettes, recommendation, open questions<br>
+      design/website/v1-tandoor/index.html<br>
+      design/website/v2-slate/index.html<br>
+      design/website/v3-bazaar/index.html
+    </p>
+  </div>
+</footer>
+
+<script>
+// Scale each iframe preview to the chosen device width, fitted into the stage.
+var PREVIEW_H = 1500; // how much of the page we show in the thumbnail
+
+function layout(pv){
+  var stage = pv.querySelector('.pv__stage');
+  var hold  = pv.querySelector('.pv__hold');
+  var frame = pv.querySelector('iframe');
+  var dims  = pv.querySelector('[data-dims]');
+  var w     = parseInt(pv.dataset.width || '1440', 10);
+
+  var avail = stage.clientWidth - 40;           // minus stage padding
+  var scale = Math.min(1, avail / w);
+
+  frame.style.width  = w + 'px';
+  frame.style.height = PREVIEW_H + 'px';
+  frame.style.transform = 'scale(' + scale + ')';
+  hold.style.width  = (w * scale) + 'px';
+  hold.style.height = (PREVIEW_H * scale) + 'px';
+  if (dims) dims.textContent = w + 'px wide · ' + Math.round(scale * 100) + '% scale';
+}
+
+document.querySelectorAll('[data-pv]').forEach(function(pv){
+  pv.dataset.width = '1440';
+  pv.querySelectorAll('.sizes button').forEach(function(b){
+    b.addEventListener('click', function(){
+      pv.querySelectorAll('.sizes button').forEach(function(x){ x.setAttribute('aria-pressed','false'); });
+      b.setAttribute('aria-pressed','true');
+      pv.dataset.width = b.dataset.w;
+      layout(pv);
+    });
+  });
+  layout(pv);
+});
+
+var t;
+addEventListener('resize', function(){
+  clearTimeout(t);
+  t = setTimeout(function(){ document.querySelectorAll('[data-pv]').forEach(layout); }, 120);
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <title>FoodOS.ai</title>
+  <rect width="32" height="32" fill="#16130F"/>
+  <path d="M8 6h16v18l-2.67 2-2.67-2-2.67 2-2.66-2-2.67 2-2.66-2z" fill="#FFB703"/>
+  <rect x="11" y="10.4" width="10" height="2.4" fill="#16130F"/>
+  <rect x="11" y="15" width="6.4" height="2.4" fill="#16130F"/>
+</svg>

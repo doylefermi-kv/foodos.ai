@@ -1,0 +1,8 @@
+# FoodOS.ai marketing site
+User-agent: *
+Allow: /
+
+# The lead endpoint has nothing to index and should never be crawled.
+Disallow: /api/
+
+Sitemap: https://foodos.ai/sitemap.xml

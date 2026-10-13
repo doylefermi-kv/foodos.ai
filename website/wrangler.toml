@@ -1,0 +1,49 @@
+# Cloudflare Pages configuration for the FoodOS.ai marketing site.
+#
+# Owned by DevOps (FOO-4). Stack decision: docs/website-architecture.md.
+#
+# This file configures BOTH the static site and the Pages Functions in
+# `website/functions/`. There are no secrets here and there never should be —
+# see docs/runbooks/website-setup.md for where each secret actually lives.
+
+name = "foodos-website"
+
+# Vite's default output directory. Frontend must keep `build.outDir` at `dist`.
+pages_build_output_dir = "dist"
+
+# Pins the Workers runtime API surface. Bump this deliberately, not casually:
+# changing it can change runtime behaviour of the Functions.
+compatibility_date = "2026-10-13"
+
+# Needed if the Functions use Node built-ins (e.g. a Google auth/JWT library).
+# Backend: tell DevOps if you don't need this and we'll drop it.
+compatibility_flags = ["nodejs_compat"]
+
+# -----------------------------------------------------------------------------
+# Environment variables
+# -----------------------------------------------------------------------------
+# Only NON-SECRET values belong here. Every value in this file is committed to
+# git and visible to anyone with repo access.
+#
+# Secrets (TURNSTILE_SECRET_KEY, GOOGLE_SERVICE_ACCOUNT_EMAIL,
+# GOOGLE_PRIVATE_KEY, GOOGLE_SHEET_ID) are set in the Cloudflare dashboard as
+# *encrypted* Pages environment variables, per environment. Locally they come
+# from `website/.dev.vars`, which is gitignored. See `.dev.vars.example`.
+#
+# Note on local dev: `wrangler pages dev` does NOT read the [env.*] blocks
+# below — it reads the top-level [vars] plus `.dev.vars`. The [env.*] blocks
+# document what Production and Preview should be set to in the dashboard, and
+# are used if we ever deploy from config rather than the dashboard.
+
+[vars]
+# Which LeadSink the Function uses. `console` keeps local dev and CI free of
+# any Google credentials; `google-sheet` is the real one.
+LEAD_SINK = "console"
+
+[env.preview.vars]
+LEAD_SINK = "google-sheet"
+ENVIRONMENT = "preview"
+
+[env.production.vars]
+LEAD_SINK = "google-sheet"
+ENVIRONMENT = "production"

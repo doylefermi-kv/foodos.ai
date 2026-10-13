@@ -1,0 +1,1025 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FoodOS.ai — Direction B: Slate (modern SaaS / AI-forward)</title>
+<style>
+/* ============================================================
+   DIRECTION B — "SLATE"
+   Modern SaaS, AI-forward. Dark canvas, product-UI-led,
+   tight grotesque type, hairline grids, mint/cyan signal colour.
+   Self-contained: no external fonts, no CDNs.
+   ============================================================ */
+
+:root{
+  /* --- palette --- */
+  --bg:        #08090B;
+  --bg-2:      #0D0F13;
+  --surface:   #111419;
+  --surface-2: #171B22;
+  --line:      #22272F;
+  --line-soft: #1A1E25;
+  --text:      #E9EDF3;
+  --text-2:    #9BA5B4;
+  --text-3:    #666F7D;
+  --mint:      #3DDC97;
+  --mint-dim:  #1C8F5F;
+  --cyan:      #4CC2F1;
+  --violet:    #8B7CF6;
+  --amber:     #F5B544;
+  --rose:      #F2617A;
+
+  /* --- type --- */
+  --sans: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+
+  --r-sm:6px; --r-md:10px; --r-lg:16px; --r-xl:24px; --r-pill:999px;
+  --maxw:1180px; --gutter:28px;
+}
+
+*,*::before,*::after{ box-sizing:border-box; }
+html{ scroll-behavior:smooth; -webkit-text-size-adjust:100%; }
+body{
+  margin:0; background:var(--bg); color:var(--text);
+  font-family:var(--sans); font-size:16px; line-height:1.6;
+  -webkit-font-smoothing:antialiased; overflow-x:hidden;
+}
+a{ color:inherit; } button{ font:inherit; cursor:pointer; }
+svg{ display:block; }
+
+h1,h2,h3,h4{ margin:0; font-weight:600; line-height:1.1; letter-spacing:-.028em; }
+h1{ font-size:clamp(40px,5.4vw,66px); letter-spacing:-.038em; }
+h2{ font-size:clamp(28px,3.4vw,44px); letter-spacing:-.032em; }
+h3{ font-size:clamp(17px,1.3vw,20px); letter-spacing:-.018em; line-height:1.3; }
+p{ margin:0; }
+
+.wrap{ max-width:var(--maxw); margin-inline:auto; padding-inline:var(--gutter); }
+.section{ padding:clamp(64px,8vw,120px) 0; position:relative; }
+.center{ text-align:center; }
+.lede{ font-size:clamp(16px,1.25vw,18.5px); color:var(--text-2); max-width:60ch; }
+.center .lede{ margin-inline:auto; }
+
+/* hairline grid backdrop */
+.grid-bg::before{
+  content:""; position:absolute; inset:0; pointer-events:none; z-index:0;
+  background-image:linear-gradient(var(--line-soft) 1px, transparent 1px),
+                   linear-gradient(90deg, var(--line-soft) 1px, transparent 1px);
+  background-size:64px 64px;
+  mask-image:radial-gradient(70% 60% at 50% 40%, #000, transparent 76%);
+  -webkit-mask-image:radial-gradient(70% 60% at 50% 40%, #000, transparent 76%);
+}
+.grid-bg > *{ position:relative; z-index:1; }
+
+/* labels */
+.kicker{
+  display:inline-flex; align-items:center; gap:8px;
+  font-family:var(--mono); font-size:11.5px; font-weight:500;
+  letter-spacing:.12em; text-transform:uppercase; color:var(--mint);
+  border:1px solid var(--line); background:var(--surface);
+  border-radius:var(--r-pill); padding:5px 13px; margin-bottom:22px;
+}
+.kicker::before{ content:""; width:5px; height:5px; border-radius:50%; background:var(--mint); box-shadow:0 0 10px var(--mint); }
+
+.ph{
+  display:inline-flex; align-items:center; gap:5px;
+  font-family:var(--mono); font-size:10px; letter-spacing:.08em; text-transform:uppercase;
+  color:var(--amber); border:1px dashed rgba(245,181,68,.45); background:rgba(245,181,68,.08);
+  border-radius:4px; padding:2px 8px; vertical-align:middle; max-width:100%; flex-wrap:wrap;
+}
+.ph--proposal{ color:var(--violet); border-color:rgba(139,124,246,.45); background:rgba(139,124,246,.1); }
+
+/* buttons */
+.btn{
+  display:inline-flex; align-items:center; justify-content:center; gap:8px;
+  min-height:46px; padding:0 20px; border-radius:var(--r-md); border:1px solid transparent;
+  font-size:15px; font-weight:550; text-decoration:none; letter-spacing:-.01em;
+  transition:background .16s, border-color .16s, transform .12s, box-shadow .16s;
+}
+.btn:active{ transform:translateY(1px); }
+.btn--primary{ background:var(--mint); color:#04150D; font-weight:650; box-shadow:0 0 0 1px rgba(61,220,151,.4), 0 10px 30px -12px rgba(61,220,151,.7); }
+.btn--primary:hover{ background:#5BE7AC; }
+.btn--ghost{ background:var(--surface); color:var(--text); border-color:var(--line); }
+.btn--ghost:hover{ background:var(--surface-2); border-color:#2E353F; }
+.btn--lg{ min-height:54px; padding:0 26px; font-size:16px; }
+
+/* ============================================================
+   NAV
+   ============================================================ */
+.nav{
+  position:sticky; top:0; z-index:80; background:rgba(8,9,11,.78);
+  backdrop-filter:blur(14px) saturate(160%); border-bottom:1px solid transparent;
+  transition:border-color .2s;
+}
+.nav.is-stuck{ border-bottom-color:var(--line); }
+.nav__inner{ display:flex; align-items:center; gap:30px; height:68px; }
+
+/* --- wordmark: mono bracket + tight grotesque --- */
+.mark{ display:flex; align-items:center; gap:9px; text-decoration:none; flex:none; }
+.mark__sq{
+  width:26px; height:26px; border-radius:7px; flex:none; position:relative;
+  background:linear-gradient(145deg,var(--mint),var(--cyan));
+  display:grid; place-items:center;
+}
+.mark__sq::after{
+  content:""; width:11px; height:11px; border-radius:3px;
+  border:2px solid #04150D; border-right-color:transparent; border-bottom-color:transparent;
+  transform:rotate(45deg) translate(1px,1px);
+}
+.mark__t{ font-size:19px; font-weight:650; letter-spacing:-.035em; }
+.mark__t em{ font-style:normal; color:var(--text-3); font-family:var(--mono); font-size:16px; font-weight:400; letter-spacing:-.02em; }
+
+.nav__links{ display:flex; gap:2px; margin-left:auto; }
+.nav__links a{
+  text-decoration:none; font-size:14.5px; color:var(--text-2); padding:9px 13px;
+  border-radius:var(--r-sm); min-height:44px; display:inline-flex; align-items:center;
+}
+.nav__links a:hover{ color:var(--text); background:var(--surface); }
+.nav__cta{ display:flex; gap:9px; align-items:center; }
+.nav__burger{
+  display:none; width:44px; height:44px; background:var(--surface); border:1px solid var(--line);
+  border-radius:var(--r-sm); align-items:center; justify-content:center; margin-left:auto;
+}
+.nav__burger span{ width:16px; height:1.5px; background:var(--text); box-shadow:0 -5px 0 var(--text), 0 5px 0 var(--text); display:block; }
+
+/* ============================================================
+   HERO
+   ============================================================ */
+.hero{ padding:clamp(48px,6vw,88px) 0 clamp(56px,6vw,80px); overflow:hidden; }
+.hero::after{ /* aurora */
+  content:""; position:absolute; top:-340px; left:50%; transform:translateX(-50%);
+  width:1200px; height:720px; z-index:0; pointer-events:none;
+  background:radial-gradient(42% 46% at 50% 50%, rgba(61,220,151,.16), transparent 70%),
+             radial-gradient(34% 40% at 24% 60%, rgba(76,194,241,.13), transparent 72%),
+             radial-gradient(34% 40% at 76% 56%, rgba(139,124,246,.14), transparent 72%);
+  filter:blur(24px);
+}
+.hero__top{ position:relative; z-index:2; max-width:860px; margin-inline:auto; text-align:center; }
+.hero h1 span{
+  background:linear-gradient(96deg,var(--mint),var(--cyan) 52%,var(--violet));
+  -webkit-background-clip:text; background-clip:text; color:transparent;
+}
+.hero__sub{ margin:22px auto 0; font-size:clamp(16px,1.35vw,19px); color:var(--text-2); max-width:58ch; }
+.hero__actions{ display:flex; gap:12px; justify-content:center; flex-wrap:wrap; margin-top:30px; }
+.hero__meta{
+  display:flex; gap:22px; justify-content:center; flex-wrap:wrap; margin-top:22px;
+  font-family:var(--mono); font-size:12px; color:var(--text-3); letter-spacing:.02em;
+}
+.hero__meta span::before{ content:"▪ "; color:var(--mint); }
+
+/* ============================================================
+   POS MOCK — dark product UI, the hero image
+   ============================================================ */
+.shot{
+  position:relative; z-index:2; margin-top:clamp(40px,5vw,64px);
+  border-radius:var(--r-xl); border:1px solid var(--line); background:var(--bg-2);
+  box-shadow:0 50px 120px -40px rgba(0,0,0,.95), 0 0 0 1px rgba(255,255,255,.03);
+  overflow:hidden;
+}
+.shot__bar{ display:flex; align-items:center; gap:10px; padding:10px 14px; border-bottom:1px solid var(--line); background:var(--surface); }
+.shot__dots{ display:flex; gap:6px; }
+.shot__dots i{ width:9px; height:9px; border-radius:50%; background:#2A303A; }
+.shot__path{ font-family:var(--mono); font-size:11.5px; color:var(--text-3); }
+.shot__path b{ color:var(--text-2); font-weight:500; }
+.shot__live{ margin-left:auto; display:inline-flex; align-items:center; gap:6px; font-family:var(--mono); font-size:10.5px; color:var(--mint); letter-spacing:.08em; text-transform:uppercase; }
+.shot__live::before{ content:""; width:6px; height:6px; border-radius:50%; background:var(--mint); box-shadow:0 0 8px var(--mint); }
+
+.pos{ display:grid; grid-template-columns:62px minmax(0,1fr) 268px; min-height:470px; }
+
+.pos__rail{ border-right:1px solid var(--line); padding:12px 7px; display:flex; flex-direction:column; gap:5px; background:var(--surface); }
+.rl{ border-radius:8px; padding:9px 2px; text-align:center; font-size:9px; font-weight:600; color:var(--text-3); letter-spacing:.02em; }
+.rl b{ display:block; font-size:15px; font-weight:400; margin-bottom:3px; color:var(--text-2); }
+.rl.is-on{ background:rgba(61,220,151,.12); color:var(--mint); box-shadow:inset 0 0 0 1px rgba(61,220,151,.25); }
+.rl.is-on b{ color:var(--mint); }
+
+.pos__main{ padding:14px; min-width:0; }
+.pos__head{ display:flex; align-items:center; gap:10px; margin-bottom:13px; flex-wrap:wrap; }
+.seg{ display:flex; background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:3px; gap:2px; }
+.seg span{ font-size:12px; font-weight:550; color:var(--text-3); padding:6px 12px; border-radius:6px; }
+.seg span.is-on{ background:var(--surface-2); color:var(--text); box-shadow:0 1px 2px rgba(0,0,0,.5); }
+.search{
+  flex:1; min-width:120px; background:var(--surface); border:1px solid var(--line); border-radius:8px;
+  padding:8px 12px; font-size:12px; color:var(--text-3); font-family:var(--mono);
+}
+.search::before{ content:"⌕ "; }
+
+.cats{ display:flex; gap:6px; margin-bottom:12px; flex-wrap:wrap; }
+.cat{ font-size:11.5px; font-weight:550; color:var(--text-2); background:var(--surface); border:1px solid var(--line); border-radius:var(--r-pill); padding:5px 12px; }
+.cat.is-on{ background:var(--text); color:var(--bg); border-color:var(--text); }
+
+.items{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; }
+.it{
+  background:var(--surface); border:1px solid var(--line); border-radius:var(--r-md);
+  padding:11px; min-height:82px; min-width:0; display:flex; flex-direction:column; justify-content:space-between;
+  transition:border-color .15s, background .15s;
+}
+.it:hover{ border-color:#2E353F; }
+.it__n{ font-size:12px; font-weight:600; line-height:1.3; letter-spacing:-.01em; }
+.it__b{ display:flex; align-items:center; justify-content:space-between; margin-top:9px; }
+.it__p{ font-family:var(--mono); font-size:12px; color:var(--text-2); font-variant-numeric:tabular-nums; }
+.dot{ width:10px; height:10px; border:1.5px solid var(--mint); border-radius:2px; position:relative; flex:none; }
+.dot::after{ content:""; position:absolute; inset:2px; border-radius:50%; background:var(--mint); }
+.dot--n{ border-color:var(--rose); } .dot--n::after{ background:var(--rose); }
+.it.is-on{ border-color:rgba(61,220,151,.5); background:rgba(61,220,151,.07); }
+.it--86{ opacity:.42; }
+.it--86 .it__p{ text-decoration:line-through; }
+
+.pos__side{ border-left:1px solid var(--line); background:var(--surface); display:flex; flex-direction:column; padding:14px; }
+.sd__h{ display:flex; align-items:center; justify-content:space-between; padding-bottom:12px; border-bottom:1px solid var(--line); }
+.sd__h b{ font-size:15px; letter-spacing:-.02em; }
+.sd__h span{ font-family:var(--mono); font-size:10.5px; color:var(--text-3); }
+.ln{ display:grid; grid-template-columns:20px minmax(0,1fr) auto; gap:9px; align-items:start; padding:10px 0; border-bottom:1px solid var(--line-soft); }
+.ln__q{ font-family:var(--mono); font-size:11px; color:var(--mint); background:rgba(61,220,151,.1); border-radius:4px; text-align:center; padding:2px 0; }
+.ln__n{ display:block; font-size:12px; font-weight:550; line-height:1.35; }
+.ln__m{ display:block; font-size:10.5px; color:var(--text-3); margin-top:2px; }
+.ln__a{ font-family:var(--mono); font-size:12px; font-variant-numeric:tabular-nums; }
+.sd__t{ margin-top:auto; padding-top:12px; display:flex; flex-direction:column; gap:5px; }
+.tr{ display:flex; justify-content:space-between; font-family:var(--mono); font-size:11.5px; color:var(--text-3); }
+.tr--g{ font-family:var(--sans); font-size:22px; font-weight:650; color:var(--text); letter-spacing:-.03em; padding-top:8px; border-top:1px solid var(--line); margin-top:4px; }
+.sd__btn{ display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:7px; margin-top:12px; }
+.sd__btn button{ min-height:44px; border-radius:8px; border:1px solid var(--line); background:var(--surface-2); color:var(--text); font-size:12.5px; font-weight:600; }
+.sd__btn button.go{ grid-column:1/-1; background:var(--mint); color:#04150D; border-color:var(--mint); }
+
+/* AI copilot drawer inside the mock */
+.copilot{ border-top:1px solid var(--line); background:linear-gradient(180deg, rgba(139,124,246,.07), rgba(76,194,241,.05)); padding:13px 16px; display:flex; gap:12px; align-items:flex-start; }
+.copilot__i{
+  width:26px; height:26px; border-radius:8px; flex:none; display:grid; place-items:center;
+  background:linear-gradient(145deg,var(--violet),var(--cyan)); color:#07090C; font-size:13px; font-weight:700;
+}
+.copilot__t{ font-size:12.5px; color:var(--text-2); line-height:1.55; }
+.copilot__t b{ color:var(--text); font-weight:600; }
+.copilot__t em{ font-style:normal; color:var(--mint); }
+.copilot__act{ margin-left:auto; display:flex; gap:7px; flex:none; }
+.copilot__act span{ font-size:11.5px; font-weight:600; padding:6px 11px; border-radius:6px; border:1px solid var(--line); color:var(--text-2); }
+.copilot__act span.yes{ background:var(--text); color:var(--bg); border-color:var(--text); }
+
+/* ============================================================
+   LOGO STRIP + STATS
+   ============================================================ */
+.proof{ border-block:1px solid var(--line); background:var(--bg-2); padding:36px 0; }
+.proof__l{ text-align:center; font-family:var(--mono); font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--text-3); margin-bottom:22px; }
+.logos{ display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); gap:12px; }
+.logo-ph{
+  height:48px; border:1px dashed #262C35; border-radius:8px; display:grid; place-items:center;
+  font-family:var(--mono); font-size:11px; color:#4A525E; letter-spacing:.06em;
+}
+.stats{ display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:1px; margin-top:34px; background:var(--line); border:1px solid var(--line); border-radius:var(--r-lg); overflow:hidden; }
+.stat{ background:var(--bg-2); padding:22px 18px; text-align:center; }
+.stat b{ display:block; font-size:clamp(24px,2.6vw,34px); font-weight:650; letter-spacing:-.035em; font-variant-numeric:tabular-nums; }
+.stat span{ font-size:12.5px; color:var(--text-3); }
+
+/* ============================================================
+   FEATURES — bento
+   ============================================================ */
+.bento{ display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); gap:14px; margin-top:48px; }
+.bx{
+  background:var(--surface); border:1px solid var(--line); border-radius:var(--r-lg);
+  padding:24px; grid-column:span 2; position:relative; overflow:hidden;
+  transition:border-color .18s, transform .18s;
+}
+.bx:hover{ border-color:#2E353F; transform:translateY(-2px); }
+.bx--3{ grid-column:span 3; }
+.bx__i{ width:36px; height:36px; border-radius:9px; background:var(--surface-2); border:1px solid var(--line); display:grid; place-items:center; color:var(--mint); margin-bottom:16px; }
+.bx__i svg{ width:18px; height:18px; }
+.bx h3{ margin-bottom:8px; }
+.bx p{ font-size:14.5px; color:var(--text-2); }
+.bx__tags{ display:flex; flex-wrap:wrap; gap:6px; margin-top:16px; }
+.bx__tags span{ font-family:var(--mono); font-size:10.5px; color:var(--text-3); border:1px solid var(--line); border-radius:4px; padding:3px 8px; }
+
+/* mini visuals inside bento */
+.floorplan{ display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:6px; margin-top:16px; }
+.tbl{ aspect-ratio:1; border-radius:7px; border:1px solid var(--line); background:var(--surface-2); display:grid; place-items:center; font-family:var(--mono); font-size:9.5px; color:var(--text-3); }
+.tbl.busy{ border-color:rgba(245,181,68,.4); background:rgba(245,181,68,.1); color:var(--amber); }
+.tbl.free{ border-color:rgba(61,220,151,.35); background:rgba(61,220,151,.08); color:var(--mint); }
+.tbl.bill{ border-color:rgba(242,97,122,.4); background:rgba(242,97,122,.1); color:var(--rose); }
+
+.kds{ display:flex; flex-direction:column; gap:6px; margin-top:16px; }
+.kds__t{ border:1px solid var(--line); border-left:2px solid var(--amber); border-radius:6px; padding:8px 10px; display:flex; justify-content:space-between; align-items:center; background:var(--surface-2); }
+.kds__t span{ font-size:11.5px; font-weight:600; }
+.kds__t em{ font-family:var(--mono); font-size:10.5px; font-style:normal; color:var(--amber); }
+.kds__t.late{ border-left-color:var(--rose); } .kds__t.late em{ color:var(--rose); }
+.kds__t.ok{ border-left-color:var(--mint); } .kds__t.ok em{ color:var(--mint); }
+
+.chans{ display:flex; flex-direction:column; gap:7px; margin-top:16px; }
+.chan{ display:flex; align-items:center; gap:10px; border:1px solid var(--line); border-radius:7px; padding:8px 11px; background:var(--surface-2); }
+.chan i{ width:8px; height:8px; border-radius:50%; flex:none; }
+.chan span{ font-size:12px; font-weight:550; }
+.chan em{ margin-left:auto; font-family:var(--mono); font-size:11px; font-style:normal; color:var(--text-3); }
+
+/* ============================================================
+   AI — the centrepiece
+   ============================================================ */
+.ai{ background:var(--bg-2); border-block:1px solid var(--line); }
+.ai__head{ max-width:66ch; }
+.ai h2 span{ background:linear-gradient(96deg,var(--violet),var(--cyan)); -webkit-background-clip:text; background-clip:text; color:transparent; }
+.ai .kicker{ color:var(--violet); } .ai .kicker::before{ background:var(--violet); box-shadow:0 0 10px var(--violet); }
+
+.ai__tabs{ display:flex; gap:7px; margin:40px 0 20px; flex-wrap:wrap; }
+.aitab{
+  background:var(--surface); border:1px solid var(--line); border-radius:var(--r-pill);
+  padding:9px 16px; font-size:13.5px; font-weight:550; color:var(--text-2); min-height:44px;
+  display:inline-flex; align-items:center; gap:8px;
+}
+.aitab:hover{ border-color:#2E353F; color:var(--text); }
+.aitab.is-on{ background:rgba(139,124,246,.14); border-color:rgba(139,124,246,.5); color:#C6BDFF; }
+.aitab i{ font-family:var(--mono); font-style:normal; font-size:11px; color:var(--text-3); }
+.aitab.is-on i{ color:var(--violet); }
+
+.pane{ display:none; }
+.pane.is-on{ display:grid; grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr); gap:clamp(24px,3.5vw,48px); align-items:center; }
+.pane__copy h3{ font-size:clamp(22px,2.4vw,30px); letter-spacing:-.03em; margin-bottom:14px; }
+.pane__copy p{ color:var(--text-2); font-size:16px; }
+.pane__pts{ list-style:none; padding:0; margin:22px 0 0; display:flex; flex-direction:column; gap:11px; }
+.pane__pts li{ display:grid; grid-template-columns:16px minmax(0,1fr); gap:11px; font-size:14.5px; color:var(--text-2); }
+.pane__pts li::before{ content:"→"; color:var(--mint); font-family:var(--mono); }
+
+.panel{
+  background:var(--surface); border:1px solid var(--line); border-radius:var(--r-lg);
+  padding:18px; box-shadow:0 30px 70px -30px rgba(0,0,0,.9);
+}
+.panel__h{ display:flex; align-items:center; gap:9px; padding-bottom:13px; border-bottom:1px solid var(--line); margin-bottom:15px; }
+.panel__h b{ font-size:13px; font-weight:600; }
+.panel__h .copilot__i{ width:22px; height:22px; border-radius:6px; font-size:11px; }
+.panel__h span{ margin-left:auto; font-family:var(--mono); font-size:10px; color:var(--text-3); }
+
+.bars{ display:flex; align-items:flex-end; gap:9px; height:140px; margin:6px 0 26px; }
+.bars > div{ flex:1; border-radius:5px 5px 2px 2px; position:relative; background:linear-gradient(180deg,var(--cyan),rgba(76,194,241,.25)); }
+.bars > div.hi{ background:linear-gradient(180deg,var(--violet),rgba(139,124,246,.25)); }
+.bars > div.fc{ background:repeating-linear-gradient(135deg, rgba(61,220,151,.4) 0 5px, rgba(61,220,151,.12) 5px 10px); box-shadow:inset 0 0 0 1px rgba(61,220,151,.4); }
+.bars > div span{ position:absolute; bottom:-21px; left:0; right:0; text-align:center; font-family:var(--mono); font-size:10px; color:var(--text-3); }
+
+.rows{ display:flex; flex-direction:column; gap:7px; }
+.row{ display:flex; align-items:center; justify-content:space-between; gap:12px; padding:11px 13px; background:var(--surface-2); border:1px solid var(--line); border-radius:8px; font-size:13.5px; }
+.row b{ font-family:var(--mono); font-variant-numeric:tabular-nums; font-size:13px; }
+.pill{ font-family:var(--mono); font-size:10.5px; padding:2px 8px; border-radius:4px; }
+.pill--ok{ color:var(--mint); background:rgba(61,220,151,.12); }
+.pill--warn{ color:var(--amber); background:rgba(245,181,68,.12); }
+.pill--bad{ color:var(--rose); background:rgba(242,97,122,.12); }
+
+.chat{ display:flex; flex-direction:column; gap:11px; }
+.q{ background:var(--surface-2); border:1px solid var(--line); border-radius:10px; padding:11px 14px; font-size:14px; color:var(--text); }
+.q::before{ content:"⌘ ask  "; font-family:var(--mono); font-size:10.5px; color:var(--text-3); letter-spacing:.06em; }
+.a{ font-size:14.5px; color:var(--text-2); line-height:1.65; padding-left:2px; }
+.a b{ color:var(--text); }
+.a .num{ color:var(--mint); font-family:var(--mono); }
+.typing{ display:inline-flex; gap:3px; vertical-align:middle; }
+.typing i{ width:4px; height:4px; border-radius:50%; background:var(--text-3); animation:blink 1.2s infinite; }
+.typing i:nth-child(2){ animation-delay:.2s } .typing i:nth-child(3){ animation-delay:.4s }
+@keyframes blink{ 0%,60%,100%{opacity:.25} 30%{opacity:1} }
+
+.wa{ display:flex; flex-direction:column; gap:9px; }
+.bub{ max-width:86%; padding:10px 13px; border-radius:14px; font-size:13.5px; line-height:1.5; }
+.bub--in{ background:var(--surface-2); border:1px solid var(--line); border-bottom-left-radius:4px; color:var(--text-2); }
+.bub--out{ background:var(--mint-dim); color:#EAFFF5; align-self:flex-end; border-bottom-right-radius:4px; }
+.bub--out b{ color:#fff; }
+
+/* ============================================================
+   WHO
+   ============================================================ */
+.who{ display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:1px; margin-top:44px; background:var(--line); border:1px solid var(--line); border-radius:var(--r-lg); overflow:hidden; }
+.who__c{ background:var(--surface); padding:26px 20px; transition:background .18s; }
+.who__c:hover{ background:var(--surface-2); }
+.who__c i{ display:block; font-family:var(--mono); font-style:normal; font-size:11px; color:var(--text-3); margin-bottom:14px; }
+.who__c h3{ font-size:17px; margin-bottom:7px; }
+.who__c p{ font-size:13.5px; color:var(--text-2); }
+
+/* ============================================================
+   PRICING
+   ============================================================ */
+.plans{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; margin-top:44px; align-items:start; }
+.plan{ background:var(--surface); border:1px solid var(--line); border-radius:var(--r-lg); padding:28px 24px; }
+.plan--hot{ border-color:rgba(61,220,151,.45); background:linear-gradient(180deg, rgba(61,220,151,.06), var(--surface) 42%); position:relative; box-shadow:0 0 0 1px rgba(61,220,151,.12), 0 30px 70px -40px rgba(61,220,151,.5); }
+.plan__tag{ position:absolute; top:-11px; left:24px; background:var(--mint); color:#04150D; font-family:var(--mono); font-size:10px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; padding:4px 11px; border-radius:5px; }
+.plan h3{ font-size:18px; }
+.plan__for{ font-size:13px; color:var(--text-3); margin-top:5px; }
+.plan__p{ font-size:40px; font-weight:650; letter-spacing:-.04em; margin:20px 0 2px; font-variant-numeric:tabular-nums; }
+.plan__p small{ font-size:13px; font-weight:400; color:var(--text-3); letter-spacing:0; }
+.plan__l{ list-style:none; padding:0; margin:22px 0 24px; display:flex; flex-direction:column; gap:10px; }
+.plan__l li{ font-size:14px; color:var(--text-2); display:grid; grid-template-columns:15px minmax(0,1fr); gap:10px; }
+.plan__l li::before{ content:"✓"; color:var(--mint); font-size:12px; }
+.plan .btn{ width:100%; }
+
+/* ============================================================
+   TESTIMONIALS / FAQ / CTA / FOOTER
+   ============================================================ */
+.quotes{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; margin-top:44px; text-align:left; }
+.quote{ background:var(--surface); border:1px dashed #2A313B; border-radius:var(--r-lg); padding:24px; margin:0; }
+.quote p{ font-size:15.5px; line-height:1.6; }
+.quote figcaption{ display:flex; align-items:center; gap:11px; margin-top:20px; padding-top:16px; border-top:1px solid var(--line); }
+.av{ width:38px; height:38px; border-radius:9px; background:var(--surface-2); border:1px dashed #333B46; display:grid; place-items:center; font-family:var(--mono); font-size:11px; color:var(--text-3); flex:none; }
+.quote b{ display:block; font-size:13.5px; font-weight:600; }
+.quote span{ font-size:12px; color:var(--text-3); }
+
+.faq{ max-width:820px; margin:40px auto 0; }
+.faq details{ border:1px solid var(--line); border-radius:var(--r-md); background:var(--surface); margin-bottom:9px; }
+.faq summary{ list-style:none; cursor:pointer; padding:18px 48px 18px 20px; position:relative; font-size:16px; font-weight:550; letter-spacing:-.015em; min-height:44px; }
+.faq summary::-webkit-details-marker{ display:none; }
+.faq summary::after{ content:"+"; position:absolute; right:20px; top:50%; transform:translateY(-50%); color:var(--mint); font-size:20px; font-weight:300; line-height:1; }
+.faq details[open]{ background:var(--surface-2); }
+.faq details[open] summary::after{ content:"–"; }
+.faq p{ padding:0 20px 20px; color:var(--text-2); font-size:14.5px; }
+
+.cta{ position:relative; overflow:hidden; }
+.cta::after{
+  content:""; position:absolute; bottom:-280px; left:50%; transform:translateX(-50%);
+  width:900px; height:560px; z-index:0; pointer-events:none; filter:blur(18px);
+  background:radial-gradient(45% 50% at 50% 50%, rgba(61,220,151,.2), transparent 70%),
+             radial-gradient(40% 44% at 28% 44%, rgba(139,124,246,.16), transparent 72%);
+}
+.cta > *{ position:relative; z-index:1; }
+.cta h2{ max-width:17ch; margin-inline:auto; }
+.cta__row{ display:flex; gap:12px; justify-content:center; flex-wrap:wrap; margin-top:30px; }
+.cta__meta{ display:flex; gap:24px; justify-content:center; flex-wrap:wrap; margin-top:26px; font-family:var(--mono); font-size:11.5px; color:var(--text-3); }
+
+.foot{ border-top:1px solid var(--line); background:var(--bg-2); padding:54px 0 30px; }
+.foot__g{ display:grid; grid-template-columns:1.7fr repeat(3,minmax(0,1fr)); gap:30px; }
+.foot__about{ font-size:13.5px; color:var(--text-3); margin-top:14px; max-width:32ch; line-height:1.6; }
+.foot h4{ font-family:var(--mono); font-size:10.5px; letter-spacing:.12em; text-transform:uppercase; color:var(--text-3); margin-bottom:14px; font-weight:500; }
+.foot ul{ list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:9px; }
+.foot a{ text-decoration:none; font-size:14px; color:var(--text-2); }
+.foot a:hover{ color:var(--mint); }
+.foot__base{ margin-top:40px; padding-top:20px; border-top:1px solid var(--line); display:flex; justify-content:space-between; gap:14px; flex-wrap:wrap; font-family:var(--mono); font-size:11.5px; color:var(--text-3); }
+
+.review-note{
+  background:var(--surface); border-bottom:1px solid var(--line); color:var(--text-3);
+  font-family:var(--mono); font-size:11.5px; padding:9px var(--gutter);
+  display:flex; gap:14px; align-items:center; justify-content:center; flex-wrap:wrap; text-align:center;
+}
+.review-note b{ color:var(--mint); } .review-note a{ color:var(--cyan); }
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width:1080px){
+  .pos{ grid-template-columns:56px minmax(0,1fr) 240px; }
+  .logos{ grid-template-columns:repeat(3,minmax(0,1fr)); }
+  .bx{ grid-column:span 3; } .bx--3{ grid-column:span 3; }
+  .pane.is-on{ grid-template-columns:minmax(0,1fr); }
+  .who{ grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .foot__g{ grid-template-columns:minmax(0,1fr) minmax(0,1fr); }
+  .stats{ grid-template-columns:repeat(2,minmax(0,1fr)); }
+}
+@media (max-width:860px){
+  .nav__links,.nav__cta{ display:none; }
+  .nav__burger{ display:flex; }
+  .nav.is-open .nav__links{
+    display:flex; flex-direction:column; position:absolute; top:68px; left:0; right:0;
+    background:var(--bg-2); border-bottom:1px solid var(--line); padding:10px var(--gutter) 18px; margin:0; gap:2px;
+  }
+  .plans{ grid-template-columns:minmax(0,1fr); max-width:440px; margin-inline:auto; }
+  .plan--hot{ order:-1; }
+  .quotes{ grid-template-columns:minmax(0,1fr); }
+}
+@media (max-width:680px){
+  :root{ --gutter:18px; }
+  .pos{ grid-template-columns:minmax(0,1fr); min-height:0; }
+  .pos__rail{ flex-direction:row; border-right:0; border-bottom:1px solid var(--line); overflow-x:auto; }
+  .rl{ flex:none; min-width:58px; }
+  .pos__side{ border-left:0; border-top:1px solid var(--line); }
+  .items{ grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .copilot{ flex-wrap:wrap; }
+  .copilot__act{ margin-left:0; width:100%; }
+  .bx,.bx--3{ grid-column:span 6; }
+  .who{ grid-template-columns:minmax(0,1fr); }
+  .foot__g{ grid-template-columns:minmax(0,1fr); }
+  .hero__actions .btn{ width:100%; }
+}
+@media (prefers-reduced-motion:reduce){ *{ transition:none !important; animation:none !important; scroll-behavior:auto; } }
+</style>
+</head>
+<body>
+
+<div class="review-note">
+  <span><b>NOT SELECTED — Direction B “Slate”.</b> Kept as a record of the comparison; content predates the CTO’s FOO-1 decisions.</span>
+  <a href="../index.html">← Compare all 3 directions</a>
+</div>
+
+<!-- ========================= NAV ========================= -->
+<header class="nav" id="nav">
+  <div class="wrap nav__inner">
+    <a class="mark" href="#top"><span class="mark__sq"></span><span class="mark__t">FoodOS<em>.ai</em></span></a>
+    <nav class="nav__links" id="navlinks">
+      <a href="#platform">Platform</a>
+      <a href="#ai">AI</a>
+      <a href="#who">Customers</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#faq">FAQ</a>
+    </nav>
+    <div class="nav__cta">
+      <a class="btn btn--ghost" href="#cta">Sign in</a>
+      <a class="btn btn--primary" href="#cta">Book a demo</a>
+    </div>
+    <button class="nav__burger" id="burger" aria-label="Open menu" aria-expanded="false"><span></span></button>
+  </div>
+</header>
+
+<main id="top">
+<!-- ========================= HERO ========================= -->
+<section class="hero section grid-bg">
+  <div class="wrap">
+    <div class="hero__top">
+      <span class="kicker">AI-native restaurant OS</span>
+      <h1>The restaurant POS that <span>runs the numbers</span> while you run the floor.</h1>
+      <p class="hero__sub">
+        Billing, tables, KOT, inventory, aggregators and reports in one system — with a built-in AI layer
+        that forecasts demand, watches stock and answers questions about your business in plain language.
+      </p>
+      <div class="hero__actions">
+        <a class="btn btn--primary btn--lg" href="#cta">Book a demo</a>
+        <a class="btn btn--ghost btn--lg" href="#ai">Explore the AI layer</a>
+      </div>
+      <div class="hero__meta">
+        <span>Offline-first billing</span><span>GST-ready</span><span>Android / Windows</span><span>Zomato &amp; Swiggy</span>
+      </div>
+    </div>
+
+    <!-- PRODUCT SHOT -->
+    <div class="shot">
+      <div class="shot__bar">
+        <span class="shot__dots"><i></i><i></i><i></i></span>
+        <span class="shot__path">foodos.ai&nbsp;/&nbsp;<b>spice-route-indiranagar</b>&nbsp;/&nbsp;billing</span>
+        <span class="shot__live">Live</span>
+      </div>
+
+      <div class="pos">
+        <aside class="pos__rail">
+          <div class="rl is-on"><b>▤</b>Bill</div>
+          <div class="rl"><b>▦</b>Tables</div>
+          <div class="rl"><b>◎</b>KDS</div>
+          <div class="rl"><b>≣</b>Menu</div>
+          <div class="rl"><b>◱</b>Stock</div>
+          <div class="rl"><b>◔</b>Reports</div>
+          <div class="rl"><b>✦</b>AI</div>
+        </aside>
+
+        <div class="pos__main">
+          <div class="pos__head">
+            <div class="seg"><span class="is-on">Dine-in</span><span>Takeaway</span><span>Delivery</span></div>
+            <div class="search">Search items, codes or short names…</div>
+          </div>
+          <div class="cats">
+            <span class="cat is-on">Starters</span><span class="cat">Main course</span><span class="cat">Biryani</span>
+            <span class="cat">Breads</span><span class="cat">Beverages</span><span class="cat">Desserts</span>
+          </div>
+          <div class="items">
+            <div class="it is-on"><span class="it__n">Paneer Tikka</span><span class="it__b"><span class="dot"></span><span class="it__p">₹320</span></span></div>
+            <div class="it"><span class="it__n">Chicken 65</span><span class="it__b"><span class="dot dot--n"></span><span class="it__p">₹340</span></span></div>
+            <div class="it"><span class="it__n">Gobi Manchurian</span><span class="it__b"><span class="dot"></span><span class="it__p">₹260</span></span></div>
+            <div class="it is-on"><span class="it__n">Hyderabadi Dum Biryani (Mutton)</span><span class="it__b"><span class="dot dot--n"></span><span class="it__p">₹480</span></span></div>
+            <div class="it"><span class="it__n">Dal Makhani</span><span class="it__b"><span class="dot"></span><span class="it__p">₹290</span></span></div>
+            <div class="it it--86"><span class="it__n">Malai Kofta <em style="font-style:normal;color:var(--rose);font-size:10px">86'd</em></span><span class="it__b"><span class="dot"></span><span class="it__p">₹310</span></span></div>
+            <div class="it"><span class="it__n">Butter Naan</span><span class="it__b"><span class="dot"></span><span class="it__p">₹60</span></span></div>
+            <div class="it"><span class="it__n">Masala Chaas</span><span class="it__b"><span class="dot"></span><span class="it__p">₹60</span></span></div>
+            <div class="it"><span class="it__n">Gulab Jamun (2 pc)</span><span class="it__b"><span class="dot"></span><span class="it__p">₹110</span></span></div>
+          </div>
+        </div>
+
+        <aside class="pos__side">
+          <div class="sd__h"><b>Table 07</b><span>KOT #1042 · Ravi</span></div>
+          <div class="ln"><span class="ln__q">2</span><span><span class="ln__n">Paneer Tikka</span><span class="ln__m">Less spicy · no onion</span></span><span class="ln__a">640</span></div>
+          <div class="ln"><span class="ln__q">1</span><span><span class="ln__n">Hyderabadi Dum Biryani</span><span class="ln__m">Mutton · extra raita</span></span><span class="ln__a">480</span></div>
+          <div class="ln"><span class="ln__q">4</span><span><span class="ln__n">Butter Naan</span></span><span class="ln__a">240</span></div>
+          <div class="ln"><span class="ln__q">2</span><span><span class="ln__n">Masala Chaas</span></span><span class="ln__a">120</span></div>
+          <div class="sd__t">
+            <div class="tr"><span>Sub-total</span><span>₹1,480.00</span></div>
+            <div class="tr"><span>CGST 2.5%</span><span>₹37.00</span></div>
+            <div class="tr"><span>SGST 2.5%</span><span>₹37.00</span></div>
+            <div class="tr tr--g"><span>Total</span><span>₹1,554</span></div>
+          </div>
+          <div class="sd__btn">
+            <button>Send KOT</button><button>Print</button>
+            <button class="go">Settle · UPI</button>
+          </div>
+        </aside>
+      </div>
+
+      <div class="copilot">
+        <span class="copilot__i">✦</span>
+        <span class="copilot__t">
+          <b>Copilot:</b> Malai Kofta is out of stock — cream ran out at 7:40 pm. I've marked it 86'd on
+          <em>Zomato</em> and <em>Swiggy</em> too, and drafted a 5 L cream order for tomorrow.
+        </span>
+        <span class="copilot__act"><span>Undo</span><span class="yes">Approve order</span></span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========================= PROOF ========================= -->
+<section class="proof">
+  <div class="wrap">
+    <p class="proof__l">Running kitchens across India <span class="ph">Placeholder — pre-launch</span></p>
+    <div class="logos">
+      <div class="logo-ph">LOGO 01</div><div class="logo-ph">LOGO 02</div><div class="logo-ph">LOGO 03</div>
+      <div class="logo-ph">LOGO 04</div><div class="logo-ph">LOGO 05</div><div class="logo-ph">LOGO 06</div>
+    </div>
+    <div class="stats">
+      <div class="stat"><b>1,200+</b><span>Outlets live <span class="ph">PH</span></span></div>
+      <div class="stat"><b>₹480 Cr</b><span>Processed / year <span class="ph">PH</span></span></div>
+      <div class="stat"><b>99.9%</b><span>Billing uptime <span class="ph">PH</span></span></div>
+      <div class="stat"><b>12%</b><span>Avg. food-cost drop <span class="ph">PH</span></span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ========================= PLATFORM / FEATURES ========================= -->
+<section class="section" id="platform">
+  <div class="wrap">
+    <div style="max-width:58ch">
+      <span class="kicker">The platform</span>
+      <h2>Seven systems most restaurants duct-tape together. One here.</h2>
+      <p class="lede" style="margin-top:18px">
+        Shared data model, one login, one source of truth. A sale updates stock, stock updates the menu,
+        the menu updates every aggregator — without anyone retyping anything.
+      </p>
+    </div>
+
+    <div class="bento">
+      <article class="bx bx--3">
+        <div class="bx__i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M6 2h12v20l-3-2-3 2-3-2-3 2V2z"/><path d="M9 7h6M9 11h6M9 15h3"/></svg></div>
+        <h3>Billing</h3>
+        <p>Sub-second bills for dine-in, takeaway and delivery. Splits, merges, part payments, manager-PIN
+          discounts, UPI QR, and GST invoices that stay compliant without anyone thinking about it.</p>
+        <div class="bx__tags"><span>offline-first</span><span>split / merge</span><span>CGST+SGST</span><span>UPI · card · cash</span></div>
+      </article>
+
+      <article class="bx bx--3">
+        <div class="bx__i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></div>
+        <h3>Tables &amp; floor</h3>
+        <p>Your real floor plan, live. Seat, move, merge and time every table; see who's waiting on food and
+          who's been holding a printed bill too long.</p>
+        <div class="floorplan">
+          <span class="tbl free">T1</span><span class="tbl busy">T2</span><span class="tbl busy">T3</span><span class="tbl free">T4</span>
+          <span class="tbl bill">T5</span><span class="tbl free">T6</span><span class="tbl busy">T7</span><span class="tbl free">T8</span>
+        </div>
+      </article>
+
+      <article class="bx">
+        <div class="bx__i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 4h16v13H4z"/><path d="M8 21h8M12 17v4M8 9h8M8 13h5"/></svg></div>
+        <h3>KOT &amp; kitchen display</h3>
+        <p>Station-wise routing with live ticket timers, so the tandoor and the Chinese counter fire together.</p>
+        <div class="kds">
+          <div class="kds__t ok"><span>T07 · Paneer Tikka ×2</span><em>02:14</em></div>
+          <div class="kds__t"><span>T12 · Biryani ×1</span><em>08:40</em></div>
+          <div class="kds__t late"><span>Swiggy #2271</span><em>14:02</em></div>
+        </div>
+      </article>
+
+      <article class="bx">
+        <div class="bx__i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 6h18M3 12h18M3 18h12"/><circle cx="19" cy="18" r="2.4"/></svg></div>
+        <h3>Menu &amp; inventory</h3>
+        <p>Recipe-linked consumption, wastage logs, vendor POs and automatic 86-ing when an ingredient runs out.</p>
+        <div class="bx__tags"><span>recipes</span><span>variants</span><span>wastage</span><span>vendor POs</span><span>auto-86</span></div>
+      </article>
+
+      <article class="bx">
+        <div class="bx__i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><path d="M3.5 9h17M3.5 15h17M12 3a15 15 0 010 18 15 15 0 010-18z"/></svg></div>
+        <h3>Online &amp; aggregators</h3>
+        <p>One queue for every channel. Menu, pricing and stock push out; orders come back in.</p>
+        <div class="chans">
+          <div class="chan"><i style="background:var(--rose)"></i><span>Zomato</span><em>18 today</em></div>
+          <div class="chan"><i style="background:var(--amber)"></i><span>Swiggy</span><em>24 today</em></div>
+          <div class="chan"><i style="background:var(--mint)"></i><span>Own website</span><em>6 today</em></div>
+        </div>
+      </article>
+
+      <article class="bx bx--3">
+        <div class="bx__i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></div>
+        <h3>Reports &amp; analytics</h3>
+        <p>Day-close in a tap. Item, hour, channel, payment mode, staff, discounts, voids, food cost and GST
+          summaries — exportable, and readable on a phone at 11 pm.</p>
+        <div class="bx__tags"><span>day close</span><span>item-wise</span><span>food cost %</span><span>staff audit</span><span>GST summary</span></div>
+      </article>
+
+      <article class="bx bx--3">
+        <div class="bx__i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 21V9l6-5 6 5v12M15 21V12h6v9M3 21h18"/><path d="M7 13h2M7 17h2"/></svg></div>
+        <h3>Multi-outlet</h3>
+        <p>Central menu and price push, outlet-vs-outlet comparison, role-based access and franchise
+          separation — one dashboard whether you run two outlets or twenty.</p>
+        <div class="bx__tags"><span>central menu</span><span>benchmarking</span><span>RBAC</span><span>franchise mode</span></div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ========================= AI ========================= -->
+<section class="section ai" id="ai">
+  <div class="wrap">
+    <div class="ai__head">
+      <span class="kicker">The AI layer</span>
+      <h2>Not a chatbot bolted on. <span>A model that knows your restaurant.</span></h2>
+      <p class="lede" style="margin-top:18px">
+        FoodOS learns from your own bills, recipes, stock movements and channel mix. Five capabilities,
+        all grounded in your outlet's data — never generic advice.
+      </p>
+      <p style="margin-top:18px"><span class="ph ph--proposal">Proposed capability set — CTO to confirm scope &amp; v1 cut</span></p>
+    </div>
+
+    <div class="ai__tabs">
+      <button class="aitab is-on" data-pane="a1"><i>01</i> Demand forecast</button>
+      <button class="aitab" data-pane="a2"><i>02</i> Smart inventory</button>
+      <button class="aitab" data-pane="a3"><i>03</i> Ask your sales</button>
+      <button class="aitab" data-pane="a4"><i>04</i> Menu &amp; pricing</button>
+      <button class="aitab" data-pane="a5"><i>05</i> WhatsApp ordering</button>
+    </div>
+
+    <div class="pane is-on" id="a1">
+      <div class="pane__copy">
+        <h3>Know tomorrow's covers before you prep.</h3>
+        <p>A forecast per item, per day-part, trained on your own sales history plus the things that actually
+          move an Indian restaurant: the day of the week, festivals, local events, exam season, rain.</p>
+        <ul class="pane__pts">
+          <li>Morning prep sheet with portion counts, not vague “busy day” warnings</li>
+          <li>Flags under- and over-prep patterns you repeat every week</li>
+          <li>Staff roster suggestions for predicted peaks</li>
+        </ul>
+      </div>
+      <div class="panel">
+        <div class="panel__h"><span class="copilot__i">✦</span><b>Forecast · Sat 18 Oct</b><span>mock</span></div>
+        <div class="bars">
+          <div style="height:40%"><span>12p</span></div>
+          <div style="height:56%"><span>1p</span></div>
+          <div style="height:34%"><span>2p</span></div>
+          <div style="height:22%"><span>4p</span></div>
+          <div class="hi" style="height:74%"><span>7p</span></div>
+          <div class="hi" style="height:96%"><span>8p</span></div>
+          <div class="fc" style="height:88%"><span>9p</span></div>
+          <div class="fc" style="height:52%"><span>10p</span></div>
+        </div>
+        <div class="rows">
+          <div class="row"><span>Expected covers</span><span><b>148</b> <span class="pill pill--ok">↑ 22%</span></span></div>
+          <div class="row"><span>Mutton to marinate</span><span><b>9.0 kg</b> <span class="pill pill--warn">+3 kg</span></span></div>
+          <div class="row"><span>Paneer tikka portions</span><span><b>60</b> <span class="pill pill--ok">on track</span></span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="pane" id="a2">
+      <div class="pane__copy">
+        <h3>Stock that reorders itself — with your approval.</h3>
+        <p>Every bill deducts ingredients through your recipes. FoodOS projects run-out dates against your
+          vendor delivery days and drafts the purchase order before you notice the gap.</p>
+        <ul class="pane__pts">
+          <li>Run-out prediction per ingredient, not just “below minimum”</li>
+          <li>Drafts vendor POs at your negotiated rates — you approve on WhatsApp</li>
+          <li>Catches theft and over-portioning as recipe-vs-actual variance</li>
+        </ul>
+      </div>
+      <div class="panel">
+        <div class="panel__h"><span class="copilot__i">✦</span><b>Stock risk · next 48 h</b><span>mock</span></div>
+        <div class="rows">
+          <div class="row"><span>Fresh cream</span><span><b>2.0 L</b> <span class="pill pill--bad">out today</span></span></div>
+          <div class="row"><span>Paneer</span><span><b>4.2 kg</b> <span class="pill pill--bad">2 days</span></span></div>
+          <div class="row"><span>Basmati rice</span><span><b>18 kg</b> <span class="pill pill--warn">3 days</span></span></div>
+          <div class="row"><span>Ghee</span><span><b>11 kg</b> <span class="pill pill--ok">9 days</span></span></div>
+          <div class="row"><span>Chicken (boneless)</span><span><b>26 kg</b> <span class="pill pill--ok">5 days</span></span></div>
+        </div>
+        <div class="copilot" style="margin:16px -18px -18px; border-radius:0 0 var(--r-lg) var(--r-lg)">
+          <span class="copilot__i">✦</span>
+          <span class="copilot__t">Draft PO to <b>Sri Lakshmi Dairy</b> — cream 20 L, paneer 15 kg. <b>₹8,340</b></span>
+          <span class="copilot__act"><span>Edit</span><span class="yes">Send</span></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="pane" id="a3">
+      <div class="pane__copy">
+        <h3>Ask your sales anything. In English or Hindi.</h3>
+        <p>No report builder, no pivot tables. Ask the question you'd ask your manager, and get the number
+          with the chart and the reason — sourced from your bills, so you can click through to them.</p>
+        <ul class="pane__pts">
+          <li>Natural language across sales, items, staff, channels and costs</li>
+          <li>Every answer links back to the underlying bills — auditable, not a guess</li>
+          <li>Daily WhatsApp digest at closing time, if you want it</li>
+        </ul>
+      </div>
+      <div class="panel">
+        <div class="panel__h"><span class="copilot__i">✦</span><b>Ask your sales</b><span>mock</span></div>
+        <div class="chat">
+          <div class="q">Which items did Swiggy sell best last weekend, and what did they cost me?</div>
+          <p class="a">
+            Top Swiggy items, 11–12 Oct: <b>Hyderabadi Dum Biryani</b> (<span class="num">62</span> orders,
+            <span class="num">₹29,760</span>), <b>Chicken 65</b> (<span class="num">41</span>,
+            <span class="num">₹13,940</span>), <b>Veg Hakka Noodles</b> (<span class="num">38</span>,
+            <span class="num">₹8,360</span>).<br><br>
+            After the <span class="num">22%</span> commission and packaging, biryani netted
+            <span class="num">₹17,400</span> — a <b>41% effective margin</b>, about 18 points below dine-in.
+          </p>
+          <div class="q" style="opacity:.6">And if I stop discounting it?<span class="typing" style="margin-left:6px"><i></i><i></i><i></i></span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="pane" id="a4">
+      <div class="pane__copy">
+        <h3>Find the dishes that sell but don't earn.</h3>
+        <p>Classic menu engineering, run continuously against live food costs. FoodOS ranks every item on
+          popularity against contribution, and simulates a price change before you print a new menu.</p>
+        <ul class="pane__pts">
+          <li>Stars, workhorses, puzzles and dogs — recalculated as ingredient prices move</li>
+          <li>Combo and upsell suggestions based on what your tables actually order together</li>
+          <li>Price-change simulation: expected volume loss vs margin gain</li>
+        </ul>
+      </div>
+      <div class="panel">
+        <div class="panel__h"><span class="copilot__i">✦</span><b>Menu engineering · 90 days</b><span>mock</span></div>
+        <div class="rows">
+          <div class="row"><span>Fresh Lime Soda <em style="font-style:normal;color:var(--text-3);font-size:11px">· 410 sold</em></span><span><b>84%</b> <span class="pill pill--ok">star</span></span></div>
+          <div class="row"><span>Veg Hakka Noodles <em style="font-style:normal;color:var(--text-3);font-size:11px">· 388 sold</em></span><span><b>71%</b> <span class="pill pill--ok">star</span></span></div>
+          <div class="row"><span>Paneer Butter Masala <em style="font-style:normal;color:var(--text-3);font-size:11px">· 302 sold</em></span><span><b>58%</b> <span class="pill pill--warn">workhorse</span></span></div>
+          <div class="row"><span>Mutton Rogan Josh <em style="font-style:normal;color:var(--text-3);font-size:11px">· 96 sold</em></span><span><b>38%</b> <span class="pill pill--bad">puzzle</span></span></div>
+        </div>
+        <div class="copilot" style="margin:16px -18px -18px; border-radius:0 0 var(--r-lg) var(--r-lg)">
+          <span class="copilot__i">✦</span>
+          <span class="copilot__t">Rogan Josh ₹480 → <b>₹520</b>: est. −6 orders/week, <b>+₹14,200</b>/month.</span>
+          <span class="copilot__act"><span>Simulate</span></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="pane" id="a5">
+      <div class="pane__copy">
+        <h3>Your regulars order on WhatsApp. Orders land in the POS.</h3>
+        <p>A voice- and text-capable ordering agent on your own number. It understands code-mixed Hinglish,
+          confirms items and totals, takes payment, and drops the ticket straight into the kitchen queue —
+          no commission to anyone.</p>
+        <ul class="pane__pts">
+          <li>Hindi, English and code-mixed; voice notes too</li>
+          <li>Knows live stock, so it never sells a 86'd item</li>
+          <li>Repeat-order shortcuts for regulars; UPI payment link inline</li>
+        </ul>
+      </div>
+      <div class="panel">
+        <div class="panel__h"><span class="copilot__i">✦</span><b>WhatsApp · +91 ••••• 40218</b><span>mock</span></div>
+        <div class="wa">
+          <div class="bub bub--in">Bhaiya 2 butter naan aur ek paneer butter masala parcel, 8 baje tak chahiye</div>
+          <div class="bub bub--out">2 × Butter Naan (₹120) + 1 × Paneer Butter Masala (₹340). With GST: <b>₹483</b>. Pickup 8:00 pm, Indiranagar. Confirm?</div>
+          <div class="bub bub--in">Haan. Aur ek gulab jamun add karo</div>
+          <div class="bub bub--out">Added 1 × Gulab Jamun (2 pc, ₹110). New total <b>₹598</b>. Pay now → upi link</div>
+          <div class="bub bub--in">Done ✅</div>
+          <div class="bub bub--out">Order <b>#2271</b> is in the kitchen queue. We'll ping you when it's packed.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========================= WHO ========================= -->
+<section class="section" id="who">
+  <div class="wrap">
+    <div style="max-width:54ch">
+      <span class="kicker">Who it's for</span>
+      <h2>One platform, five very different kitchens.</h2>
+    </div>
+    <div class="who">
+      <div class="who__c"><i>01</i><h3>QSR &amp; takeaway</h3><p>Token flow, counter speed, peak-hour throughput.</p></div>
+      <div class="who__c"><i>02</i><h3>Cafés &amp; bakeries</h3><p>Open tabs, weight items, loyalty and repeat regulars.</p></div>
+      <div class="who__c"><i>03</i><h3>Cloud kitchens</h3><p>Multi-brand, multi-aggregator, one ticket queue.</p></div>
+      <div class="who__c"><i>04</i><h3>Fine dining</h3><p>Course-wise KOTs, reservations, service analytics.</p></div>
+      <div class="who__c"><i>05</i><h3>Chains</h3><p>Central control, outlet benchmarking, franchise roles.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ========================= PRICING ========================= -->
+<section class="section" id="pricing" style="background:var(--bg-2); border-block:1px solid var(--line)">
+  <div class="wrap center">
+    <span class="kicker">Pricing</span>
+    <h2>Per outlet. Per month. No cut of your sales.</h2>
+    <p class="lede" style="margin-top:18px">All plans include setup, menu import and training.
+      <span class="ph">Placeholder numbers — CTO to confirm</span></p>
+
+    <div class="plans" style="text-align:left">
+      <div class="plan">
+        <h3>Counter</h3><p class="plan__for">Single QSR, café or takeaway</p>
+        <p class="plan__p">₹999<small> /outlet/mo</small></p>
+        <ul class="plan__l">
+          <li>Billing, KOT &amp; printing</li><li>Menu &amp; basic stock</li>
+          <li>Daily reports</li><li>1 billing device</li><li>Email support</li>
+        </ul>
+        <a class="btn btn--ghost" href="#cta">Book a demo</a>
+      </div>
+      <div class="plan plan--hot">
+        <span class="plan__tag">Recommended</span>
+        <h3>Restaurant</h3><p class="plan__for">Dine-in with tables &amp; online orders</p>
+        <p class="plan__p">₹2,499<small> /outlet/mo</small></p>
+        <ul class="plan__l">
+          <li>Everything in Counter</li><li>Tables, floors &amp; reservations</li>
+          <li>Zomato &amp; Swiggy sync</li><li>Recipe-linked inventory</li>
+          <li>AI forecast + stock alerts</li><li>Unlimited devices</li>
+        </ul>
+        <a class="btn btn--primary" href="#cta">Book a demo</a>
+      </div>
+      <div class="plan">
+        <h3>Chain</h3><p class="plan__for">3+ outlets or franchise</p>
+        <p class="plan__p">₹5,999<small> /outlet/mo</small></p>
+        <ul class="plan__l">
+          <li>Everything in Restaurant</li><li>Central menu &amp; price push</li>
+          <li>Outlet benchmarking</li><li>Full AI suite + Ask your sales</li>
+          <li>API access <span class="ph">TBD</span></li><li>Priority onsite support</li>
+        </ul>
+        <a class="btn btn--ghost" href="#cta">Talk to sales</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========================= TESTIMONIALS ========================= -->
+<section class="section center">
+  <div class="wrap">
+    <span class="kicker">Customers</span>
+    <h2>What operators tell us.</h2>
+    <p class="lede" style="margin-top:18px"><span class="ph">Placeholder quotes &amp; names — replace post-pilot</span></p>
+    <div class="quotes">
+      <figure class="quote"><p>“We cut Tuesday wastage almost in half in the first month. The prep sheet is the whole product for me.”</p>
+        <figcaption><span class="av">PH</span><span><b>Owner name</b><span>Multi-cuisine · Pune</span></span></figcaption></figure>
+      <figure class="quote"><p>“Aggregator orders used to live on a separate tablet nobody watched. Now it's one queue.”</p>
+        <figcaption><span class="av">PH</span><span><b>Owner name</b><span>Cloud kitchen · Gurugram</span></span></figcaption></figure>
+      <figure class="quote"><p>“I ask it a question on my phone instead of calling the manager at midnight. That's the upgrade.”</p>
+        <figcaption><span class="av">PH</span><span><b>Owner name</b><span>QSR chain · Hyderabad</span></span></figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<!-- ========================= FAQ ========================= -->
+<section class="section" id="faq" style="background:var(--bg-2); border-block:1px solid var(--line)">
+  <div class="wrap">
+    <div class="center"><span class="kicker">FAQ</span><h2>Straight answers.</h2></div>
+    <div class="faq">
+      <details open><summary>What happens when the internet drops?</summary>
+        <p>Billing, KOT and printing are local-first — they keep running on the device. Everything queues and syncs when the connection returns.</p></details>
+      <details><summary>Where does the AI run, and is my data used to train it?</summary>
+        <p><span class="ph ph--proposal">Model hosting &amp; data policy to be decided by CTO.</span> Proposed stance: per-outlet models trained on your data only, never pooled across restaurants without explicit opt-in, with every AI answer traceable to source bills.</p></details>
+      <details><summary>Can I migrate from Petpooja or another POS?</summary>
+        <p>Yes — menu, categories, variants, taxes, recipes and customer lists. We do the import and verify it with you before go-live. <span class="ph">Scope TBD</span></p></details>
+      <details><summary>Do I need special hardware?</summary>
+        <p>No. Android tablets or Windows billing machines you already own, plus standard thermal printers, cash drawers and scanners. <span class="ph">Hardware matrix TBD</span></p></details>
+      <details><summary>Are bills GST-compliant?</summary>
+        <p>Item-level tax rates with CGST/SGST or IGST split, HSN codes, and monthly summaries ready for filing.</p></details>
+      <details><summary>How fast is onboarding?</summary>
+        <p>One day for a single outlet including menu setup, printer config and staff training; a phased rollout for chains. <span class="ph">To confirm</span></p></details>
+    </div>
+  </div>
+</section>
+
+<!-- ========================= CTA ========================= -->
+<section class="section cta center" id="cta">
+  <div class="wrap">
+    <span class="kicker">Get started</span>
+    <h2>See it run on your own menu.</h2>
+    <p class="lede" style="margin-top:18px">30 minutes. We load your real dishes, raise a live bill, and show you
+      what the forecast says about your Saturday.</p>
+    <div class="cta__row">
+      <a class="btn btn--primary btn--lg" href="#cta">Book a demo</a>
+      <a class="btn btn--ghost btn--lg" href="#cta">Join the waitlist</a>
+    </div>
+    <div class="cta__meta"><span>No card required</span><span>Setup included</span><span>Cancel anytime</span></div>
+  </div>
+</section>
+</main>
+
+<!-- ========================= FOOTER ========================= -->
+<footer class="foot">
+  <div class="wrap">
+    <div class="foot__g">
+      <div>
+        <a class="mark" href="#top"><span class="mark__sq"></span><span class="mark__t">FoodOS<em>.ai</em></span></a>
+        <p class="foot__about">The AI-native operating system for restaurants. Built in India.</p>
+      </div>
+      <div><h4>Platform</h4><ul><li><a href="#platform">Billing</a></li><li><a href="#platform">Tables &amp; KDS</a></li><li><a href="#platform">Inventory</a></li><li><a href="#platform">Aggregators</a></li><li><a href="#ai">AI layer</a></li></ul></div>
+      <div><h4>Company</h4><ul><li><a href="#top">About</a></li><li><a href="#top">Careers</a></li><li><a href="#top">Changelog</a></li><li><a href="#cta">Contact</a></li></ul></div>
+      <div><h4>Resources</h4><ul><li><a href="#faq">Docs</a></li><li><a href="#top">Hardware</a></li><li><a href="#top">Status</a></li><li><a href="#top">Security</a></li></ul></div>
+    </div>
+    <div class="foot__base">
+      <span>© 2026 FoodOS.ai <span class="ph">Entity TBD</span></span>
+      <span>Privacy · Terms · DPA</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+var nav=document.getElementById('nav'), burger=document.getElementById('burger');
+burger.addEventListener('click',function(){
+  var o=nav.classList.toggle('is-open'); burger.setAttribute('aria-expanded',o?'true':'false');
+});
+document.getElementById('navlinks').addEventListener('click',function(e){
+  if(e.target.tagName==='A'){ nav.classList.remove('is-open'); burger.setAttribute('aria-expanded','false'); }
+});
+addEventListener('scroll',function(){ nav.classList.toggle('is-stuck', scrollY>8); },{passive:true});
+
+var tabs=document.querySelectorAll('.aitab');
+tabs.forEach(function(t){
+  t.addEventListener('click',function(){
+    tabs.forEach(function(x){x.classList.remove('is-on');});
+    document.querySelectorAll('.pane').forEach(function(p){p.classList.remove('is-on');});
+    t.classList.add('is-on');
+    document.getElementById(t.dataset.pane).classList.add('is-on');
+  });
+});
+
+document.querySelectorAll('.it').forEach(function(i){
+  i.addEventListener('click',function(){ i.classList.toggle('is-on'); });
+});
+</script>
+</body>
+</html>

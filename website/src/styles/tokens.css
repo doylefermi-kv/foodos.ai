@@ -1,0 +1,36 @@
+/* ============================================================
+   DESIGN TOKENS — Direction C, "Bazaar"
+   Lifted verbatim from the `:root` block of
+   design/website/v3-bazaar/index.html. Nothing here is invented;
+   when the design file changes, this file is what gets re-synced.
+   ============================================================ */
+
+:root {
+  --paper:      #FFFCF5;
+  --paper-2:    #FFF7E6;
+  --ink:        #16130F;
+  --ink-2:      #4A443B;
+  --ink-3:      #7D756A;
+  --rule:       #16130F;
+  --marigold:   #FFB703;
+  --marigold-d: #E09500;
+  --indigo:     #2B2A7A;
+  --indigo-l:   #4A48C4;
+  --pomegranate:#E02B3C;
+  --mint:       #0E8F62;
+  --mint-l:     #D6F2E6;
+  --sky:        #BFE3F5;
+
+  --sans: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+
+  --maxw: 1200px;
+  --gutter: 26px;
+  --bw: 2px;                     /* border weight */
+  --shadow: 5px 5px 0 var(--ink);
+  --shadow-sm: 3px 3px 0 var(--ink);
+
+  /* Added for the React build: the design relies on the browser default
+     focus ring, which is invisible against marigold. */
+  --focus: var(--pomegranate);
+}

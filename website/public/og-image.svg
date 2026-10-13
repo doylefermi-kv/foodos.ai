@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <title>FoodOS.ai — restaurant POS with AI built in</title>
+  <!--
+    PLACEHOLDER social card, built from the Bazaar tokens only. It is a real,
+    correctly-sized card so links never preview broken, but it is not a designed
+    asset: before launch the Product Designer should supply a 1200×630 PNG, and
+    the og:image / twitter:image tags in index.html should point at that.
+  -->
+  <rect width="1200" height="630" fill="#FFFCF5"/>
+
+  <!-- block-print motif, top band -->
+  <g fill="#FFB703" opacity="0.5">
+    <circle cx="40" cy="40" r="5"/><circle cx="140" cy="40" r="5"/><circle cx="240" cy="40" r="5"/>
+    <circle cx="340" cy="40" r="5"/><circle cx="440" cy="40" r="5"/><circle cx="540" cy="40" r="5"/>
+    <circle cx="640" cy="40" r="5"/><circle cx="740" cy="40" r="5"/><circle cx="840" cy="40" r="5"/>
+    <circle cx="940" cy="40" r="5"/><circle cx="1040" cy="40" r="5"/><circle cx="1140" cy="40" r="5"/>
+  </g>
+  <g fill="#BFE3F5" opacity="0.6">
+    <circle cx="90" cy="90" r="5"/><circle cx="190" cy="90" r="5"/><circle cx="290" cy="90" r="5"/>
+    <circle cx="390" cy="90" r="5"/><circle cx="490" cy="90" r="5"/><circle cx="590" cy="90" r="5"/>
+    <circle cx="690" cy="90" r="5"/><circle cx="790" cy="90" r="5"/><circle cx="890" cy="90" r="5"/>
+    <circle cx="990" cy="90" r="5"/><circle cx="1090" cy="90" r="5"/>
+  </g>
+
+  <!-- mark -->
+  <rect x="80" y="150" width="76" height="76" fill="#16130F"/>
+  <g transform="translate(80 150) scale(2.375)">
+    <path d="M8 6h16v18l-2.67 2-2.67-2-2.67 2-2.66-2-2.67 2-2.66-2z" fill="#FFB703"/>
+    <rect x="11" y="10.4" width="10" height="2.4" fill="#16130F"/>
+    <rect x="11" y="15" width="6.4" height="2.4" fill="#16130F"/>
+  </g>
+  <text x="176" y="206"
+        font-family="Helvetica Neue, Helvetica, Arial, sans-serif"
+        font-size="52" font-weight="900" letter-spacing="-2" fill="#16130F">FoodOS</text>
+  <rect x="370" y="168" width="78" height="42" fill="#FFB703" stroke="#16130F" stroke-width="3"/>
+  <text x="382" y="199"
+        font-family="Menlo, Consolas, monospace"
+        font-size="26" font-weight="700" fill="#16130F">.ai</text>
+
+  <!-- headline -->
+  <text x="80" y="330"
+        font-family="Helvetica Neue, Helvetica, Arial, sans-serif"
+        font-size="76" font-weight="800" letter-spacing="-3" fill="#16130F">Bill fast. Waste less.</text>
+  <rect x="76" y="355" width="722" height="74" fill="#FFB703"/>
+  <text x="80" y="414"
+        font-family="Helvetica Neue, Helvetica, Arial, sans-serif"
+        font-size="76" font-weight="800" letter-spacing="-3" fill="#16130F">Know your numbers.</text>
+
+  <text x="80" y="480"
+        font-family="Helvetica Neue, Helvetica, Arial, sans-serif"
+        font-size="28" font-weight="500" fill="#4A443B">The restaurant POS with AI built in. Made in India, for Indian restaurants.</text>
+
+  <!-- tag strip -->
+  <g font-family="Menlo, Consolas, monospace" font-size="20" font-weight="700" fill="#16130F">
+    <rect x="80" y="520" width="196" height="46" fill="#FFFCF5" stroke="#16130F" stroke-width="3"/>
+    <text x="100" y="551">₹ GST-ready</text>
+    <rect x="292" y="520" width="214" height="46" fill="#D6F2E6" stroke="#16130F" stroke-width="3"/>
+    <text x="312" y="551">Offline billing</text>
+    <rect x="522" y="520" width="286" height="46" fill="#BFE3F5" stroke="#16130F" stroke-width="3"/>
+    <text x="542" y="551">Nine languages</text>
+  </g>
+
+  <rect x="0" y="606" width="1200" height="24" fill="#16130F"/>
+</svg>

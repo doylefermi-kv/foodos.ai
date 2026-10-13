@@ -1,0 +1,13 @@
+{
+  "name": "FoodOS.ai",
+  "short_name": "FoodOS",
+  "description": "Restaurant POS with AI built in.",
+  "start_url": "/",
+  "display": "browser",
+  "background_color": "#FFFCF5",
+  "theme_color": "#FFB703",
+  "icons": [
+    { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml" },
+    { "src": "/apple-touch-icon.png", "sizes": "180x180", "type": "image/png" }
+  ]
+}
